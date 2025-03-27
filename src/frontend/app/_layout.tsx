@@ -9,7 +9,12 @@ import { ErrorProvider } from '@/contexts/ErrorContext';
 import { View, ActivityIndicator } from 'react-native';
 
 import { useError } from '@/contexts/ErrorContext';
-import { LOCAL_IP_ADDRESS, ENV_VARS } from '@/constants';
+import {
+  LOCAL_IP_ADDRESS,
+  DFX_NETWORK,
+  CANISTER_ID_INTERNET_IDENTITY,
+  CANISTER_ID_II_INTEGRATION,
+} from '@/constants';
 import { delegationStorage, appKeyStorage } from '@/storage';
 //import { useAesKey, AesProcessingView } from '@/aes';
 
@@ -51,9 +56,9 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const iiIntegration = useIIIntegration({
     localIPAddress: LOCAL_IP_ADDRESS,
-    dfxNetwork: ENV_VARS.DFX_NETWORK,
-    iiIntegrationCanisterId: ENV_VARS.CANISTER_ID_II_INTEGRATION,
-    iiCanisterId: ENV_VARS.CANISTER_ID_INTERNET_IDENTITY,
+    dfxNetwork: DFX_NETWORK,
+    iiIntegrationCanisterId: CANISTER_ID_II_INTEGRATION,
+    iiCanisterId: CANISTER_ID_INTERNET_IDENTITY,
     appKeyStorage,
     delegationStorage,
   });

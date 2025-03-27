@@ -4,7 +4,7 @@
     "npm": ">=7.0.0"
   },
   "scripts": {
-    "setup": "npm install && npm run ii:setup && npm run frontend:setup && npm run ii-integration:setup",
+    "setup": "npm install && npm run clean:canister-ids && npm run ii:setup && npm run frontend:setup && npm run ii-integration:setup",
     "dfx:start": "dfx start --clean",
     "dfx:deploy": "dfx deps deploy && dfx deploy backend --yes && dfx deploy ii-integration --yes && dfx deploy frontend --yes",
     "dfx:deploy-lite": "dfx deps deploy && dfx deploy backend --yes && dfx deploy ii-integration --yes",
@@ -16,11 +16,13 @@
     "frontend:setup": "npm run setup --prefix src/frontend",
     "frontend:start": "npm run start --prefix src/frontend",
     "ii:setup": "dfx deps pull && dfx deps init",
-    "ii-integration:setup": "npm run setup --prefix src/ii-integration"
+    "ii-integration:setup": "npm run setup --prefix src/ii-integration",
+    "clean:canister-ids": "rimraf canister_ids.json"
   },
   "name": "expo-starter",
   "type": "module",
   "devDependencies": {
-    "local-ssl-proxy": "^2.0.5"
+    "local-ssl-proxy": "^2.0.5",
+    "rimraf": "^5.0.5"
   }
 }

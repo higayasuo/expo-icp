@@ -5,15 +5,14 @@
       "package": "backend",
       "type": "custom",
       "wasm": "target/wasm32-unknown-unknown/release/backend.wasm",
-      "build": "sh ./scripts/build-backend.sh"
+      "build": "node scripts/setup-env.js && sh ./scripts/build-backend.sh"
     },
     "ii-integration": {
       "source": [
         "src/ii-integration/dist"
       ],
       "type": "assets",
-      "build": "npm run build --prefix src/ii-integration",
-      "post_install": ["node scripts/generate-env.js"]
+      "build": "npm run build --prefix src/ii-integration"
     },
     "frontend": {
       "source": [
