@@ -28,7 +28,7 @@
     "@noble/curves": "file:noble-curves-1.2.0.tgz",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^7.0.14",
-    "expo": "^52.0.40",
+    "expo": "^52.0.41",
     "expo-clipboard": "~7.0.1",
     "expo-file-system": "~18.0.8",
     "expo-font": "~13.0.2",
