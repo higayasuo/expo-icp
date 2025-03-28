@@ -24,6 +24,7 @@ const iiIntegrationEnvFilePath = path.join(
   rootDir,
   'src',
   'ii-integration',
+  'src',
   'env.generated.ts',
 );
 

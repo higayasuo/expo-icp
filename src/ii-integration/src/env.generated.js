@@ -6,3 +6,4 @@ export const CANISTER_ID_INTERNET_IDENTITY = 'rdmx6-jaaaa-aaaaa-aaadq-cai';
 export const CANISTER_ID_II_INTEGRATION = 'be2us-64aaa-aaaaa-qaabq-cai';
 export const CANISTER_ID_FRONTEND = 'bd3sg-teaaa-aaaaa-qaaba-cai';
 export const CANISTER_ID_BACKEND = 'bkyz2-fmaaa-aaaaa-qaaaq-cai';
+export const EXPO_SCHEME = 'expo-icp';
