@@ -7,7 +7,7 @@
     match: '**/*',
     headers: {
       'Content-Security-Policy': "default-src 'self'; \
-script-src 'self' /assets 'unsafe-eval' 'unsafe-inline' https://192.168.0.210:*; \
+script-src 'self' /assets 'unsafe-eval' 'unsafe-inline' https://192.168.0.211:*; \
 connect-src 'self' http://localhost:* http://*.localhost:* https://icp0.io https://*.icp0.io https://icp-api.io https://identity.ic0.app https://ic0.app https://*.ic0.app https://*.raw.ic0.app \
 img-src 'self' data:; \
 style-src * 'unsafe-inline'; \

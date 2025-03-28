@@ -7,6 +7,10 @@ import 'react-native-reanimated';
 import { useIIIntegration, IIIntegrationProvider } from 'expo-ii-integration';
 import { ErrorProvider } from '@/contexts/ErrorContext';
 import { View, ActivityIndicator } from 'react-native';
+import Constants from 'expo-constants';
+
+console.log(JSON.stringify(Constants.executionEnvironment, null, 2));
+console.log(JSON.stringify(Constants.expoConfig, null, 2));
 
 import { useError } from '@/contexts/ErrorContext';
 import {

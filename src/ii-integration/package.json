@@ -11,7 +11,7 @@
     "build": "tsc && vite build",
     "watch": "tsc -w",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint ."
@@ -22,11 +22,15 @@
   "dependencies": {
     "@dfinity/agent": "^2.3.0",
     "@dfinity/auth-client": "^2.3.0",
-    "@dfinity/identity": "^2.3.0"
+    "@dfinity/identity": "^2.3.0",
+    "canister-manager": "^0.1.6"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^3.0.9",
+    "jsdom": "^26.0.0",
     "typescript": "^5.7.2",
-    "vite": "^5.0.3"
+    "vite": "^5.0.3",
+    "vitest": "^3.0.9"
   }
 }
