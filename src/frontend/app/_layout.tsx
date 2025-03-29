@@ -4,20 +4,19 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo } from 'react';
 import 'react-native-reanimated';
-import { useIIIntegration, IIIntegrationProvider } from 'expo-ii-integration';
+import { useIIIntegration, IIIntegrationProvider, getEnvironment } from 'expo-ii-integration';
 import { ErrorProvider } from '@/contexts/ErrorContext';
 import { View, ActivityIndicator } from 'react-native';
 import Constants from 'expo-constants';
 
 console.log(JSON.stringify(Constants.executionEnvironment, null, 2));
-console.log(JSON.stringify(Constants.expoConfig, null, 2));
 
 import { useError } from '@/contexts/ErrorContext';
 import {
   LOCAL_IP_ADDRESS,
   DFX_NETWORK,
-  CANISTER_ID_INTERNET_IDENTITY,
   CANISTER_ID_II_INTEGRATION,
+  CANISTER_ID_FRONTEND,
 } from '@/constants';
 import { delegationStorage, appKeyStorage } from '@/storage';
 //import { useAesKey, AesProcessingView } from '@/aes';
@@ -61,8 +60,9 @@ function RootLayoutNav() {
   const iiIntegration = useIIIntegration({
     localIPAddress: LOCAL_IP_ADDRESS,
     dfxNetwork: DFX_NETWORK,
+    executionEnvironment: Constants.executionEnvironment,
+    frontendCanisterId: CANISTER_ID_FRONTEND,
     iiIntegrationCanisterId: CANISTER_ID_II_INTEGRATION,
-    iiCanisterId: CANISTER_ID_INTERNET_IDENTITY,
     appKeyStorage,
     delegationStorage,
   });
