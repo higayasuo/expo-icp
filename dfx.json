@@ -16,7 +16,6 @@
     },
     "frontend": {
       "source": [
-        "src/frontend/icp-assets",
         "src/frontend/dist"
       ],
       "type": "assets",
