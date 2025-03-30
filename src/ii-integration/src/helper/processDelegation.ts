@@ -1,6 +1,6 @@
 import { DelegationIdentity } from '@dfinity/identity';
 import { buildDelegationString } from './buildDelegationString';
-import { buildQueryString } from './buildQueryString';
+import { buildURIFragment } from './buildURIFragment';
 
 /**
  * Parameters required for processing delegation.
@@ -41,7 +41,7 @@ export const processDelegation = ({
   } else {
     // We're in a native app's WebView
     console.log('Native app detected, using URL redirection');
-    const queryString = buildQueryString(delegationIdentity);
-    window.location.href = `${redirectUri}#${queryString}`;
+    const uriFragment = buildURIFragment(delegationIdentity);
+    window.location.href = `${redirectUri}#${uriFragment}`;
   }
 };

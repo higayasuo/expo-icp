@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { processDelegation } from '../processDelegation';
 import { buildDelegationString } from '../buildDelegationString';
-import { buildQueryString } from '../buildQueryString';
+import { buildURIFragment } from '../buildURIFragment';
 import { DelegationIdentity } from '@dfinity/identity';
 
 // Mock the helper functions
@@ -9,8 +9,8 @@ vi.mock('../buildDelegationString', () => ({
   buildDelegationString: vi.fn(),
 }));
 
-vi.mock('../buildQueryString', () => ({
-  buildQueryString: vi.fn(),
+vi.mock('../buildURIFragment', () => ({
+  buildURIFragment: vi.fn(),
 }));
 
 describe('processDelegation', () => {
@@ -20,15 +20,15 @@ describe('processDelegation', () => {
 
   const mockRedirectUri = 'https://example.com/';
   const mockDelegationString = 'mock-delegation-string';
-  const mockQueryString = 'delegation=mock-query-string';
+  const mockUriFragment = 'delegation=mock-uri-fragment';
 
   beforeEach(() => {
     vi.clearAllMocks();
     (
       buildDelegationString as unknown as ReturnType<typeof vi.fn>
     ).mockReturnValue(mockDelegationString);
-    (buildQueryString as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
-      mockQueryString,
+    (buildURIFragment as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
+      mockUriFragment,
     );
   });
 
@@ -79,9 +79,9 @@ describe('processDelegation', () => {
       delegationIdentity: mockDelegationIdentity,
     });
 
-    expect(buildQueryString).toHaveBeenCalledWith(mockDelegationIdentity);
+    expect(buildURIFragment).toHaveBeenCalledWith(mockDelegationIdentity);
     const expectedUrl = new URL(mockRedirectUri);
-    expectedUrl.hash = mockQueryString;
+    expectedUrl.hash = mockUriFragment;
     expect(nonIframeWindow.location.href).toBe(expectedUrl.toString());
   });
 });
