@@ -6,7 +6,7 @@ import { buildRedirectUri } from './buildRedirectUri';
 /**
  * Interface representing the result of the buildParams function.
  */
-interface BuildParamsResult {
+export interface BuildParamsResult {
   appPublicKey: PublicKey;
   iiUri: string;
   redirectUri: string;

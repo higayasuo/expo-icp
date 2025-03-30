@@ -1,8 +1,6 @@
-import { AuthClient } from '@dfinity/auth-client';
-import { DelegationIdentity, ECDSAKeyIdentity } from '@dfinity/identity';
 import { buildParams } from './helper/buildParams';
 import { formatError } from './helper/formatError';
-import { processDelegation } from './helper/processDelegation';
+import { prepareLogin } from './helper/prepareLogin';
 import { renderError } from './helper/renderError';
 import { ERROR_MESSAGES, LOGIN_BUTTON_SELECTOR } from './constants';
 
@@ -12,8 +10,12 @@ const main = async (): Promise<void> => {
     console.log('redirectUri', redirectUri);
     console.log('iiUri', iiUri);
 
-    const identity = await ECDSAKeyIdentity.generate();
-    const authClient = await AuthClient.create({ identity });
+    const login = await prepareLogin({
+      redirectUri,
+      appPublicKey,
+      iiUri,
+    });
+
     const loginButton = document.querySelector(
       LOGIN_BUTTON_SELECTOR,
     ) as HTMLButtonElement;
@@ -26,34 +28,7 @@ const main = async (): Promise<void> => {
       e.preventDefault();
       renderError('');
       try {
-        await authClient.login({
-          identityProvider: iiUri,
-          onSuccess: () => {
-            try {
-              const middleDelegationIdentity =
-                authClient.getIdentity() as DelegationIdentity;
-
-              processDelegation({
-                redirectUri,
-                middleDelegationIdentity,
-                appPublicKey,
-                expiration: new Date(Date.now() + 1000 * 60 * 15),
-              });
-            } catch (error) {
-              renderError(
-                formatError(ERROR_MESSAGES.DELEGATION_PROCESS, error),
-              );
-            }
-          },
-          onError: (error?: string) => {
-            renderError(
-              formatError(
-                ERROR_MESSAGES.AUTHENTICATION_REJECTED,
-                error || 'Unknown error',
-              ),
-            );
-          },
-        });
+        await login();
       } catch (error) {
         renderError(formatError(ERROR_MESSAGES.LOGIN_PROCESS, error));
       }
