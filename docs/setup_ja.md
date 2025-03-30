@@ -171,7 +171,7 @@ cd ..
 
 ## local-ssl-proxy の設定
 
-package.json の ssl:canisters, ssl:ii, ssl:web のエントリを、自分で設定した固定 IP アドレスに変更します。
+package.json の ssl:canisters, ssl:ii のエントリを、自分で設定した固定 IP アドレスに変更します。
 
 ### package.json への更新
 
@@ -179,8 +179,7 @@ package.json の ssl:canisters, ssl:ii, ssl:web のエントリを、自分で�
 {
   "scripts": {
     "ssl:canisters": "local-ssl-proxy --key ./.mkcert/[静的IPアドレス]-key.pem --cert ./.mkcert/[静的IPアドレス].pem --source 14943 --target 4943",
-    "ssl:ii": "local-ssl-proxy --key ./.mkcert/[静的IPアドレス]-key.pem --cert ./.mkcert/[静的IPアドレス].pem --source 24943 --target 4943",
-    "ssl:web": "local-ssl-proxy --key ./.mkcert/[静的IPアドレス]-key.pem --cert ./.mkcert/[静的IPアドレス].pem --source 18081 --target 8081"
+    "ssl:ii": "local-ssl-proxy --key ./.mkcert/[静的IPアドレス]-key.pem --cert ./.mkcert/[静的IPアドレス].pem --source 24943 --target 4943"
   }
 }
 ```

@@ -1,29 +1,36 @@
 {
   "canisters": {
+    "internet-identity": {
+      "type": "pull",
+      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
+    "ii-integration": {
+      "dependencies": [
+        "internet-identity"
+      ],
+      "source": [
+        "src/ii-integration/dist"
+      ],
+      "type": "assets",
+      "build": "node scripts/setup-env.js && npm run build --prefix src/ii-integration"
+    },
     "backend": {
       "candid": "src/backend/backend.did",
       "package": "backend",
       "type": "custom",
       "wasm": "target/wasm32-unknown-unknown/release/backend.wasm",
-      "build": "node scripts/setup-env.js && sh ./scripts/build-backend.sh"
-    },
-    "ii-integration": {
-      "source": [
-        "src/ii-integration/dist"
-      ],
-      "type": "assets",
-      "build": "npm run build --prefix src/ii-integration"
+      "build": "sh ./scripts/build-backend.sh"
     },
     "frontend": {
+      "dependencies": [
+        "ii-integration",
+        "backend"
+      ],
       "source": [
         "src/frontend/dist"
       ],
       "type": "assets",
       "build": "npm run build --prefix src/frontend"
-    },
-    "internet-identity": {
-      "type": "pull",
-      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
     }
   },
   "defaults": {

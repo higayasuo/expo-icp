@@ -80,8 +80,8 @@ describe('processDelegation', () => {
     });
 
     expect(buildQueryString).toHaveBeenCalledWith(mockDelegationIdentity);
-    expect(nonIframeWindow.location.href).toBe(
-      `${mockRedirectUri}?${mockQueryString}`,
-    );
+    const expectedUrl = new URL(mockRedirectUri);
+    expectedUrl.hash = mockQueryString;
+    expect(nonIframeWindow.location.href).toBe(expectedUrl.toString());
   });
 });

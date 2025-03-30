@@ -19,7 +19,7 @@ type ProcessDelegationParams = {
  * - Sends a postMessage to the parent window with the delegation information
  *
  * For native apps (WebView):
- * - Redirects to the redirectUri with the delegation information as a query parameter
+ * - Redirects to the redirectUri with the delegation information as a URL fragment
  *
  * @param {ProcessDelegationParams} params - The parameters containing the redirect URI and delegation identity
  */
@@ -42,6 +42,6 @@ export const processDelegation = ({
     // We're in a native app's WebView
     console.log('Native app detected, using URL redirection');
     const queryString = buildQueryString(delegationIdentity);
-    window.location.href = `${redirectUri}?${queryString}`;
+    window.location.href = `${redirectUri}#${queryString}`;
   }
 };

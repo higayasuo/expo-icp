@@ -166,7 +166,7 @@ Return to the original folder.
 
 ## local-ssl-proxy Configuration
 
-Update the ssl:canisters, ssl:ii, and ssl:web entries in package.json with your configured static IP address.
+Update the ssl:canisters, ssl:ii entries in package.json with your configured static IP address.
 
 ### Updating package.json
 
@@ -174,8 +174,7 @@ Update the ssl:canisters, ssl:ii, and ssl:web entries in package.json with your 
 {
   "scripts": {
     "ssl:canisters": "local-ssl-proxy --key ./.mkcert/[static IP address]-key.pem --cert ./.mkcert/[static IP address].pem --source 14943 --target 4943",
-    "ssl:ii": "local-ssl-proxy --key ./.mkcert/[static IP address]-key.pem --cert ./.mkcert/[static IP address].pem --source 24943 --target 4943",
-    "ssl:web": "local-ssl-proxy --key ./.mkcert/[static IP address]-key.pem --cert ./.mkcert/[static IP address].pem --source 18081 --target 8081"
+    "ssl:ii": "local-ssl-proxy --key ./.mkcert/[static IP address]-key.pem --cert ./.mkcert/[static IP address].pem --source 24943 --target 4943"
   }
 }
 ```
