@@ -13,13 +13,13 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta
           httpEquiv="Content-Security-Policy"
           content="default-src 'self';
-            script-src 'self' 'unsafe-eval' 'unsafe-inline';
-            connect-src 'self' http://localhost:4943 http://*.localhost:4943 https://192.168.0.210:* https://icp0.io https://*.icp0.io https://icp-api.io https://identity.ic0.app https://ic0.app https://*.ic0.app https://*.raw.ic0.app;
-            frame-src 'self' http://localhost:4943 http://*.localhost:4943 https://192.168.0.210:* https://identity.ic0.app https://ic0.app https://*.ic0.app https://icp0.io https://*.icp0.io;
+            script-src 'self';
+            connect-src 'self' http://localhost:4943 https://192.168.0.210:14943 https://ic0.app https://*.ic0.app;
+            frame-src 'self' http://localhost:4943 http://*.localhost:4943 https://192.168.0.210:14943 https://*.icp0.io;
             img-src 'self' data:;
-            style-src * 'unsafe-inline';
-            style-src-elem * 'unsafe-inline';
-            font-src *;
+            style-src 'self' 'unsafe-inline';
+            style-src-elem 'self' 'unsafe-inline';
+            font-src 'self';
             object-src 'none';
             base-uri 'self';
             form-action 'self';
@@ -38,7 +38,6 @@ export default function Root({ children }: { children: React.ReactNode }) {
 
         {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
-        {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
       <body>{children}</body>
     </html>

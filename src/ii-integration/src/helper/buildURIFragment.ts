@@ -1,4 +1,4 @@
-import { DelegationIdentity } from '@dfinity/identity';
+import { DelegationChain } from '@dfinity/identity';
 import { buildDelegationString } from './buildDelegationString';
 
 /**
@@ -6,13 +6,11 @@ import { buildDelegationString } from './buildDelegationString';
  * This is used for secure transmission of delegation data in the URL fragment
  * (the part after #) which is not sent to the server.
  *
- * @param {DelegationIdentity} delegationIdentity - The delegation identity containing the delegation information.
+ * @param {DelegationChain} delegationChain - The delegation chain containing the delegation information.
  * @returns {string} A URI fragment in the format 'delegation=<encoded_delegation_string>'.
  */
-export const buildURIFragment = (
-  delegationIdentity: DelegationIdentity,
-): string => {
-  const delegationString = buildDelegationString(delegationIdentity);
+export const buildURIFragment = (delegationChain: DelegationChain): string => {
+  const delegationString = buildDelegationString(delegationChain);
   const encodedDelegation = encodeURIComponent(delegationString);
   return `delegation=${encodedDelegation}`;
 };

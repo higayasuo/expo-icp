@@ -2,7 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { processDelegation } from '../processDelegation';
 import { buildDelegationString } from '../buildDelegationString';
 import { buildURIFragment } from '../buildURIFragment';
-import { DelegationIdentity } from '@dfinity/identity';
+import { buildMiddleToAppDelegationChain } from '../buildMiddleToAppDelegationChain';
+import { DelegationIdentity, DelegationChain } from '@dfinity/identity';
+import { PublicKey } from '@dfinity/agent';
 
 // Mock the helper functions
 vi.mock('../buildDelegationString', () => ({
@@ -13,41 +15,79 @@ vi.mock('../buildURIFragment', () => ({
   buildURIFragment: vi.fn(),
 }));
 
+vi.mock('../buildMiddleToAppDelegationChain', () => ({
+  buildMiddleToAppDelegationChain: vi.fn(),
+}));
+
+// Mock global window
+const mockPostMessage = vi.fn();
+const mockLocation = {
+  href: '',
+  origin: '',
+};
+
+const mockWindow = {
+  postMessage: mockPostMessage,
+  location: mockLocation,
+} as unknown as Window;
+
+vi.stubGlobal('window', mockWindow);
+
 describe('processDelegation', () => {
   const mockDelegationIdentity = {
     sign: vi.fn(),
+    getDelegation: vi.fn(),
   } as unknown as DelegationIdentity;
+
+  const mockDelegationChain = {
+    toJSON: vi.fn(),
+  } as unknown as DelegationChain;
+
+  const mockAppPublicKey = {
+    toDer: vi.fn(),
+  } as unknown as PublicKey;
 
   const mockRedirectUri = 'https://example.com/';
   const mockDelegationString = 'mock-delegation-string';
   const mockUriFragment = 'delegation=mock-uri-fragment';
+  const mockExpiration = new Date();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockPostMessage.mockClear();
+    mockLocation.href = '';
     (
       buildDelegationString as unknown as ReturnType<typeof vi.fn>
     ).mockReturnValue(mockDelegationString);
     (buildURIFragment as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
       mockUriFragment,
     );
+    (
+      buildMiddleToAppDelegationChain as unknown as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(mockDelegationChain);
   });
 
-  it('should use postMessage when in an iframe', () => {
+  it('should use postMessage when in an iframe', async () => {
     // Mock iframe environment
     const mockParent = { postMessage: vi.fn() };
-    const mockWindow = {
-      location: new URL(mockRedirectUri),
-      parent: mockParent,
-      postMessage: vi.fn(),
-    };
-    vi.stubGlobal('window', mockWindow);
+    Object.defineProperty(mockWindow, 'parent', {
+      get: () => mockParent,
+    });
+    mockLocation.origin = new URL(mockRedirectUri).origin;
 
-    processDelegation({
+    await processDelegation({
       redirectUri: mockRedirectUri,
-      delegationIdentity: mockDelegationIdentity,
+      middleDelegationIdentity: mockDelegationIdentity,
+      appPublicKey: mockAppPublicKey,
+      expiration: mockExpiration,
     });
 
-    expect(buildDelegationString).toHaveBeenCalledWith(mockDelegationIdentity);
+    expect(buildMiddleToAppDelegationChain).toHaveBeenCalledWith({
+      middleDelegationIdentity: mockDelegationIdentity,
+      appPublicKey: mockAppPublicKey,
+      expiration: mockExpiration,
+    });
+    expect(buildDelegationString).toHaveBeenCalledWith(mockDelegationChain);
     expect(mockParent.postMessage).toHaveBeenCalledWith(
       {
         kind: 'success',
@@ -57,31 +97,37 @@ describe('processDelegation', () => {
     );
   });
 
-  it('should use URL redirection when not in an iframe', () => {
+  it('should use URL redirection when not in an iframe', async () => {
     // Mock native app environment
+    const mockLocation = {
+      href: '',
+      origin: '',
+    };
     const mockWindow = {
-      location: new URL(mockRedirectUri),
       postMessage: vi.fn(),
-    };
-    // Create a new mock window with parent set to itself
-    const nonIframeWindow = {
-      ...mockWindow,
-      parent: mockWindow,
-    };
-    // Override the window.parent check to simulate non-iframe environment
-    Object.defineProperty(nonIframeWindow, 'parent', {
-      get: () => nonIframeWindow,
+      location: mockLocation,
+    } as unknown as Window;
+    Object.defineProperty(mockWindow, 'parent', {
+      get: () => mockWindow,
     });
-    vi.stubGlobal('window', nonIframeWindow);
 
-    processDelegation({
+    vi.stubGlobal('window', mockWindow);
+
+    await processDelegation({
       redirectUri: mockRedirectUri,
-      delegationIdentity: mockDelegationIdentity,
+      middleDelegationIdentity: mockDelegationIdentity,
+      appPublicKey: mockAppPublicKey,
+      expiration: mockExpiration,
     });
 
-    expect(buildURIFragment).toHaveBeenCalledWith(mockDelegationIdentity);
-    const expectedUrl = new URL(mockRedirectUri);
-    expectedUrl.hash = mockUriFragment;
-    expect(nonIframeWindow.location.href).toBe(expectedUrl.toString());
+    expect(buildMiddleToAppDelegationChain).toHaveBeenCalledWith({
+      middleDelegationIdentity: mockDelegationIdentity,
+      appPublicKey: mockAppPublicKey,
+      expiration: mockExpiration,
+    });
+    expect(buildURIFragment).toHaveBeenCalledWith(mockDelegationChain);
+    expect(mockWindow.location.href).toBe(
+      `${mockRedirectUri}#${mockUriFragment}`,
+    );
   });
 });

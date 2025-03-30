@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { buildURIFragment } from '../buildURIFragment';
 import { buildDelegationString } from '../buildDelegationString';
-import { DelegationIdentity } from '@dfinity/identity';
+import { DelegationChain } from '@dfinity/identity';
 
 // Mock the buildDelegationString function
 vi.mock('../buildDelegationString', () => ({
@@ -9,9 +9,9 @@ vi.mock('../buildDelegationString', () => ({
 }));
 
 describe('buildURIFragment', () => {
-  const mockDelegationIdentity = {
-    sign: vi.fn(),
-  } as unknown as DelegationIdentity;
+  const mockDelegationChain = {
+    toJSON: vi.fn(),
+  } as unknown as DelegationChain;
 
   const mockDelegationString = 'mock-delegation-string';
   const mockEncodedDelegation = 'mock-encoded-delegation';
@@ -27,9 +27,9 @@ describe('buildURIFragment', () => {
   });
 
   it('should build a URI fragment with the encoded delegation string', () => {
-    const result = buildURIFragment(mockDelegationIdentity);
+    const result = buildURIFragment(mockDelegationChain);
 
-    expect(buildDelegationString).toHaveBeenCalledWith(mockDelegationIdentity);
+    expect(buildDelegationString).toHaveBeenCalledWith(mockDelegationChain);
     expect(global.encodeURIComponent).toHaveBeenCalledWith(
       mockDelegationString,
     );

@@ -1,16 +1,18 @@
 import { AuthClient } from '@dfinity/auth-client';
-import { DelegationIdentity } from '@dfinity/identity';
+import { DelegationIdentity, ECDSAKeyIdentity } from '@dfinity/identity';
 import { buildParams } from './helper/buildParams';
 import { formatError } from './helper/formatError';
 import { processDelegation } from './helper/processDelegation';
 import { renderError } from './helper/renderError';
 import { ERROR_MESSAGES, LOGIN_BUTTON_SELECTOR } from './constants';
+
 const main = async (): Promise<void> => {
   try {
-    const { redirectUri, identity, iiUri } = buildParams();
+    const { redirectUri, appPublicKey, iiUri } = buildParams();
     console.log('redirectUri', redirectUri);
     console.log('iiUri', iiUri);
 
+    const identity = await ECDSAKeyIdentity.generate();
     const authClient = await AuthClient.create({ identity });
     const loginButton = document.querySelector(
       LOGIN_BUTTON_SELECTOR,
@@ -20,19 +22,22 @@ const main = async (): Promise<void> => {
       throw new Error('Login button not found');
     }
 
-    loginButton.addEventListener('click', async () => {
+    loginButton.addEventListener('click', async (e) => {
+      e.preventDefault();
       renderError('');
       try {
         await authClient.login({
           identityProvider: iiUri,
           onSuccess: () => {
             try {
-              const delegationIdentity =
+              const middleDelegationIdentity =
                 authClient.getIdentity() as DelegationIdentity;
 
               processDelegation({
                 redirectUri,
-                delegationIdentity,
+                middleDelegationIdentity,
+                appPublicKey,
+                expiration: new Date(Date.now() + 1000 * 60 * 15),
               });
             } catch (error) {
               renderError(

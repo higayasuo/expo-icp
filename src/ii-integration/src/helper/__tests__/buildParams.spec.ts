@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { buildParams } from '../buildParams';
-import { buildIdentity } from '../buildIdentity';
+import { buildAppPublicKey } from '../buildAppPublicKey';
 import { buildIIUri } from '../buildIIUri';
 import { buildRedirectUri } from '../buildRedirectUri';
 
 // Mock the helper functions
-vi.mock('../buildIdentity', () => ({
-  buildIdentity: vi.fn(),
+vi.mock('../buildAppPublicKey', () => ({
+  buildAppPublicKey: vi.fn(),
 }));
 
 vi.mock('../buildIIUri', () => ({
@@ -18,7 +18,7 @@ vi.mock('../buildRedirectUri', () => ({
 }));
 
 describe('buildParams', () => {
-  const mockIdentity = { sign: vi.fn() };
+  const mockPublicKey = { toDer: vi.fn() };
   const mockIIUri = 'https://internetcomputer.org';
   const mockRedirectUri = 'https://example.com';
 
@@ -27,8 +27,8 @@ describe('buildParams', () => {
     vi.clearAllMocks();
 
     // Setup default mock implementations
-    (buildIdentity as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
-      mockIdentity,
+    (buildAppPublicKey as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
+      mockPublicKey,
     );
     (buildIIUri as unknown as ReturnType<typeof vi.fn>).mockReturnValue(
       mockIIUri,
@@ -50,12 +50,12 @@ describe('buildParams', () => {
     const result = buildParams();
 
     expect(result).toEqual({
-      identity: mockIdentity,
+      appPublicKey: mockPublicKey,
       iiUri: mockIIUri,
       redirectUri: mockRedirectUri,
     });
 
-    expect(buildIdentity).toHaveBeenCalledWith('test-pubkey');
+    expect(buildAppPublicKey).toHaveBeenCalledWith('test-pubkey');
     expect(buildIIUri).toHaveBeenCalled();
     expect(buildRedirectUri).toHaveBeenCalledWith('test-env');
   });

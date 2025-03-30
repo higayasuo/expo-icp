@@ -1,5 +1,5 @@
-import { SignIdentity } from '@dfinity/agent';
-import { buildIdentity } from './buildIdentity';
+import { PublicKey } from '@dfinity/agent';
+import { buildAppPublicKey } from './buildAppPublicKey';
 import { buildIIUri } from './buildIIUri';
 import { buildRedirectUri } from './buildRedirectUri';
 
@@ -7,7 +7,7 @@ import { buildRedirectUri } from './buildRedirectUri';
  * Interface representing the result of the buildParams function.
  */
 interface BuildParamsResult {
-  identity: SignIdentity;
+  appPublicKey: PublicKey;
   iiUri: string;
   redirectUri: string;
 }
@@ -27,9 +27,9 @@ export const buildParams = (): BuildParamsResult => {
     throw new Error('Missing pubkey or environment in query string');
   }
 
-  const identity = buildIdentity(pubKey);
+  const appPublicKey = buildAppPublicKey(pubKey);
   const iiUri = buildIIUri();
   const redirectUri = buildRedirectUri(environment);
 
-  return { identity, iiUri, redirectUri };
+  return { appPublicKey, iiUri, redirectUri };
 };

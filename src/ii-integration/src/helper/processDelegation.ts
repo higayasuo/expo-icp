@@ -1,6 +1,8 @@
-import { DelegationIdentity } from '@dfinity/identity';
+import { PublicKey } from '@dfinity/agent';
+import { DelegationChain, DelegationIdentity } from '@dfinity/identity';
 import { buildDelegationString } from './buildDelegationString';
 import { buildURIFragment } from './buildURIFragment';
+import { buildMiddleToAppDelegationChain } from './buildMiddleToAppDelegationChain';
 
 /**
  * Parameters required for processing delegation.
@@ -8,40 +10,42 @@ import { buildURIFragment } from './buildURIFragment';
 type ProcessDelegationParams = {
   /** The URI to redirect to after processing the delegation */
   redirectUri: string;
-  /** The delegation identity containing the delegation information */
-  delegationIdentity: DelegationIdentity;
+  /**
+   * The middle delegation identity containing the delegation information.
+   */
+  middleDelegationIdentity: DelegationIdentity;
+  /** The application public key */
+  appPublicKey: PublicKey;
+  /** The expiration time of the delegation */
+  expiration: Date;
 };
 
-/**
- * Processes the delegation based on the environment (web browser or native app).
- *
- * For web browsers (iframe):
- * - Sends a postMessage to the parent window with the delegation information
- *
- * For native apps (WebView):
- * - Redirects to the redirectUri with the delegation information as a URL fragment
- *
- * @param {ProcessDelegationParams} params - The parameters containing the redirect URI and delegation identity
- */
-export const processDelegation = ({
+export const processDelegation = async ({
   redirectUri,
-  delegationIdentity,
-}: ProcessDelegationParams) => {
+  middleDelegationIdentity,
+  appPublicKey,
+  expiration,
+}: ProcessDelegationParams): Promise<void> => {
   // Check if we're in an iframe (web browser case)
-  const isIframe = window.parent !== window;
+  const isIframe = window.parent !== undefined && window.parent !== window;
+  const delegationChain = await buildMiddleToAppDelegationChain({
+    middleDelegationIdentity,
+    appPublicKey,
+    expiration,
+  });
 
   if (isIframe) {
     // We're in a web browser iframe
     console.log('Web browser detected, using postMessage');
     const message = {
       kind: 'success',
-      delegation: buildDelegationString(delegationIdentity),
+      delegation: buildDelegationString(delegationChain),
     };
     window.parent.postMessage(message, new URL(redirectUri).origin);
   } else {
     // We're in a native app's WebView
     console.log('Native app detected, using URL redirection');
-    const uriFragment = buildURIFragment(delegationIdentity);
+    const uriFragment = buildURIFragment(delegationChain);
     window.location.href = `${redirectUri}#${uriFragment}`;
   }
 };
