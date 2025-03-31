@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/@types/package.json",
-  "name": "expo-starter-frontend",
+  "name": "expo-icp",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "type": "module",
@@ -49,7 +49,8 @@
     "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
-    "react-native-web": "~0.19.13"
+    "react-native-web": "~0.19.13",
+    "expo-dev-client": "~5.0.15"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

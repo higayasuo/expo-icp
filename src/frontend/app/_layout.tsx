@@ -8,8 +8,10 @@ import { useIIIntegration, IIIntegrationProvider } from 'expo-ii-integration';
 import { ErrorProvider } from '@/contexts/ErrorContext';
 import { View, ActivityIndicator } from 'react-native';
 import Constants from 'expo-constants';
+import * as Linking from 'expo-linking';
 
 console.log(JSON.stringify(Constants.executionEnvironment, null, 2));
+console.log('Linking.createURL("/")', Linking.createURL('/'));
 
 import { useError } from '@/contexts/ErrorContext';
 import {

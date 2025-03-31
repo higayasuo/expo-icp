@@ -17,7 +17,7 @@
     "ii-integration:setup": "npm run setup --prefix src/ii-integration",
     "clean:canister-ids": "rimraf canister_ids.json"
   },
-  "name": "expo-starter",
+  "name": "expo-icp",
   "type": "module",
   "devDependencies": {
     "local-ssl-proxy": "^2.0.5",
