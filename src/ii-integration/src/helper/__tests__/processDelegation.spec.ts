@@ -47,7 +47,7 @@ describe('processDelegation', () => {
     toDer: vi.fn(),
   } as unknown as PublicKey;
 
-  const mockRedirectUri = 'https://example.com/';
+  const mockDeepLink = 'https://example.com/';
   const mockDelegationString = 'mock-delegation-string';
   const mockUriFragment = 'delegation=mock-uri-fragment';
   const mockExpiration = new Date();
@@ -73,10 +73,10 @@ describe('processDelegation', () => {
     Object.defineProperty(mockWindow, 'parent', {
       get: () => mockParent,
     });
-    mockLocation.origin = new URL(mockRedirectUri).origin;
+    mockLocation.origin = new URL(mockDeepLink).origin;
 
     await processDelegation({
-      redirectUri: mockRedirectUri,
+      deepLink: mockDeepLink,
       middleDelegationIdentity: mockDelegationIdentity,
       appPublicKey: mockAppPublicKey,
       expiration: mockExpiration,
@@ -93,7 +93,7 @@ describe('processDelegation', () => {
         kind: 'success',
         delegation: mockDelegationString,
       },
-      new URL(mockRedirectUri).origin,
+      new URL(mockDeepLink).origin,
     );
   });
 
@@ -114,7 +114,7 @@ describe('processDelegation', () => {
     vi.stubGlobal('window', mockWindow);
 
     await processDelegation({
-      redirectUri: mockRedirectUri,
+      deepLink: mockDeepLink,
       middleDelegationIdentity: mockDelegationIdentity,
       appPublicKey: mockAppPublicKey,
       expiration: mockExpiration,
@@ -126,8 +126,6 @@ describe('processDelegation', () => {
       expiration: mockExpiration,
     });
     expect(buildURIFragment).toHaveBeenCalledWith(mockDelegationChain);
-    expect(mockWindow.location.href).toBe(
-      `${mockRedirectUri}#${mockUriFragment}`,
-    );
+    expect(mockWindow.location.href).toBe(`${mockDeepLink}#${mockUriFragment}`);
   });
 });

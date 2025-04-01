@@ -7,11 +7,7 @@ import 'react-native-reanimated';
 import { useIIIntegration, IIIntegrationProvider } from 'expo-ii-integration';
 import { ErrorProvider } from '@/contexts/ErrorContext';
 import { View, ActivityIndicator } from 'react-native';
-import Constants from 'expo-constants';
 import * as Linking from 'expo-linking';
-
-console.log(JSON.stringify(Constants.executionEnvironment, null, 2));
-console.log('Linking.createURL("/")', Linking.createURL('/'));
 
 import { useError } from '@/contexts/ErrorContext';
 import {
@@ -59,10 +55,13 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  const deepLink = Linking.createURL('/');
+  console.log('Linking.createURL("/")', Linking.createURL('/'));
   const iiIntegration = useIIIntegration({
     localIPAddress: LOCAL_IP_ADDRESS,
     dfxNetwork: DFX_NETWORK,
-    executionEnvironment: Constants.executionEnvironment,
+    easDeepLinkType: process.env.EXPO_PUBLIC_EAS_DEEP_LINK_TYPE,
+    deepLink,
     frontendCanisterId: CANISTER_ID_FRONTEND,
     iiIntegrationCanisterId: CANISTER_ID_II_INTEGRATION,
     appKeyStorage,

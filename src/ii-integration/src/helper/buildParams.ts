@@ -1,7 +1,38 @@
 import { PublicKey } from '@dfinity/agent';
 import { buildAppPublicKey } from './buildAppPublicKey';
 import { buildIIUri } from './buildIIUri';
-import { buildRedirectUri } from './buildRedirectUri';
+import { buildDeepLink } from './buildDeepLink';
+import { DeepLinkType, isDeepLinkType } from './DeepLinkType';
+
+/**
+ * Arguments required to build the parameters for the application.
+ */
+type BuildParamsArgs = {
+  /**
+   * The local IP address.
+   */
+  localIPAddress: string;
+
+  /**
+   * The DFX network.
+   */
+  dfxNetwork: string;
+
+  /**
+   * The canister ID for Internet Identity.
+   */
+  internetIdentityCanisterId: string;
+
+  /**
+   * The canister ID for the frontend.
+   */
+  frontendCanisterId: string;
+
+  /**
+   * The Expo scheme.
+   */
+  expoScheme: string;
+};
 
 /**
  * Interface representing the result of the buildParams function.
@@ -9,27 +40,48 @@ import { buildRedirectUri } from './buildRedirectUri';
 export interface BuildParamsResult {
   appPublicKey: PublicKey;
   iiUri: string;
-  redirectUri: string;
+  deepLink: string;
 }
 
 /**
  * Builds the parameters required for the application.
  *
- * @returns {BuildParamsResult} The built parameters including identity, iiUri, and redirectUri.
- * @throws Will throw an error if pubkey or environment is missing in the query string.
+ * @param {BuildParamsArgs} args - Configuration object containing necessary parameters.
+ * @returns {BuildParamsResult} The built parameters including identity, iiUri, and deepLink.
+ * @throws Will throw an error if pubkey or deep-link-type is missing in query string or if deep-link-type is not a valid DeepLinkType.
  */
-export const buildParams = (): BuildParamsResult => {
-  const url = new URL(window.location.href);
-  const pubKey = url.searchParams.get('pubkey');
-  const environment = url.searchParams.get('environment');
+export const buildParams = ({
+  localIPAddress,
+  dfxNetwork,
+  internetIdentityCanisterId,
+  frontendCanisterId,
+  expoScheme,
+}: BuildParamsArgs): BuildParamsResult => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const pubkey = searchParams.get('pubkey');
+  const deepLinkType = searchParams.get('deep-link-type') as DeepLinkType;
 
-  if (!pubKey || !environment) {
-    throw new Error('Missing pubkey or environment in query string');
+  if (!pubkey || !deepLinkType) {
+    throw new Error('Missing pubkey or deep-link-type in query string');
   }
 
-  const appPublicKey = buildAppPublicKey(pubKey);
-  const iiUri = buildIIUri();
-  const redirectUri = buildRedirectUri(environment);
+  if (!isDeepLinkType(deepLinkType)) {
+    throw new Error(`Invalid deep-link-type: ${deepLinkType}`);
+  }
 
-  return { appPublicKey, iiUri, redirectUri };
+  const appPublicKey = buildAppPublicKey(pubkey);
+  const iiUri = buildIIUri({
+    localIPAddress,
+    dfxNetwork,
+    internetIdentityCanisterId,
+  });
+  const deepLink = buildDeepLink({
+    deepLinkType,
+    localIPAddress,
+    dfxNetwork,
+    frontendCanisterId,
+    expoScheme,
+  });
+
+  return { appPublicKey, iiUri, deepLink };
 };

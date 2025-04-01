@@ -10,7 +10,7 @@ import { processDelegation } from './processDelegation';
  * @typedef {Object} PrepareLoginArgs
  * @property {PublicKey} appPublicKey - The public key of the application.
  * @property {string} iiUri - The Internet Identity URI.
- * @property {string} redirectUri - The URI to redirect to after login.
+ * @property {string} frontendUri - The frontend URI after login.
  * @property {Date} [expiration] - Optional expiration date for the delegation.
  */
 type PrepareLoginArgs = BuildParamsResult & {
@@ -27,7 +27,7 @@ type PrepareLoginArgs = BuildParamsResult & {
 export const prepareLogin = async ({
   appPublicKey,
   iiUri,
-  redirectUri,
+  deepLink,
   expiration = new Date(Date.now() + 1000 * 60 * 15),
 }: PrepareLoginArgs): Promise<() => Promise<void>> => {
   const identity = await ECDSAKeyIdentity.generate();
@@ -41,7 +41,7 @@ export const prepareLogin = async ({
           authClient.getIdentity() as DelegationIdentity;
 
         processDelegation({
-          redirectUri,
+          deepLink,
           middleDelegationIdentity,
           appPublicKey,
           expiration,

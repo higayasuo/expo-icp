@@ -14,7 +14,7 @@ describe('prepareLogin', () => {
   const mockArgs = {
     appPublicKey: mockPublicKey,
     iiUri: 'https://test.ic0.app',
-    redirectUri: 'https://test.app/callback',
+    deepLink: 'https://test.app/callback',
   };
 
   const mockAuthClient = {
@@ -45,7 +45,7 @@ describe('prepareLogin', () => {
     await loginFunction();
 
     expect(processDelegation).toHaveBeenCalledWith({
-      redirectUri: mockArgs.redirectUri,
+      deepLink: mockArgs.deepLink,
       middleDelegationIdentity: mockDelegationIdentity,
       appPublicKey: mockArgs.appPublicKey,
       expiration: expect.any(Date),

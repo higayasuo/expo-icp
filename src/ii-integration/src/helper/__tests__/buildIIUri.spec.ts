@@ -19,15 +19,21 @@ vi.mock('canister-manager', () => {
   };
 });
 
+const defaultArgs = {
+  localIPAddress: LOCAL_IP_ADDRESS,
+  dfxNetwork: DFX_NETWORK,
+  internetIdentityCanisterId: CANISTER_ID_INTERNET_IDENTITY,
+};
+
 describe('buildIIUri', () => {
   it('should return the correct Internet Identity URL', () => {
     const expectedUrl = `http://${LOCAL_IP_ADDRESS}:4943?canisterId=${CANISTER_ID_INTERNET_IDENTITY}`;
-    const result = buildIIUri();
+    const result = buildIIUri(defaultArgs);
     expect(result).toBe(expectedUrl);
   });
 
   it('should create CanisterManager with correct parameters', () => {
-    buildIIUri();
+    buildIIUri(defaultArgs);
     expect(CanisterManager).toHaveBeenCalledWith({
       localIPAddress: LOCAL_IP_ADDRESS,
       dfxNetwork: DFX_NETWORK,

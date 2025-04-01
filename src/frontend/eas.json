@@ -1,0 +1,39 @@
+{
+  "cli": {
+    "version": ">= 14.0.3",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_EAS_BUILD_PROFILE": "development",
+        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "legacy"
+      }
+    },
+    "ios-simulator": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_EAS_BUILD_PROFILE": "preview",
+        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "legacy"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_EAS_BUILD_PROFILE": "production",
+        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "legacy"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

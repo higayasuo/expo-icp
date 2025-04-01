@@ -8,8 +8,8 @@ import { buildMiddleToAppDelegationChain } from './buildMiddleToAppDelegationCha
  * Parameters required for processing delegation.
  */
 type ProcessDelegationParams = {
-  /** The URI to redirect to after processing the delegation */
-  redirectUri: string;
+  /** The deep link to redirect to after processing the delegation */
+  deepLink: string;
   /**
    * The middle delegation identity containing the delegation information.
    */
@@ -21,7 +21,7 @@ type ProcessDelegationParams = {
 };
 
 export const processDelegation = async ({
-  redirectUri,
+  deepLink,
   middleDelegationIdentity,
   appPublicKey,
   expiration,
@@ -41,11 +41,11 @@ export const processDelegation = async ({
       kind: 'success',
       delegation: buildDelegationString(delegationChain),
     };
-    window.parent.postMessage(message, new URL(redirectUri).origin);
+    window.parent.postMessage(message, new URL(deepLink).origin);
   } else {
     // We're in a native app's WebView
     console.log('Native app detected, using URL redirection');
     const uriFragment = buildURIFragment(delegationChain);
-    window.location.href = `${redirectUri}#${uriFragment}`;
+    window.location.href = `${deepLink}#${uriFragment}`;
   }
 };
