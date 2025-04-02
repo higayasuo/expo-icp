@@ -15,6 +15,7 @@ console.log('Root directory:', rootDir);
 
 const mkcertPath = path.join(rootDir, '.mkcert');
 const frontendPath = path.join(rootDir, 'src', 'frontend');
+const appJsonPath = path.join(frontendPath, 'app.json');
 const frontendEnvFilePath = path.join(
   frontendPath,
   'constants',
@@ -47,7 +48,7 @@ const getCanisterIdsPath = () => {
   }
 };
 
-const readAndParseCanisterIds = async (filePath) => {
+const readAndParseJsonFile = async (filePath) => {
   if (!existsSync(filePath)) {
     return undefined;
   }
@@ -152,18 +153,35 @@ export const EXPO_SCHEME = '${expoScheme}';
 
   await writeFile(frontendEnvFilePath, content);
   await writeFile(iiIntegrationEnvFilePath, content);
+};
 
-  // const envFilePath = path.join(rootDir, '.env');
-  // const envFileContent = `
-  // `;
-  // await writeFile(envFilePath, envFileContent);
+const updateAppJson = async (frontendCanisterId) => {
+  const appJson = await readAndParseJsonFile(appJsonPath);
+  console.log('App JSON:', JSON.stringify(appJson, undefined, 2));
+  const host = `${frontendCanisterId}.icp0.io`;
+
+  if (!appJson) {
+    throw new Error(
+      `src/frontend/app.json does not exist. You need to manually update the expo.android.intentFilters.data.host in app.json to ${host}.`,
+    );
+  }
+
+  if (!appJson?.expo?.android?.intentFilters?.[0]?.data?.[0]?.host) {
+    throw new Error(
+      `src/frontend/app.json does not have expo.android.intentFilters.data.host. You need to manually update the expo.android.intentFilters.data.host in app.json to ${host}.`,
+    );
+  }
+
+  appJson.expo.android.intentFilters[0].data[0].host = host;
+
+  await writeFile(appJsonPath, JSON.stringify(appJson, undefined, 2));
 };
 
 const setupCanisterIds = async () => {
   const canisterIdsPath = getCanisterIdsPath();
   console.log('Canister IDs path:', canisterIdsPath);
 
-  const canisterIds = await readAndParseCanisterIds(canisterIdsPath);
+  const canisterIds = await readAndParseJsonFile(canisterIdsPath);
   console.log('Canister IDs:', canisterIds);
 
   if (
@@ -177,7 +195,7 @@ const setupCanisterIds = async () => {
 
   await createCanisters();
 
-  const canisterIds2 = await readAndParseCanisterIds(canisterIdsPath);
+  const canisterIds2 = await readAndParseJsonFile(canisterIdsPath);
   console.log('2nd Canister IDs:', canisterIds2);
 
   return normarizeCanisterIds(canisterIds2);
@@ -195,6 +213,10 @@ const main = async () => {
     console.log('Expo Scheme:', expoScheme);
 
     await generateEnvFile(normalizedCanisterIds, localIPAddress, expoScheme);
+
+    if (dfxNetwork !== 'local') {
+      await updateAppJson(normalizedCanisterIds.frontend);
+    }
   } catch (error) {
     console.log('Error:', error);
     process.exit(1);

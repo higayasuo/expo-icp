@@ -9,7 +9,7 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_EAS_BUILD_PROFILE": "development",
-        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "legacy"
+        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "modern"
       }
     },
     "ios-simulator": {
@@ -22,14 +22,14 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_EAS_BUILD_PROFILE": "preview",
-        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "legacy"
+        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "modern"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_EAS_BUILD_PROFILE": "production",
-        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "legacy"
+        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "modern"
       }
     }
   },

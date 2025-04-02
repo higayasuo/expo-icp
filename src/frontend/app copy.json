@@ -29,7 +29,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.example.expoicp",
+      "package": "com.example.icpexpo",
       "intentFilters": [
         {
           "action": "VIEW",
@@ -37,8 +37,8 @@
           "data": [
             {
               "scheme": "https",
-              "host": "6mce5-laaaa-aaaab-qacsq-cai.icp0.io",
-              "pathPrefix": "/"
+              "host": "*.webapp.io",
+              "pathPrefix": ".*"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]

@@ -6,7 +6,7 @@ import { useEffect, useMemo } from 'react';
 import 'react-native-reanimated';
 import { useIIIntegration, IIIntegrationProvider } from 'expo-ii-integration';
 import { ErrorProvider } from '@/contexts/ErrorContext';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 
 import { useError } from '@/contexts/ErrorContext';
@@ -56,7 +56,6 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const deepLink = Linking.createURL('/');
-  console.log('Linking.createURL("/")', Linking.createURL('/'));
   const iiIntegration = useIIIntegration({
     localIPAddress: LOCAL_IP_ADDRESS,
     dfxNetwork: DFX_NETWORK,
@@ -66,6 +65,7 @@ function RootLayoutNav() {
     iiIntegrationCanisterId: CANISTER_ID_II_INTEGRATION,
     appKeyStorage,
     delegationStorage,
+    platform: Platform.OS,
   });
 
   const { authError, isReady } = iiIntegration;

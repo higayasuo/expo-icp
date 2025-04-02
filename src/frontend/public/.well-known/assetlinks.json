@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.expoicp",
+      "sha256_cert_fingerprints": [
+        "A4:AC:2F:14:8F:2E:71:54:AE:2A:3A:50:BC:95:1B:9C:36:E5:9F:E2:A7:15:64:1E:7B:13:49:DA:B9:70:64:57"
+      ]
+    }
+  }
+]

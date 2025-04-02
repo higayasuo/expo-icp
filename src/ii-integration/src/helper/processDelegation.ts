@@ -46,6 +46,6 @@ export const processDelegation = async ({
     // We're in a native app's WebView
     console.log('Native app detected, using URL redirection');
     const uriFragment = buildURIFragment(delegationChain);
-    window.location.href = `${deepLink}#${uriFragment}`;
+    window.location.assign(`${deepLink}#${uriFragment}`);
   }
 };
