@@ -214,7 +214,7 @@ const main = async () => {
 
     await generateEnvFile(normalizedCanisterIds, localIPAddress, expoScheme);
 
-    if (dfxNetwork !== 'local') {
+    if (dfxNetwork === 'ic') {
       await updateAppJson(normalizedCanisterIds.frontend);
     }
   } catch (error) {
