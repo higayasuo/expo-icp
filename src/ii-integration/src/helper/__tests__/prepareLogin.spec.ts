@@ -3,11 +3,9 @@ import { AuthClient } from '@dfinity/auth-client';
 import { DelegationIdentity } from '@dfinity/identity';
 import { PublicKey } from '@dfinity/agent';
 import { prepareLogin } from '../prepareLogin';
-import { processDelegation } from '../processDelegation';
 
 vi.mock('@dfinity/auth-client');
 vi.mock('@dfinity/identity');
-vi.mock('../processDelegation');
 
 describe('prepareLogin', () => {
   const mockPublicKey = {} as PublicKey;
@@ -34,7 +32,7 @@ describe('prepareLogin', () => {
     expect(typeof loginFunction).toBe('function');
   });
 
-  it('should process delegation on successful login', async () => {
+  it('should return delegation identity on successful login', async () => {
     const mockDelegationIdentity = {} as DelegationIdentity;
     mockAuthClient.getIdentity.mockReturnValue(mockDelegationIdentity);
     mockAuthClient.login.mockImplementation(({ onSuccess }) => {
@@ -42,14 +40,9 @@ describe('prepareLogin', () => {
     });
 
     const loginFunction = await prepareLogin(mockArgs);
-    await loginFunction();
+    const result = await loginFunction();
 
-    expect(processDelegation).toHaveBeenCalledWith({
-      deepLink: mockArgs.deepLink,
-      middleDelegationIdentity: mockDelegationIdentity,
-      appPublicKey: mockArgs.appPublicKey,
-      expiration: expect.any(Date),
-    });
+    expect(result).toBe(mockDelegationIdentity);
   });
 
   it('should throw error on login failure', async () => {
@@ -61,24 +54,5 @@ describe('prepareLogin', () => {
     const loginFunction = await prepareLogin(mockArgs);
 
     await expect(loginFunction()).rejects.toThrow(errorMessage);
-  });
-
-  it('should use default expiration time if not provided', async () => {
-    const mockDelegationIdentity = {} as DelegationIdentity;
-    mockAuthClient.getIdentity.mockReturnValue(mockDelegationIdentity);
-    mockAuthClient.login.mockImplementation(({ onSuccess }) => {
-      onSuccess();
-    });
-
-    const loginFunction = await prepareLogin(mockArgs);
-    await loginFunction();
-
-    const callArgs = (processDelegation as unknown as ReturnType<typeof vi.fn>)
-      .mock.calls[0][0];
-    const expiration = callArgs.expiration as Date;
-    const now = new Date();
-    const diffInMinutes = (expiration.getTime() - now.getTime()) / (1000 * 60);
-
-    expect(diffInMinutes).toBeCloseTo(15, 0); // Should be approximately 15 minutes
   });
 });

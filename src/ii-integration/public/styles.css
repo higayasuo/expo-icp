@@ -26,6 +26,23 @@ h1 {
   background-color: #444;
 }
 
+#back-to-app-button {
+  display: none;
+  font-size: 1.25rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+#back-to-app-button:hover {
+  background-color: #45a049;
+}
+
 #error {
   color: red;
   display: none;

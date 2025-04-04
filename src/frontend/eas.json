@@ -9,7 +9,7 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_EAS_BUILD_PROFILE": "development",
-        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "modern"
+        "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "legacy"
       }
     },
     "preview": {

@@ -1,8 +1,9 @@
 import { buildParams } from './helper/buildParams';
 import { formatError } from './helper/formatError';
-import { prepareLogin } from './helper/prepareLogin';
 import { renderError } from './helper/renderError';
-import { ERROR_MESSAGES, LOGIN_BUTTON_SELECTOR } from './constants';
+import { setupLoginButtonHandler } from './helper/setupLoginButtonHandler';
+import { prepareButtons } from './helper/prepareButtons';
+import { ERROR_MESSAGES } from './constants';
 import {
   LOCAL_IP_ADDRESS,
   DFX_NETWORK,
@@ -23,28 +24,16 @@ const main = async (): Promise<void> => {
     console.log('deepLink', deepLink);
     console.log('iiUri', iiUri);
 
-    const login = await prepareLogin({
+    const { iiLoginButton, backToAppButton } = prepareButtons();
+
+    // Set up the login button handler
+    await setupLoginButtonHandler({
+      iiLoginButton,
+      backToAppButton,
       deepLink,
       appPublicKey,
       iiUri,
-    });
-
-    const loginButton = document.querySelector(
-      LOGIN_BUTTON_SELECTOR,
-    ) as HTMLButtonElement;
-
-    if (!loginButton) {
-      throw new Error('Login button not found');
-    }
-
-    loginButton.addEventListener('click', async (e) => {
-      e.preventDefault();
-      renderError('');
-      try {
-        await login();
-      } catch (error) {
-        renderError(formatError(ERROR_MESSAGES.LOGIN_PROCESS, error));
-      }
+      window,
     });
   } catch (error) {
     renderError(formatError(ERROR_MESSAGES.INITIALIZATION, error));
