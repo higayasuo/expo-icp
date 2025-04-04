@@ -73,12 +73,28 @@ const normarizeCanisterIds = (canisterIds) => {
 const spawnProcess = (command, args) => {
   return new Promise((resolve, reject) => {
     const process = spawn(command, args);
+    let stdout = '';
+    let stderr = '';
+
+    process.stdout.on('data', (data) => {
+      stdout += data.toString();
+      console.log(data.toString());
+    });
+
+    process.stderr.on('data', (data) => {
+      stderr += data.toString();
+      console.error(data.toString());
+    });
 
     process.on('close', (status) => {
       if (status === 0) {
-        resolve();
+        resolve(status);
       } else {
-        reject(new Error(`Command failed with status ${status}`));
+        reject(
+          new Error(
+            `Command failed with status ${status}\nStdout: ${stdout}\nStderr: ${stderr}`,
+          ),
+        );
       }
     });
 
@@ -90,7 +106,7 @@ const spawnProcess = (command, args) => {
 
 const createCanisters = async () => {
   try {
-    const code = await spawnProcess('dfx', [
+    const status = await spawnProcess('dfx', [
       'canister',
       'create',
       '--all',
@@ -98,7 +114,11 @@ const createCanisters = async () => {
       dfxNetwork,
     ]);
 
-    return code === 0;
+    if (status !== 0) {
+      console.error('Failed to create canisters status:', status);
+    }
+
+    return status === 0;
   } catch (error) {
     console.error('Error creating canisters:', error);
     return false;
@@ -193,7 +213,11 @@ const setupCanisterIds = async () => {
     return normarizeCanisterIds(canisterIds);
   }
 
-  await createCanisters();
+  const created = await createCanisters();
+
+  if (!created) {
+    process.exit(1);
+  }
 
   const canisterIds2 = await readAndParseJsonFile(canisterIdsPath);
   console.log('2nd Canister IDs:', canisterIds2);

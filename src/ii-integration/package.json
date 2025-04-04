@@ -23,7 +23,7 @@
     "@dfinity/agent": "^2.3.0",
     "@dfinity/auth-client": "^2.3.0",
     "@dfinity/identity": "^2.3.0",
-    "canister-manager": "^0.1.6"
+    "canister-manager": "^0.1.7"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

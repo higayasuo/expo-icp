@@ -12,12 +12,6 @@
         "EXPO_PUBLIC_EAS_DEEP_LINK_TYPE": "modern"
       }
     },
-    "ios-simulator": {
-      "extends": "development",
-      "ios": {
-        "simulator": true
-      }
-    },
     "preview": {
       "distribution": "internal",
       "env": {
