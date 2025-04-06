@@ -97,10 +97,3 @@ The authentication flow includes several security considerations:
 6. **URI Fragment Usage**: The delegation chain is transmitted using URI fragments (the part after `#`), ensuring it is not sent to the server. This prevents the delegation chain from leaking to proxy app backends (IC boundary nodes or replica nodes).
 
 7. **Application Links/Universal Links Usage**: The delegation chain is returned to the mobile app using Android App Links or iOS Universal Links. This binds the domain name/hostname to the mobile app, preventing attackers from using malicious mobile apps to receive the delegation chain.
-
-## Related Documentation
-
-- [Security Considerations](security-considerations.md)
-- [Backend Integration](backend-integration.md)
-- [Expo App Setup](../implementation/expo-app-setup.md)
-- [II Integration](../implementation/ii-integration.md)
