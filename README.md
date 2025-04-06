@@ -124,7 +124,7 @@ Moreover, Internet Identity authentication is integrated with caller authenticat
 
 ## Documentation
 
-- [How it works](docs/how_it_works.md)
+- [Authentication Flow](docs/architecture/authentication-flow.md)
 - [Setup guide](docs/setup.md)
 
 ## Repository Commits

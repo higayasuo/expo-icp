@@ -18,4 +18,4 @@ export const regularStorage =
   Platform.OS === 'web' ? new WebRegularStorage() : new NativeRegularStorage();
 
 export const appKeyStorage = new AppKeyStorage(secureStorage);
-export const delegationStorage = new DelegationStorage(regularStorage);
+export const delegationStorage = new DelegationStorage(secureStorage);

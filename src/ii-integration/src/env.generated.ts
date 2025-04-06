@@ -2,9 +2,9 @@
 // Generated from scripts/setup-env.js
 
 export const LOCAL_IP_ADDRESS = '192.168.0.210';
-export const DFX_NETWORK = 'ic';
+export const DFX_NETWORK = 'local';
 export const CANISTER_ID_INTERNET_IDENTITY = 'rdmx6-jaaaa-aaaaa-aaadq-cai';
-export const CANISTER_ID_II_INTEGRATION = 'bvauu-2yaaa-aaaai-q3wjq-cai';
-export const CANISTER_ID_FRONTEND = 'bsbsa-xaaaa-aaaai-q3wja-cai';
-export const CANISTER_ID_BACKEND = 'bahfz-3qaaa-aaaai-q3wka-cai';
+export const CANISTER_ID_II_INTEGRATION = 'be2us-64aaa-aaaaa-qaabq-cai';
+export const CANISTER_ID_FRONTEND = 'bd3sg-teaaa-aaaaa-qaaba-cai';
+export const CANISTER_ID_BACKEND = 'bkyz2-fmaaa-aaaaa-qaaaq-cai';
 export const EXPO_SCHEME = 'expo-icp';

@@ -18,7 +18,7 @@
 
 ## サービスコンセプト
 
-Expo アプリで Internet Identity を数行のコードを書くだけで簡単に使える、マルチプラットフォーム(iOS/Android/Web)認証ソリューションです。これまでほとんど存在していなかった ICP のスマホネイティブアプリを簡単に作成できるテンプレートも提供しています。
+Expo アプリで Internet Identity を数行のコードを書くだけで簡単に使える、マルチプラットフォーム(iOS/Android/Web)認証ソリューションです。これまでほとんど存在していなかった ICP のスマホネイティブアプリを簡単に作成できるテンプレートを提供しています。
 
 ## 利用ユーザ想定（ターゲット）
 
@@ -125,7 +125,7 @@ await backend.whoami();
 
 ## ドキュメント
 
-- [動作の仕組み](docs/how_it_works_ja.md)
+- [認証フロー](docs/architecture/authentication_flow_ja.md)
 - [セットアップガイド](docs/setup_ja.md)
 
 ## リポジトリの commits

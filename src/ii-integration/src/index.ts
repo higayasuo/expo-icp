@@ -1,8 +1,10 @@
-import { buildParams } from './helper/buildParams';
-import { formatError } from './helper/formatError';
-import { renderError } from './helper/renderError';
-import { setupLoginButtonHandler } from './helper/setupLoginButtonHandler';
-import { prepareButtons } from './helper/prepareButtons';
+import {
+  renderError,
+  formatError,
+  buildParams,
+  prepareButtons,
+  setupLoginButtonHandler,
+} from 'ii-integration-helper';
 import { ERROR_MESSAGES } from './constants';
 import {
   LOCAL_IP_ADDRESS,
@@ -20,6 +22,7 @@ const main = async (): Promise<void> => {
       internetIdentityCanisterId: CANISTER_ID_INTERNET_IDENTITY,
       frontendCanisterId: CANISTER_ID_FRONTEND,
       expoScheme: EXPO_SCHEME,
+      window,
     });
     console.log('deepLink', deepLink);
     console.log('iiUri', iiUri);

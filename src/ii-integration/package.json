@@ -8,13 +8,7 @@
   "scripts": {
     "dev": "vite",
     "setup": "npm install",
-    "build": "tsc && vite build",
-    "watch": "tsc -w",
-    "preview": "vite preview",
-    "test": "vitest --run",
-    "test:watch": "vitest watch",
-    "test:coverage": "vitest run --coverage",
-    "lint": "eslint ."
+    "build": "tsc && vite build"
   },
   "keywords": [],
   "author": "",
@@ -23,13 +17,11 @@
     "@dfinity/agent": "^2.3.0",
     "@dfinity/auth-client": "^2.3.0",
     "@dfinity/identity": "^2.3.0",
-    "canister-manager": "^0.1.7"
+    "ii-integration-helper": "file:ii-integration-helper-1.0.0.tgz"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "@vitest/coverage-v8": "^3.0.9",
     "typescript": "^5.7.2",
-    "vite": "^5.0.3",
-    "vitest": "^3.0.9"
+    "vite": "^5.0.3"
   }
 }
