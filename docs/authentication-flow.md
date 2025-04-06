@@ -21,7 +21,7 @@ The authentication flow consists of the following steps:
 
 ### 1. Expo App Generates SignIdentity
 
-The Expo app generates a SignIdentity (public-private key pair). The SignIdentity is stored in secure storage and retained after app restarts.
+The Expo app generates a SignIdentity (public-private key pair).
 
 ### 2. Expo App Opens ii-integration
 
