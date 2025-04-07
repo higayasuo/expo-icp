@@ -177,8 +177,9 @@ export const EXPO_SCHEME = '${expoScheme}';
 
 const updateAppJson = async (frontendCanisterId) => {
   const appJson = await readAndParseJsonFile(appJsonPath);
-  console.log('App JSON:', JSON.stringify(appJson, undefined, 2));
+  console.log('app.json:', JSON.stringify(appJson, undefined, 2));
   const host = `${frontendCanisterId}.icp0.io`;
+  const appLinks = [`applinks:${host}`];
 
   if (!appJson) {
     throw new Error(
@@ -192,7 +193,19 @@ const updateAppJson = async (frontendCanisterId) => {
     );
   }
 
+  if (!appJson?.expo?.ios) {
+    throw new Error(
+      `src/frontend/app.json does not have expo.ios. You need to manually update the expo.ios.associatedDomains in app.json to ${JSON.stringify(
+        appLinks,
+        undefined,
+        2,
+      )}.`,
+    );
+  }
+
   appJson.expo.android.intentFilters[0].data[0].host = host;
+  appJson.expo.ios.associatedDomains = appLinks;
+  console.log('Updated app.json:', JSON.stringify(appJson, undefined, 2));
 
   await writeFile(appJsonPath, JSON.stringify(appJson, undefined, 2));
 };
