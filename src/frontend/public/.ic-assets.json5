@@ -1,0 +1,24 @@
+[
+  {
+    match: '.ic-assets.json5',
+    ignore: true,
+  },
+  {
+    match: '.well-known/apple-app-site-association',
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  },
+  {
+    match: '**/*',
+    headers: {
+      'Content-Security-Policy': "default-src 'self';script-src 'self';connect-src 'self' http://localhost:4943 https://192.168.0.210:14943 https://ic0.app https://*.ic0.app https://*.icp0.io;frame-src 'self' http://*.localhost:4943 https://192.168.0.210:14943 https://*.icp0.io;img-src 'self' data:;style-src 'self' 'unsafe-inline';style-src-elem 'self' 'unsafe-inline';font-src 'self';object-src 'none';base-uri 'self';form-action 'self';upgrade-insecure-requests;",
+      'Permissions-Policy': 'accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), xr-spatial-tracking=()',
+    },
+    security_policy: 'standard',
+    disable_security_policy_warning: true,
+  },
+]

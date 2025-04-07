@@ -14,6 +14,7 @@
     "frontend:setup": "npm run setup --prefix src/frontend",
     "frontend:start": "npm run start --prefix src/frontend",
     "frontend:eas:init": "npm run eas:init --prefix src/frontend",
+    "frontend:eas:device:create": "npm run eas:device:create --prefix src/frontend",
     "frontend:eas:credentials": "npm run eas:credentials --prefix src/frontend",
     "frontend:eas:build:android:preview": "npm run eas:build:android:preview --prefix src/frontend",
     "frontend:eas:build:ios:preview": "npm run eas:build:ios:preview --prefix src/frontend",

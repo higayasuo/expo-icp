@@ -19,7 +19,7 @@ In this project, deep links are not used to launch the app directly from the bro
 
 This is why proper deep link configuration is crucial for the native app authentication flow to work correctly.
 
-## Setup Process
+## Common Setup Steps
 
 ### 1. Install EAS CLI
 
@@ -85,8 +85,11 @@ Key points:
 - The `host` should match your frontend canister domain (e.g., `[canister-id].icp0.io`)
 - **Note**: The `host` value is automatically updated by the `setup-env.js` script when deploying to the Internet Computer
 - For iOS, the `associatedDomains` entry is also automatically updated by the `setup-env.js` script when deploying to the Internet Computer
+- **Important**: It's recommended to use the same value for both `expo.ios.bundleIdentifier` and `expo.android.package` (e.g., `com.example.expoicp`). This makes it easier to manage your app's identity across platforms and simplifies the configuration of deep links.
 
-### 4. Create assetlinks.json
+## Android App Links Setup
+
+### 1. Create assetlinks.json
 
 Create a file at `src/frontend/public/.well-known/assetlinks.json` with the following content:
 
@@ -105,11 +108,9 @@ Create a file at `src/frontend/public/.well-known/assetlinks.json` with the foll
 
 **Important**: The `package_name` in this file must exactly match the `expo.android.package` value in your `app.json` file. If these values don't match, App Links verification will fail.
 
-This file will be used to verify your app's association with your domain for App Links.
+### 2. Build Android Preview
 
-### 5. Build Android Preview
-
-For Android, build a preview version of your app:
+Build a preview version of your app:
 
 ```bash
 npm run frontend:eas:build:android:preview
@@ -117,7 +118,7 @@ npm run frontend:eas:build:android:preview
 
 This will create a build of your app that you can use for testing App Links.
 
-### 6. Get SHA-256 Fingerprint
+### 3. Get SHA-256 Fingerprint
 
 After building, retrieve the SHA-256 fingerprint of your app's signing certificate:
 
@@ -125,11 +126,46 @@ After building, retrieve the SHA-256 fingerprint of your app's signing certifica
 npm run frontend:eas:credentials
 ```
 
+You'll be prompted to select a platform and a build profile. Use the arrow keys to navigate and press Enter to select:
+
+1. Select **Android** (not iOS)
+2. Select **preview** (not development or production)
+
 Look for the SHA-256 fingerprint in the output and update the `assetlinks.json` file with this value.
 
-### 7. Deploy to Internet Computer
+Example output:
 
-Deploy your application to the Internet Computer:
+```
+Android
+  Preview
+    Keystore: /Users/username/.expo/android-keystore.jks
+    Keystore password: android
+    Key alias: upload
+    Key password: android
+    SHA-1: 5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25
+    SHA-256: 79:7C:CA:05:35:DA:88:40:80:EA:AE:3C:5A:79:11:33:01:D7:8B:06:FE:CC:E7:13:5C:B9:FA:A1:39:93:21:59
+```
+
+Update your `assetlinks.json` file with the SHA-256 fingerprint:
+
+```json
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.expoicp",
+      "sha256_cert_fingerprints": [
+        "79:7C:CA:05:35:DA:88:40:80:EA:AE:3C:5A:79:11:33:01:D7:8B:06:FE:CC:E7:13:5C:B9:FA:A1:39:93:21:59"
+      ]
+    }
+  }
+]
+```
+
+### 4. Deploy to Internet Computer
+
+After updating the `assetlinks.json` file with the SHA-256 fingerprint, deploy your application:
 
 ```bash
 npm run dfx:deploy:ic
@@ -137,9 +173,33 @@ npm run dfx:deploy:ic
 
 This will deploy your application, including the `.well-known/assetlinks.json` file, which is necessary for App Links verification.
 
+### 5. Install the App
+
+After deploying, install the app on your device and test the App Links functionality.
+
 ## iOS Universal Links Setup
 
-For iOS Universal Links, you can use the `npx setup-safari` command to automate the setup process:
+### 1. Register iOS Device
+
+Before building a preview version for iOS, you need to register your device:
+
+```bash
+npm run frontend:eas:device:create
+```
+
+This command will:
+
+- Log in to your Apple Developer account
+- Register your device with Apple
+- Generate a provisioning profile for your device
+
+Follow the prompts to complete the registration process. This step is required for both preview and development builds on iOS devices.
+
+For more detailed information about registering iOS devices with EAS, refer to the [Expo documentation on iOS device registration](https://docs.expo.dev/tutorial/eas/ios-development-build-for-devices/#provisioning-profile).
+
+### 2. Create apple-app-site-association
+
+Instead of manually creating the apple-app-site-association file, use the `npx setup-safari` command to automate the setup process:
 
 ```bash
 npx setup-safari
@@ -159,93 +219,44 @@ After running the command, you'll receive:
 - Bundle ID
 - The content for your apple-app-site-association file
 
-You should also add the following meta tag to the `<head>` of your website (app/+html.tsx in Expo Router):
+Copy the generated apple-app-site-association content to `src/frontend/public/.well-known/apple-app-site-association`.
 
-```html
-<meta name="apple-itunes-app" content="app-id=YOUR_ITUNES_ID" />
+### 3. Deploy to Internet Computer
+
+**IMPORTANT**: For iOS Universal Links to work, you must deploy the apple-app-site-association file to the Internet Computer BEFORE installing the app on your device:
+
+```bash
+npm run dfx:deploy:ic
 ```
 
-Replace `YOUR_ITUNES_ID` with the iTunes ID provided by the setup-safari command.
+This will deploy your application, including the `.well-known/apple-app-site-association` file, which is necessary for Universal Links verification.
 
-### Manual Setup (Alternative)
+### 4. Build iOS Preview
 
-If you prefer to set up Universal Links manually, you need to:
+Build a preview version of your app:
 
-1. Create an Apple Developer account if you don't have one
-2. Configure Associated Domains in your Apple Developer account
-3. Create an `apple-app-site-association` file and deploy it to your domain
-4. Add the apple-itunes-app meta tag to your website
-
-You should add the following meta tag to the `<head>` of your website (app/+html.tsx in Expo Router):
-
-```html
-<meta name="apple-itunes-app" content="app-id=YOUR_ITUNES_ID" />
+```bash
+npm run frontend:eas:build:ios:preview
 ```
 
-Replace `YOUR_ITUNES_ID` with your app's iTunes ID from App Store Connect.
+This will create a build of your app that you can use for testing Universal Links.
 
-### Creating apple-app-site-association
+### 5. Install the App
 
-Create a file at `src/frontend/public/.well-known/apple-app-site-association` with the following content:
-
-```json
-{
-  "applinks": {
-    "apps": [],
-    "details": [
-      {
-        "appID": "YOUR_TEAM_ID.com.example.expoicp",
-        "paths": ["*"]
-      }
-    ]
-  },
-  // This section enables Apple Handoff
-  "activitycontinuation": {
-    "apps": ["YOUR_TEAM_ID.com.example.expoicp"]
-  },
-  // This section enable Shared Web Credentials
-  "webcredentials": {
-    "apps": ["YOUR_TEAM_ID.com.example.expoicp"]
-  }
-}
-```
-
-Replace `YOUR_TEAM_ID` with your Apple Developer Team ID and `com.example.expoicp` with your actual bundle ID (which should match the `expo.ios.bundleIdentifier` in your app.json).
+After deploying and building, install the app on your device and test the Universal Links functionality.
 
 ## Testing App Links / Universal Links
 
-### Android
+### Testing Deep Links
 
 1. Install the app on your device
 2. Open the app and tap the login button
 3. Complete the authentication process in the browser
-4. If App Links are properly configured, the app should receive the delegation chain and complete authentication
-5. If App Links are not properly configured, you'll be redirected to the web version of the app
-
-### iOS
-
-1. Install the app on your device
-2. Open the app and tap the login button
-3. Complete the authentication process in the browser
-4. If Universal Links are properly configured, the app should receive the delegation chain and complete authentication
-5. If Universal Links are not properly configured, you'll be redirected to the web version of the app
-
-## Troubleshooting
-
-### Android App Links
-
-- Verify that your `assetlinks.json` file is correctly deployed and accessible
-- Check that the SHA-256 fingerprint matches your app's signing certificate
-- Ensure your app's package name matches the one in `assetlinks.json`
-
-### iOS Universal Links
-
-- Verify that your `apple-app-site-association` file is correctly deployed and accessible
-- Check that your Associated Domains capability is enabled in your Apple Developer account
-- Ensure your app's bundle identifier matches the one in `apple-app-site-association`
+4. If deep links are properly configured, the app should receive the delegation chain and complete authentication
+5. If deep links are not properly configured, you'll be redirected to the web version of the app
 
 ## Additional Resources
 
-- [Expo EAS Documentation](https://docs.expo.dev/build/introduction/)
-- [Android App Links Documentation](https://developer.android.com/training/app-links)
-- [iOS Universal Links Documentation](https://developer.apple.com/ios/universal-links/)
+- [EAS Tutorial: Introduction](https://docs.expo.dev/tutorial/eas/introduction/)
+- [Expo Android App Links](https://docs.expo.dev/linking/android-app-links/)
+- [Expo iOS Universal Links](https://docs.expo.dev/linking/ios-universal-links/)

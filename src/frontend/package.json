@@ -10,6 +10,7 @@
     "start:dev-client": " npx expo-doctor && EXPO_PUBLIC_EAS_DEEP_LINK_TYPE=legacy expo start --dev-client --clear",
     "build": "npx expo export -p web",
     "eas:init": "eas init",
+    "eas:device:create": "eas device:create",
     "eas:credentials": "eas credentials",
     "setup-env": "DFX_NETWORK=ic node ../../scripts/setup-env.js",
     "eas:build:ios:preview": "npm run setup-env && tsc && eas build --profile preview --platform ios",
