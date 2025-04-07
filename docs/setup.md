@@ -1,7 +1,5 @@
 # Setup Instructions
 
-The Japanese version is available [here](setup_ja.md).
-
 ## Required Environment
 
 - Node.js version 18 or higher is required
@@ -73,7 +71,7 @@ Replace `<REPOSITORY_NAME>` with this project's repository name.
 Execute the following commands to set up Rust and ICP development tools:
 
 ```bash
-./scripts/setup.sh
+sh ./scripts/setup.sh
 ```
 
 ### Verifying Setup
@@ -95,7 +93,7 @@ If both commands display version information, the setup was successful.
 
 ## Setting Up Subprojects
 
-The expo-starter project consists of several subprojects.
+This project consists of several subprojects.
 Execute the following command to set up the subprojects:
 
 ```bash
@@ -123,8 +121,8 @@ This ensures the IP address remains unchanged even after PC restart, enabling st
        For example, you could use 192.168.0.210.
    - If you use an address other than 192.168.0.210, please update the IP address in the file below.
      - [../src/frontend/app/+html.tsx](../src/frontend/app/+html.tsx)
-     - [../src/frontend/icp-assets/.ic-assets.json5](../src/frontend/icp-assets/.ic-assets.json5)
-     - [../src/ii-integration/assets/.ic-assets.json5](../src/ii-integration/assets/.ic-assets.json5)
+     - [../src/frontend/public/.ic-assets.json5](../src/frontend/public/.ic-assets.json5)
+     - [../src/ii-integration/public/.ic-assets.json5](../src/ii-integration/public/.ic-assets.json5)
 
 ## Creating Server Certificate
 
@@ -222,7 +220,7 @@ npm run dfx:deploy
 
 This command performs the following:
 
-1. Builds all Canisters (internet-identity, ii-integration, expo-starter-frontend, expo-starter-backend)
+1. Builds all Canisters (internet-identity, ii-integration, frontend, backend)
 2. Installs the built Canisters to the local replica
 
 **Important Notes**
@@ -238,20 +236,6 @@ To deploy Canisters to the playground, execute the following command:
 npm run dfx:deploy:playground
 ```
 
-This command performs the following operations:
-
-1. Builds all Canisters (internet-identity, ii-integration, expo-starter-frontend, expo-starter-backend)
-2. Installs the built Canisters to the playground
-
-**Important Notes**
-
-- Deployment may take several minutes
-- Deployed canisters expire after 20 minutes
-- Playground deployments have the following limitations:
-  - Maximum memory usage of 1GB
-  - Cycle transfer instructions are ignored
-  - Wasm files cannot be gzipped
-
 ## Preparation Steps for ICP Mainnet (ic) Deployment
 
 1. Create and switch to a development identity
@@ -261,34 +245,43 @@ dfx identity new dev
 dfx identity use dev
 ```
 
-2. Check account information
+2. Get your account's ledger account ID
 
 ```bash
 dfx ledger account-id
-dfx identity get-principal
 ```
 
-3. Prepare for deployment
+3. Send ICP tokens to your ledger account ID
 
-- Transfer a small amount of ICP to the displayed Account ID (recommended to have around 5 ICP)
-- After the transfer, create a Canister with the following command
+You can obtain ICP tokens from an exchange. If you are using an exchange, initiate a withdrawal transaction, then enter the ledger account ID as the "destination" address to send ICP tokens to.
+
+4. Check your ICP balance
 
 ```bash
-dfx ledger --network ic create-canister $(dfx identity get-principal) --amount 4
+dfx ledger balance --network=ic
 ```
 
-4. Configure the Cycles wallet
+5. Convert ICP into cycles
+
+Replace `AMOUNT` with the number of ICP tokens you want to convert into cycles:
 
 ```bash
-dfx identity --ic deploy-wallet <<created Cycles Wallet Canister ID>>
-dfx identity --network ic set-wallet <<created Cycles Wallet Canister ID>>
+dfx cycles convert --amount AMOUNT --network=ic
+```
+
+6. Confirm your cycles balance
+
+```bash
+dfx cycles balance --network=ic
 ```
 
 **Important Notes**
 
-- Deployment requires:
-  - ICP for wallet creation
-  - Cycles for Canister deployment
+- Make sure you have enough ICP tokens in your account before converting to cycles.
+- The conversion rate from ICP to cycles is fixed and determined by the Internet Computer protocol.
+- You can check your cycles balance at any time using `dfx cycles balance --network=ic`.
+- For more information about cycles and resource consumption, see the [Internet Computer documentation](https://internetcomputer.org/docs/building-apps/getting-started/tokens-and-cycles).
+- For detailed instructions on obtaining cycles, see the [Obtaining cycles](https://internetcomputer.org/docs/building-apps/getting-started/tokens-and-cycles#obtaining-cycles) section of the Internet Computer documentation.
 
 ## Backup and Restore Developer's Private Key
 
@@ -343,14 +336,12 @@ Here's how to start local-ssl-proxy
 ```bash
 npm run ssl:canisters
 npm run ssl:ii
-npm run ssl:web
 ```
 
 These commands do the following:
 
 1. ssl:canisters provides HTTPS connection for Canisters (14943→4943)
 2. ssl:ii provides HTTPS connection for Internet Identity (24943→4943)
-3. ssl:web provides HTTPS connection for Web application (18081→8081)
 
 **Important Notes**
 
