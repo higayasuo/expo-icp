@@ -10,6 +10,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="apple-itunes-app" content="app-id=6744304270" />
         <meta
           httpEquiv="Content-Security-Policy"
           content="default-src 'self';

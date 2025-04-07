@@ -9,14 +9,14 @@
     "start": "npx expo-doctor && expo start --go --clear",
     "start:dev-client": " npx expo-doctor && EXPO_PUBLIC_EAS_DEEP_LINK_TYPE=legacy expo start --dev-client --clear",
     "build": "npx expo export -p web",
-    "eas:build:ios:development": "DFX_NETWORK=ic node ../../scripts/setup-env.js && tsc && eas build --profile development --platform ios",
-    "eas:build:android:development": "DFX_NETWORK=ic node ../../scripts/setup-env.js && tsc && eas build --profile development --platform android",
+    "eas:init": "eas init",
+    "eas:credentials": "eas credentials",
+    "setup-env": "DFX_NETWORK=ic node ../../scripts/setup-env.js",
+    "eas:build:ios:preview": "npm run setup-env && tsc && eas build --profile preview --platform ios",
+    "eas:build:android:preview": "npm run setup-env && tsc && eas build --profile preview --platform android",
     "test": "node --experimental-vm-modules node_modules/vitest/vitest.mjs",
     "test:watch": "node --experimental-vm-modules node_modules/vitest/vitest.mjs watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run --coverage",
-    "lint": "eslint .",
-    "android": "expo run:android",
-    "ios": "expo run:ios"
+    "test:coverage": "node --experimental-vm-modules node_modules/vitest/vitest.mjs run --coverage"
   },
   "dependencies": {
     "@dfinity/agent": "file:dfinity-agent-0.20.2.tgz",
