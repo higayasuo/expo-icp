@@ -208,6 +208,8 @@ const updateAppJson = async (frontendCanisterId) => {
   console.log('Updated app.json:', JSON.stringify(appJson, undefined, 2));
 
   await writeFile(appJsonPath, JSON.stringify(appJson, undefined, 2));
+
+  return appJson;
 };
 
 const setupCanisterIds = async () => {
