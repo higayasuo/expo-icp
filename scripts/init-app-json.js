@@ -37,7 +37,7 @@ const initAppJson = async () => {
   }
 
   if (appJson?.expo?.owner) {
-    appJson.expo.owner = '';
+    delete appJson.expo.owner;
   }
 
   appJson.expo.name = appName;
