@@ -26,30 +26,40 @@ Welcome to the `expo-icp` project.
 
 ## Service Concept
 
-A multi-platform(iOS/Android/Web) authentication solution that makes Internet Identity easy to use in Expo apps with just a few lines of code. This project provides a template for creating smartphone native apps for ICP.
+A multi-platform(iOS/Android/Web) authentication solution that makes Internet Identity authentication easy to use in Expo apps with just a few lines of code. This project provides a template for creating smartphone native apps for ICP.
 
 ## Quick Start
+
+### Prerequisites
+
+- Node.js version 18 or higher
+- Expo Go app installed on your device
+- mkcert installed and configured
+- Rust and ICP development tools
+
+### Setup Steps
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/expo-icp.git
+git clone https://github.com/higayasuo/expo-icp.git
 cd expo-icp
 ```
 
-2. Install dependencies:
+2. Install Rust and ICP development tools:
 
 ```bash
-npm install
+sh ./scripts/setup.sh
 ```
 
-3. Start the development server:
+3. Follow the detailed setup instructions in [Setup Guide](docs/setup.md) to:
+   - Set up Static IP Address
+   - Configure mkcert and certificates
+   - Install root certificate on your device
+   - Deploy canisters
+   - Start development servers
 
-```bash
-npm start
-```
-
-4. Follow the [Setup Guide](docs/setup.md) for detailed configuration.
+For detailed setup instructions, please refer to the [Setup Guide](docs/setup.md).
 
 ## Documentation
 
