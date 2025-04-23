@@ -1,35 +1,132 @@
-# ic-vetkd-utils
+# Frontend Implementation
 
-This package provides utilities for obtaining and decrypting verifiably-encrypted keys via the Internet Computer's [proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158).
+This directory contains the frontend implementation of the expo-icp project, which provides Internet Identity authentication for Expo apps.
 
-The utilities are intended to be used (1) in an end-user's browser as WebAssembly (Wasm) module via a Javascript wrapper, and (2) for testing the vetKD protocol.
+## Overview
 
-The package is implemented in Rust. To make it usable in Javascript in a browser, the relevant APIs have `wasm-bindgen` annotations so that it can be compiled to Wasm with `wasm-pack`.
+The frontend is built using:
 
-## Usage
+- Expo
+- React Native
+- TypeScript
+- Internet Computer Protocol (ICP)
 
-As the API still needs to stabilize, the package is neither published to [npmjs.org](npmjs.org) nor [crates.io](crates.io) yet. Until then, it is easiest to use the package with `webpack`.
+## Setup
 
-When using [webpack](https://webpack.js.org/) as bundler, which is also used in the default template frontend canister created with the Internet Computer SDK (with `dfx new`), perform the following steps to use the vetKD utils in your application.
+1. Install dependencies and setup Expo:
 
-1. Ensure you have [wasm-pack installed](https://rustwasm.github.io/wasm-pack/installer/).
+```bash
+npm run setup
+```
 
-2. Run `wasm-pack build --release`
+2. Start the development server:
 
-   This will create a `pkg/` folder with various build artifacts including a `.wasm` file and Javascript/Typescript bindings.
+```bash
+npm start
+```
 
-3. Run `wasm-pack pack`
+3. For development with dev client:
 
-   This will create a `ic-vetkd-utils-0.1.0.tgz` file in the `pkg/` folder.
+```bash
+npm run start:dev-client
+```
 
-4. Copy the `.tgz` file to your application and add it as dependency in your webpack `package.json` via [its local path](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#local-paths).
+4. Setup environment variables:
 
-   For example, with `"ic-vetkd-utils": "file:path/to/ic-vetkd-utils-0.1.0.tgz"`
+```bash
+npm run setup-env
+```
 
-6. Run `npm install`
+## Development
 
-7. Include it from Javascript
+- The frontend uses Expo Router for navigation
+- TypeScript is used for type safety
+- React Native components are used for UI elements
+- Internet Identity is integrated for authentication
+- Error handling is managed through a context provider
 
-   For example, with `import * as vetkd from "ic-vetkd-utils";`
+## Testing
 
-For more details, see, for example, the respective sections in the [wasm-bindgen reference's deployment section](https://rustwasm.github.io/wasm-bindgen/reference/deployment.html) and [the wasm-pack book's build section](https://rustwasm.github.io/wasm-pack/book/commands/build.html).
+Tests are run using Vitest:
+
+- Run tests:
+
+```bash
+npm test
+```
+
+- Run tests in watch mode:
+
+```bash
+npm run test:watch
+```
+
+- Run tests with coverage:
+
+```bash
+npm run test:coverage
+```
+
+## Building
+
+### Web Build
+
+```bash
+npm run build
+```
+
+### iOS Build
+
+1. Initialize EAS (if not done):
+
+```bash
+npm run eas:init
+```
+
+2. Setup credentials:
+
+```bash
+npm run eas:credentials
+```
+
+3. Build for preview:
+
+```bash
+npm run eas:build:ios:preview
+```
+
+4. Build for production:
+
+```bash
+npm run eas:build:ios:production
+```
+
+### Android Build
+
+1. Initialize EAS (if not done):
+
+```bash
+npm run eas:init
+```
+
+2. Setup credentials:
+
+```bash
+npm run eas:credentials
+```
+
+3. Build for preview:
+
+```bash
+npm run eas:build:android:preview
+```
+
+4. Build for production:
+
+```bash
+npm run eas:build:android:production
+```
+
+## Contributing
+
+Please follow the project's coding standards and submit pull requests for any improvements.
