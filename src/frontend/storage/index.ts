@@ -9,8 +9,6 @@ import {
 } from 'expo-storage-universal-native';
 import { AppKeyStorage, DelegationStorage } from 'expo-ii-integration';
 
-console.log('Platform.OS', Platform.OS);
-
 export const secureStorage =
   Platform.OS === 'web' ? new WebSecureStorage() : new NativeSecureStorage();
 

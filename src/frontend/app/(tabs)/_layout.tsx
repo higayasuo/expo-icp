@@ -1,9 +1,8 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Href, Redirect, Tabs, usePathname } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { LogIn } from '@/components/LogIn';
 import { LogOut } from '@/components/LogOut';
-import { View, ActivityIndicator } from 'react-native';
 import { useIIIntegrationContext } from 'expo-ii-integration';
 
 /**
@@ -17,48 +16,32 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-  const { identity, pathWhenLogin, clearPathWhenLogin } =
-    useIIIntegrationContext();
-  const pathname = usePathname();
-  // const path = pathWhenLogin ?? pathname;
-
-  // console.log('pathname', pathname);
-  // console.log('pathWhenLogin', pathWhenLogin);
-  // console.log('path', path);
-
-  if (identity && pathWhenLogin) {
-    clearPathWhenLogin();
-
-    if (pathWhenLogin !== pathname) {
-      console.log('redirecting to', pathWhenLogin);
-      // Show loading indicator while redirecting
-      return (
-        <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Redirect href={pathWhenLogin as Href} />
-        </View>
-      );
-    }
-  }
+  const { isAuthenticated } = useIIIntegrationContext();
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#007AFF',
-        headerRight: () => (identity ? <LogOut /> : <LogIn />),
+        headerRight: () => (isAuthenticated ? <LogOut /> : <LogIn />),
         headerStyle: {
           height: 110,
         },
       }}
-      //initialRouteName={routeName}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Identity',
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="hello"
+        options={{
+          title: 'Hello',
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="smile-o" color={color} />
+          ),
         }}
       />
     </Tabs>
