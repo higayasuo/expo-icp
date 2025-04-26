@@ -4,7 +4,7 @@ import {
   buildParams,
   prepareButtons,
   setupLoginButtonHandler,
-} from 'ii-integration-helper';
+} from 'ii-integration-helpers';
 import { ERROR_MESSAGES } from './constants';
 import {
   LOCAL_IP_ADDRESS,
@@ -22,7 +22,6 @@ const main = async (): Promise<void> => {
       internetIdentityCanisterId: CANISTER_ID_INTERNET_IDENTITY,
       frontendCanisterId: CANISTER_ID_FRONTEND,
       expoScheme: EXPO_SCHEME,
-      window,
     });
     console.log('deepLink', deepLink);
     console.log('iiUri', iiUri);
@@ -36,7 +35,6 @@ const main = async (): Promise<void> => {
       deepLink,
       appPublicKey,
       iiUri,
-      window,
     });
   } catch (error) {
     renderError(formatError(ERROR_MESSAGES.INITIALIZATION, error));
