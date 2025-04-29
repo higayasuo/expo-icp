@@ -4,7 +4,7 @@
 export const LOCAL_IP_ADDRESS = '192.168.0.210';
 export const DFX_NETWORK = 'local';
 export const CANISTER_ID_INTERNET_IDENTITY = 'rdmx6-jaaaa-aaaaa-aaadq-cai';
-export const CANISTER_ID_BACKEND = 'bkyz2-fmaaa-aaaaa-qaaaq-cai';
-export const CANISTER_ID_FRONTEND = 'bd3sg-teaaa-aaaaa-qaaba-cai';
-export const CANISTER_ID_II_INTEGRATION = 'be2us-64aaa-aaaaa-qaabq-cai';
+export const CANISTER_ID_BACKEND = 'uxrrr-q7777-77774-qaaaq-cai';
+export const CANISTER_ID_FRONTEND = 'u6s2n-gx777-77774-qaaba-cai';
+export const CANISTER_ID_II_INTEGRATION = 'uzt4z-lp777-77774-qaabq-cai';
 export const EXPO_SCHEME = 'expo-icp';

@@ -1,6 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo } from 'react';
 import 'react-native-reanimated';
@@ -16,8 +16,11 @@ import {
   CANISTER_ID_II_INTEGRATION,
   CANISTER_ID_FRONTEND,
 } from '@/constants';
-import { delegationStorage, appKeyStorage } from '@/storage';
-//import { useAesKey, AesProcessingView } from '@/aes';
+import {
+  delegationStorage,
+  appKeyStorage,
+  redirectPathStorage,
+} from '@/storage';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -65,6 +68,7 @@ function RootLayoutNav() {
     iiIntegrationCanisterId: CANISTER_ID_II_INTEGRATION,
     appKeyStorage,
     delegationStorage,
+    redirectPathStorage,
     platform: Platform.OS,
   });
 

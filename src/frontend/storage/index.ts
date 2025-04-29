@@ -7,7 +7,11 @@ import {
   NativeSecureStorage,
   NativeRegularStorage,
 } from 'expo-storage-universal-native';
-import { AppKeyStorage, DelegationStorage } from 'expo-ii-integration';
+import {
+  AppKeyStorage,
+  DelegationStorage,
+  RedirectPathStorage,
+} from 'expo-ii-integration';
 
 export const secureStorage =
   Platform.OS === 'web' ? new WebSecureStorage() : new NativeSecureStorage();
@@ -17,3 +21,4 @@ export const regularStorage =
 
 export const appKeyStorage = new AppKeyStorage(secureStorage);
 export const delegationStorage = new DelegationStorage(secureStorage);
+export const redirectPathStorage = new RedirectPathStorage(regularStorage);
