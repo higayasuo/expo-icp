@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/@types/package.json",
   "name": "expo-icp",
+  "description": "This is a template project that enables the use of Internet Identity in Expo Web and Native apps.",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "type": "module",

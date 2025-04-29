@@ -1,6 +1,6 @@
 # `expo-icp`
 
-Welcome to the `expo-icp` project.
+This is a template project that enables the use of Internet Identity in Expo Web and Native apps.
 
 ## Features
 
