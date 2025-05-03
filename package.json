@@ -4,7 +4,7 @@
     "npm": ">=7.0.0"
   },
   "scripts": {
-    "setup": "npm install && npm run delete:canister-ids && npm run delete:aasa && npm run init:app-json && npm run ii:setup && npm run frontend:setup && npm run ii-integration:setup",
+    "setup": "npm install && npm run delete:canister_ids && npm run delete:aasa && npm run init:app-json && npm run ii:setup && npm run frontend:setup && npm run ii-integration:setup",
     "dfx:start": "dfxvm update && dfx start --clean",
     "dfx:deploy": "dfx deps deploy && dfx deploy --yes",
     "dfx:deploy:playground": "dfx deploy --playground --yes",
@@ -20,7 +20,7 @@
     "frontend:eas:build:ios:preview": "npm run eas:build:ios:preview --prefix src/frontend",
     "ii:setup": "dfx deps pull && dfx deps init",
     "ii-integration:setup": "npm run setup --prefix src/ii-integration",
-    "delete:canister-ids": "rimraf canister_ids.json",
+    "delete:canister_ids": "node -e \"import('fs').then(fs => { try { fs.unlinkSync('./canister_ids.json'); } catch (e) {} })\"",
     "delete:aasa": "rimraf src/frontend/public/.well-known/apple-app-site-association",
     "init:app-json": "node scripts/init-app-json.js"
   },
