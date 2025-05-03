@@ -12,7 +12,7 @@
         "src/ii-integration/dist"
       ],
       "type": "assets",
-      "build": "node scripts/setup-env.js && npm run build --prefix src/ii-integration"
+      "build": "node scripts/setup-env.mjs && npm run build --prefix src/ii-integration"
     },
     "backend": {
       "candid": "src/backend/backend.did",
