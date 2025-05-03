@@ -17,7 +17,8 @@
     "@dfinity/agent": "^2.3.0",
     "@dfinity/auth-client": "^2.3.0",
     "@dfinity/identity": "^2.3.0",
-    "ii-integration-helpers": "file:ii-integration-helpers-0.1.2.tgz"
+    "expo-icp-frontend-helpers": "^0.1.8",
+    "ii-integration-helpers": "^0.1.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
