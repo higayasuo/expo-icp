@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
 import { buttonTextStyles } from './styles';
 import { useIIIntegrationContext } from 'expo-ii-integration';
+import { useError } from '@/contexts/ErrorContext';
 
 /**
  * Component that handles the login functionality
@@ -9,11 +10,14 @@ import { useIIIntegrationContext } from 'expo-ii-integration';
 export const LogIn = () => {
   const { login } = useIIIntegrationContext();
   const [busy, setBusy] = useState(false);
+  const { showError } = useError();
 
-  const handlePress = async () => {
+  const handleLogin = async () => {
     setBusy(true);
     try {
       await login();
+    } catch (error) {
+      showError(error);
     } finally {
       setBusy(false);
     }
@@ -29,7 +33,7 @@ export const LogIn = () => {
       accessibilityRole="button"
       disabled={busy}
       accessibilityState={{ busy }}
-      onPress={handlePress}
+      onPress={handleLogin}
     >
       <Text style={styles.headerButtonText}>Log in</Text>
     </Pressable>

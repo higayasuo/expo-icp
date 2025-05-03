@@ -16,7 +16,6 @@ export default function Root({ children }: { children: React.ReactNode }) {
           content="default-src 'self';
             script-src 'self';
             connect-src 'self' http://localhost:4943 https://192.168.0.210:14943 https://ic0.app https://*.ic0.app;
-            frame-src 'self' http://*.localhost:4943 https://192.168.0.210:14943 https://*.icp0.io;
             img-src 'self' data:;
             style-src 'self' 'unsafe-inline';
             style-src-elem 'self' 'unsafe-inline';

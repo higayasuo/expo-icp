@@ -16,11 +16,7 @@ import {
   CANISTER_ID_II_INTEGRATION,
   CANISTER_ID_FRONTEND,
 } from '@/constants';
-import {
-  delegationStorage,
-  appKeyStorage,
-  redirectPathStorage,
-} from '@/storage';
+import { secureStorage, regularStorage } from '@/storage';
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -66,13 +62,11 @@ function RootLayoutNav() {
     deepLink,
     frontendCanisterId: CANISTER_ID_FRONTEND,
     iiIntegrationCanisterId: CANISTER_ID_II_INTEGRATION,
-    appKeyStorage,
-    delegationStorage,
-    redirectPathStorage,
-    platform: Platform.OS,
+    secureStorage,
+    regularStorage,
   });
 
-  const { authError, isReady } = iiIntegration;
+  const { authError, isAuthReady } = iiIntegration;
   const { showError } = useError();
 
   useEffect(() => {
@@ -97,7 +91,7 @@ function RootLayoutNav() {
     [iiIntegration],
   );
 
-  if (!isReady) {
+  if (!isAuthReady) {
     return <LoadingView />;
   }
 

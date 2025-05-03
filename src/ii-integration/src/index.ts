@@ -35,6 +35,7 @@ const main = async (): Promise<void> => {
       deepLink,
       appPublicKey,
       iiUri,
+      ttlMs: 1000 * 60 * 1, // 1 minute
     });
   } catch (error) {
     renderError(formatError(ERROR_MESSAGES.INITIALIZATION, error));

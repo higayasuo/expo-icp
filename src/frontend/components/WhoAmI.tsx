@@ -19,21 +19,20 @@ import { useIIIntegrationContext } from 'expo-ii-integration';
  * Component that displays the whoami functionality
  */
 export const WhoAmI = () => {
-  const { identity } = useIIIntegrationContext();
+  const { getIdentity } = useIIIntegrationContext();
   const [who, setWho] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const { width } = useWindowDimensions();
   const { showError } = useError();
 
-  useEffect(() => {
-    setWho(undefined);
-  }, [identity]);
-
   const whoami = async () => {
-    const backend = createBackend(identity);
+    setWho(undefined);
 
     try {
+      const identity = await getIdentity();
+      const backend = createBackend(identity);
+
       return await backend.whoami();
     } catch (error) {
       showError(error);
