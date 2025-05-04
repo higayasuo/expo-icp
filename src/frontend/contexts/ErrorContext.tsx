@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
+import { Platform } from 'react-native';
 
 interface ErrorContextType {
   showError: (error: unknown) => void;
@@ -45,14 +46,20 @@ export function ErrorProvider({ children }: ErrorProviderProps) {
     setTimeout(() => setErrorMessage(''), 300);
   }, []);
 
+  // Only render ErrorDisplay in non-static environments
+  const shouldRenderErrorDisplay =
+    Platform.OS !== 'web' || process.env.NODE_ENV !== 'production';
+
   return (
     <ErrorContext.Provider value={{ showError, clearError }}>
       {children}
-      <ErrorDisplay
-        message={errorMessage}
-        visible={visible}
-        onClose={clearError}
-      />
+      {shouldRenderErrorDisplay && (
+        <ErrorDisplay
+          message={errorMessage}
+          visible={visible}
+          onClose={clearError}
+        />
+      )}
     </ErrorContext.Provider>
   );
 }
