@@ -27,7 +27,6 @@
   "name": "expo-icp",
   "type": "module",
   "devDependencies": {
-    "local-ssl-proxy": "^2.0.5",
-    "rimraf": "^5.0.5"
+    "local-ssl-proxy": "^2.0.5"
   }
 }
