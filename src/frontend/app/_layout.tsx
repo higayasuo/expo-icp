@@ -17,7 +17,7 @@ import {
   CANISTER_ID_FRONTEND,
 } from '@/constants';
 import { secureStorage, regularStorage } from '@/storage';
-
+import { cryptoModule } from '@/crypto';
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
@@ -64,6 +64,7 @@ function RootLayoutNav() {
     iiIntegrationCanisterId: CANISTER_ID_II_INTEGRATION,
     secureStorage,
     regularStorage,
+    cryptoModule,
   });
 
   const { authError, isAuthReady } = iiIntegration;
