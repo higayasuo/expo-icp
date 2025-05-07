@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "expo-icp2",
-    "slug": "expo-icp2",
+    "name": "expo-icp",
+    "slug": "expo-icp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "expo-icp2",
+    "scheme": "expo-icp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.example.expoicp2",
+      "bundleIdentifier": "com.example.expoicp",
       "associatedDomains": [
         "applinks:bsbsa-xaaaa-aaaai-q3wja-cai.icp0.io"
       ],
@@ -32,7 +32,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.example.expoicp2",
+      "package": "com.example.expoicp",
       "intentFilters": [
         {
           "action": "VIEW",
