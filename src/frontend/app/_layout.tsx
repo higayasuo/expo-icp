@@ -5,8 +5,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useMemo } from 'react';
 import 'react-native-reanimated';
 import { useIIIntegration, IIIntegrationProvider } from 'expo-ii-integration';
+import { buildAppConnectionURL } from 'expo-icp-app-connect-helpers';
+import { getDeepLinkType } from 'expo-icp-frontend-helpers';
 import { ErrorProvider } from '@/contexts/ErrorContext';
-import { View, ActivityIndicator, Platform } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import * as Linking from 'expo-linking';
 
 import { useError } from '@/contexts/ErrorContext';
@@ -55,13 +57,19 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const deepLink = Linking.createURL('/');
-  const iiIntegration = useIIIntegration({
-    localIPAddress: LOCAL_IP_ADDRESS,
+  const iiIntegrationUrl = buildAppConnectionURL({
     dfxNetwork: DFX_NETWORK,
-    easDeepLinkType: process.env.EXPO_PUBLIC_EAS_DEEP_LINK_TYPE,
+    localIPAddress: LOCAL_IP_ADDRESS,
+    targetCanisterId: CANISTER_ID_II_INTEGRATION,
+  });
+  const deepLinkType = getDeepLinkType({
     deepLink,
     frontendCanisterId: CANISTER_ID_FRONTEND,
-    iiIntegrationCanisterId: CANISTER_ID_II_INTEGRATION,
+    easDeepLinkType: process.env.EXPO_PUBLIC_EAS_DEEP_LINK_TYPE,
+  });
+  const iiIntegration = useIIIntegration({
+    iiIntegrationUrl,
+    deepLinkType,
     secureStorage,
     regularStorage,
     cryptoModule,
