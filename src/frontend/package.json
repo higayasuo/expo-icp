@@ -46,7 +46,7 @@
     "expo-dev-client": "~5.1.8",
     "expo-font": "~13.3.1",
     "expo-haptics": "~14.1.4",
-    "expo-icp": "^0.1.7",
+    "expo-icp": "^0.1.10",
     "expo-icp-app-connect": "^0.1.0",
     "expo-icp-app-connect-helpers": "^0.1.2",
     "expo-icp-frontend-helpers": "^0.1.12",
