@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite",
     "setup": "npm install",
+    "expo-icp:install": "npx -p expo-icp@latest expo-icp install --ii-integration-helpers",
     "build": "tsc && vite build"
   },
   "keywords": [],

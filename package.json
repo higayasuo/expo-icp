@@ -14,6 +14,7 @@
     "ssl:canisters": "local-ssl-proxy --key ./.mkcert/192.168.0.210-key.pem --cert ./.mkcert/192.168.0.210.pem --source 14943 --target 4943",
     "ssl:ii": "local-ssl-proxy --key ./.mkcert/192.168.0.210-key.pem --cert ./.mkcert/192.168.0.210.pem --source 24943 --target 4943",
     "frontend:setup": "npm run setup --prefix src/frontend",
+    "frontend:expo-icp:install": "npm run expo-icp:install --prefix src/frontend",
     "frontend:start": "npm run start --prefix src/frontend",
     "frontend:eas:init": "npm run eas:init --prefix src/frontend",
     "frontend:eas:device:create": "npm run eas:device:create --prefix src/frontend",
@@ -22,6 +23,7 @@
     "frontend:eas:build:ios:preview": "npm run eas:build:ios:preview --prefix src/frontend",
     "ii:setup": "dfx deps pull && dfx deps init",
     "ii-integration:setup": "npm run setup --prefix src/ii-integration",
+    "ii-integration:expo-icp:install": "npm run expo-icp:install --prefix src/ii-integration",
     "delete:canister-ids": "node -e \"import('fs').then(fs => { try { fs.unlinkSync('./canister_ids.json'); } catch (e) {} })\"",
     "delete:aasa": "node -e \"import('fs').then(fs => { try { fs.rmSync('src/frontend/public/.well-known/apple-app-site-association', { force: true }); } catch(e) {} })\"",
     "init:app-json": "node scripts/init-app-json.mjs"
