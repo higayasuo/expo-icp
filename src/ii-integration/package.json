@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "expo-icp": "^0.1.12",
+    "expo-icp": "^0.1.15",
     "typescript": "^5.7.2",
     "vite": "^5.0.3"
   }
