@@ -7,9 +7,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "setup": "npm install",
+    "setup": "npm install && npm run expo-icp:install",
     "expo-icp:install": "npx -p expo-icp@latest expo-icp install --ii-integration-helpers",
-    "build": "tsc && vite build"
+    "build": "npm run typecheck && vite build",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
