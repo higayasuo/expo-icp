@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
+import { usePathname } from 'expo-router';
 import { buttonTextStyles } from './styles';
 import { useIIIntegrationContext } from 'expo-ii-integration';
 import { useError } from '@/contexts/ErrorContext';
@@ -11,11 +12,14 @@ export const LogIn = () => {
   const { login } = useIIIntegrationContext();
   const [busy, setBusy] = useState(false);
   const { showError } = useError();
+  const pathname = usePathname();
 
   const handleLogin = async () => {
     setBusy(true);
     try {
-      await login();
+      await login({
+        redirectPath: pathname,
+      });
     } catch (error) {
       showError(error);
     } finally {

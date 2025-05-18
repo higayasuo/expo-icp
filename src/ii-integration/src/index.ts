@@ -16,13 +16,14 @@ import {
 
 const main = async (): Promise<void> => {
   try {
-    const { deepLink, appPublicKey, iiUri, sessionId } = buildParams({
-      localIPAddress: LOCAL_IP_ADDRESS,
-      dfxNetwork: DFX_NETWORK,
-      internetIdentityCanisterId: CANISTER_ID_INTERNET_IDENTITY,
-      frontendCanisterId: CANISTER_ID_FRONTEND,
-      expoScheme: EXPO_SCHEME,
-    });
+    const { deepLink, appPublicKey, internetIdentityURL, sessionId } =
+      buildParams({
+        localIPAddress: LOCAL_IP_ADDRESS,
+        dfxNetwork: DFX_NETWORK,
+        internetIdentityCanisterId: CANISTER_ID_INTERNET_IDENTITY,
+        frontendCanisterId: CANISTER_ID_FRONTEND,
+        expoScheme: EXPO_SCHEME,
+      });
     //console.log('deepLink', deepLink);
     //console.log('iiUri', iiUri);
 
@@ -35,7 +36,7 @@ const main = async (): Promise<void> => {
       deepLink,
       sessionId,
       appPublicKey,
-      iiUri,
+      internetIdentityURL,
       ttlMs: 1000 * 60 * 15, // 15 minutes
     });
   } catch (error) {
