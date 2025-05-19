@@ -7,8 +7,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "setup": "npm install && npm run expo-icp:install",
-    "expo-icp:install": "npx -p expo-icp@latest expo-icp install --ii-integration-helpers",
+    "setup": "npm install && npm run upgrade",
+    "upgrade": "npm run expo-icp:install",
+    "expo-icp:install": "npx -p expo-icp@latest expo-icp install",
     "build": "npm run typecheck && vite build",
     "typecheck": "tsc --noEmit"
   },
@@ -19,13 +20,13 @@
     "@dfinity/agent": "^2.3.0",
     "@dfinity/auth-client": "^2.3.0",
     "@dfinity/identity": "^2.3.0",
+    "canister-manager": "^0.1.7",
     "expo-icp-app-connect-helpers": "^0.1.5",
     "expo-icp-frontend-helpers": "^0.1.13",
     "ii-integration-helpers": "^0.1.5"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "expo-icp": "^0.1.15",
     "typescript": "^5.7.2",
     "vite": "^5.0.3"
   }
