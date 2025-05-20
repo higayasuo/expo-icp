@@ -7,9 +7,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "setup": "npm install && npm run upgrade",
-    "upgrade": "npm run expo-icp:install",
-    "expo-icp:install": "npx -p expo-icp@latest expo-icp install",
+    "setup": "npm install && npm run update",
+    "update": "npm run expo-icp:update",
+    "expo-icp:update": "npx -p expo-icp@latest expo-icp update",
     "build": "npm run typecheck && vite build",
     "typecheck": "tsc --noEmit"
   },
