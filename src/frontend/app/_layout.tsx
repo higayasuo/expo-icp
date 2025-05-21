@@ -7,11 +7,10 @@ import 'react-native-reanimated';
 import { useIIIntegration, IIIntegrationProvider } from 'expo-ii-integration';
 import { buildAppConnectionURL } from 'expo-icp-app-connect-helpers';
 import { getDeepLinkType } from 'expo-icp-frontend-helpers';
-import { ErrorProvider } from '@/contexts/ErrorContext';
+import { ErrorToastProvider, useErrorToast } from 'expo-error-toast';
 import { View, ActivityIndicator } from 'react-native';
 import * as Linking from 'expo-linking';
 
-import { useError } from '@/contexts/ErrorContext';
 import {
   LOCAL_IP_ADDRESS,
   DFX_NETWORK,
@@ -49,9 +48,9 @@ export default function RootLayout() {
   }
 
   return (
-    <ErrorProvider>
+    <ErrorToastProvider>
       <RootLayoutNav />
-    </ErrorProvider>
+    </ErrorToastProvider>
   );
 }
 
@@ -76,7 +75,7 @@ function RootLayoutNav() {
   });
 
   const { authError, isAuthReady } = iiIntegration;
-  const { showError } = useError();
+  const { showError } = useErrorToast();
 
   useEffect(() => {
     if (authError) {

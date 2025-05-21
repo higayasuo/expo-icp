@@ -2,14 +2,14 @@ import { Pressable, Text, StyleSheet } from 'react-native';
 import { buttonTextStyles } from './styles';
 import { useIIIntegrationContext } from 'expo-ii-integration';
 import { useState } from 'react';
-import { useError } from '@/contexts/ErrorContext';
+import { useErrorToast } from 'expo-error-toast';
 /**
  * Component that handles the logout functionality
  */
 export const LogOut = () => {
   const { logout } = useIIIntegrationContext();
   const [busy, setBusy] = useState(false);
-  const { showError } = useError();
+  const { showError } = useErrorToast();
 
   const handleLogout = async () => {
     setBusy(true);

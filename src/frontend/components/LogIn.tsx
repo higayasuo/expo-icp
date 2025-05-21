@@ -3,7 +3,7 @@ import { Pressable, Text, StyleSheet } from 'react-native';
 import { usePathname } from 'expo-router';
 import { buttonTextStyles } from './styles';
 import { useIIIntegrationContext } from 'expo-ii-integration';
-import { useError } from '@/contexts/ErrorContext';
+import { useErrorToast } from 'expo-error-toast';
 
 /**
  * Component that handles the login functionality
@@ -11,7 +11,7 @@ import { useError } from '@/contexts/ErrorContext';
 export const LogIn = () => {
   const { login } = useIIIntegrationContext();
   const [busy, setBusy] = useState(false);
-  const { showError } = useError();
+  const { showError } = useErrorToast();
   const pathname = usePathname();
 
   const handleLogin = async () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
   buttonTextStyles,
 } from './styles';
 import { createBackend } from '@/backend';
-import { useError } from '@/contexts/ErrorContext';
+import { useErrorToast } from 'expo-error-toast';
 import { useIIIntegrationContext } from 'expo-ii-integration';
 /**
  * Component that displays the whoami functionality
@@ -24,7 +24,7 @@ export const WhoAmI = () => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const { width } = useWindowDimensions();
-  const { showError } = useError();
+  const { showError } = useErrorToast();
 
   const whoami = async () => {
     setWho(undefined);

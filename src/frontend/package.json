@@ -46,6 +46,7 @@
     "expo-crypto-universal-native": "^0.2.7",
     "expo-crypto-universal-web": "^0.2.7",
     "expo-dev-client": "~5.1.8",
+    "expo-error-toast": "^0.1.0",
     "expo-font": "~13.3.1",
     "expo-haptics": "~14.1.4",
     "expo-icp-app-connect": "^0.1.2",
