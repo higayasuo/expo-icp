@@ -1,5 +1,5 @@
 import { readFile, writeFile, readdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -16,18 +16,6 @@ console.log('Root directory:', rootDir);
 const mkcertPath = path.join(rootDir, '.mkcert');
 const frontendPath = path.join(rootDir, 'src', 'frontend');
 const appJsonPath = path.join(frontendPath, 'app.json');
-const frontendEnvFilePath = path.join(
-  frontendPath,
-  'constants',
-  'env.generated.ts',
-);
-const iiIntegrationEnvFilePath = path.join(
-  rootDir,
-  'src',
-  'ii-integration',
-  'src',
-  'env.generated.ts',
-);
 
 const dfxNetwork = process.env.DFX_NETWORK;
 if (!dfxNetwork) {
@@ -153,7 +141,47 @@ const getExpoScheme = async () => {
   return json.scheme ?? '';
 };
 
-const generateEnvFile = async (
+const getEnvFilePath = (dir) => {
+  if (!existsSync(path.join(dir, 'package.json'))) {
+    return undefined;
+  }
+
+  if (existsSync(path.join(dir, 'Cargo.toml'))) {
+    return undefined;
+  }
+
+  const constantsPath = path.join(dir, 'constants');
+
+  if (existsSync(constantsPath)) {
+    return path.join(constantsPath, 'env.generated.ts');
+  }
+
+  const srcPath = path.join(dir, 'src');
+
+  if (existsSync(srcPath)) {
+    return path.join(srcPath, 'env.generated.ts');
+  }
+
+  return undefined;
+};
+
+const getEnvFilePaths = async () => {
+  const srcDir = path.join(rootDir, 'src');
+  const results = [];
+  const list = readdirSync(srcDir, { withFileTypes: true });
+  for (const dirent of list) {
+    if (dirent.isDirectory()) {
+      const subDir = path.join(srcDir, dirent.name);
+      const envFilePath = getEnvFilePath(subDir);
+      if (envFilePath) {
+        results.push(envFilePath);
+      }
+    }
+  }
+  return results;
+};
+
+const generateEnvFiles = async (
   normalizedCanisterIds,
   localIPAddress,
   expoScheme,
@@ -178,8 +206,10 @@ export const EXPO_SCHEME = '${expoScheme}';
 `;
   console.log('Env file content:', content);
 
-  await writeFile(frontendEnvFilePath, content);
-  await writeFile(iiIntegrationEnvFilePath, content);
+  const envFilePaths = await getEnvFilePaths();
+  envFilePaths.forEach(async (envFilePath) => {
+    await writeFile(envFilePath, content);
+  });
 };
 
 const updateAppJson = async (frontendCanisterId) => {
@@ -215,8 +245,6 @@ const updateAppJson = async (frontendCanisterId) => {
   console.log('Updated app.json:', JSON.stringify(appJson, undefined, 2));
 
   await writeFile(appJsonPath, JSON.stringify(appJson, undefined, 2));
-
-  return appJson;
 };
 
 const setupCanisterIds = async () => {
@@ -258,7 +286,7 @@ const main = async () => {
     const expoScheme = await getExpoScheme();
     console.log('Expo Scheme:', expoScheme);
 
-    await generateEnvFile(normalizedCanisterIds, localIPAddress, expoScheme);
+    await generateEnvFiles(normalizedCanisterIds, localIPAddress, expoScheme);
 
     if (dfxNetwork === 'ic') {
       await updateAppJson(normalizedCanisterIds.frontend);
