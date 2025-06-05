@@ -12,7 +12,7 @@ export type ConcatKdfParams = {
   /** The shared secret used as input to the KDF */
   sharedSecret: Uint8Array;
   /** The desired output length in bits */
-  keyBitLength: number;
+  keyBitLength: 128 | 192 | 256 | 384 | 512;
   /** Additional context/application-specific information */
   otherInfo: Uint8Array;
 };
