@@ -6,7 +6,7 @@ import { CurveFnWithCreate } from 'noble-curves-extended';
  * @param {CurveFnWithCreate} curve - The curve implementation from noble-curves-extended
  * @returns {ShareSecret} - A function that calculates the shared secret
  */
-export const nobleShareSecret =
+export const createNobleShareSecret =
   (curve: CurveFnWithCreate): ShareSecret =>
   /**
    * Calculates a shared secret using ECDH
