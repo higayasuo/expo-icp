@@ -20,8 +20,25 @@ describe('manageJwkKey', () => {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve: {} as any,
-      privateKey: new Uint8Array([1]),
-      publicKey: new Uint8Array([2]),
+      myPrivateKey: new Uint8Array([1]),
+      yourPublicKey: new Uint8Array([2]),
+      providedParameters: {},
+    };
+    const result = manageJwkKey(params);
+    expect(ecdhesManageJwkKey).toHaveBeenCalledWith(params);
+    expect(result).toEqual({
+      cek: new Uint8Array([1, 2, 3]),
+      encryptedKey: undefined,
+      parameters: { epk: { kty: 'EC', crv: 'P-256', x: 'x', y: 'y' } },
+    });
+  });
+
+  it('should delegate to ecdhesManageJwkKey for ECDH-ES without myPrivateKey', () => {
+    const params: ManageJwkKeyParams = {
+      alg: 'ECDH-ES',
+      enc: 'A256GCM',
+      curve: {} as any,
+      yourPublicKey: new Uint8Array([2]),
       providedParameters: {},
     };
     const result = manageJwkKey(params);
@@ -38,8 +55,8 @@ describe('manageJwkKey', () => {
       alg: 'RSA-OAEP',
       enc: 'A256GCM',
       curve: {} as any,
-      privateKey: new Uint8Array([1]),
-      publicKey: new Uint8Array([2]),
+      myPrivateKey: new Uint8Array([1]),
+      yourPublicKey: new Uint8Array([2]),
       providedParameters: {},
     };
     expect(() => manageJwkKey(params)).toThrowError(

@@ -11,8 +11,8 @@ import { toB64U } from 'u8a-utils';
  * @param {string} params.alg - Algorithm identifier (should be 'ECDH-ES')
  * @param {string} params.enc - Encryption algorithm identifier
  * @param {NistCurve} params.curve - Elliptic curve implementation
- * @param {Uint8Array} params.privateKey - Private key bytes
- * @param {Uint8Array} params.publicKey - Public key bytes
+ * @param {Uint8Array} params.myPrivateKey - Private key bytes
+ * @param {Uint8Array} params.yourPublicKey - Public key bytes
  * @param {JweKeyManagementHeaderParameters} params.providedParameters - Key management header parameters
  * @returns {ManageJwkKeyResult} - Result containing CEK, encrypted key (undefined for ECDH-ES), and header parameters
  * @throws {Error} If the encryption algorithm is not supported
@@ -20,12 +20,15 @@ import { toB64U } from 'u8a-utils';
 export const ecdhesManageJwkKey = ({
   enc,
   curve,
-  privateKey,
-  publicKey,
+  myPrivateKey,
+  yourPublicKey,
   providedParameters,
 }: ManageJwkKeyParams): ManageJwkKeyResult => {
+  if (!myPrivateKey) {
+    myPrivateKey = curve.utils.randomPrivateKey();
+  }
   const { apu, apv } = providedParameters;
-  const myPublicKey = curve.getPublicKey(privateKey, false);
+  const myPublicKey = curve.getPublicKey(myPrivateKey, false);
   const epk = curve.toJwkPublicKey(myPublicKey);
   const parameters: JweHeaderParameters = { epk };
   if (apu) {
@@ -37,7 +40,7 @@ export const ecdhesManageJwkKey = ({
 
   const keyBitLength = keyBitLengthByEnc(enc);
   const sharedSecret = curve
-    .getSharedSecret(privateKey, publicKey, true)
+    .getSharedSecret(myPrivateKey, yourPublicKey, true)
     .slice(1);
   const otherInfo = buildKdfOtherInfo({
     algorithm: enc,

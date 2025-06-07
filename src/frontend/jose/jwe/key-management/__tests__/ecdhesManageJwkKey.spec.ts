@@ -17,6 +17,9 @@ const fakeCurve = {
   getSharedSecret: vi.fn(
     () => new Uint8Array([0, 11, 22, 33, 44, 55, 66, 77, 88, 99]),
   ),
+  utils: {
+    randomPrivateKey: vi.fn(() => new Uint8Array([10, 20, 30, 40])),
+  },
 };
 
 vi.mock('@/jose/ecdhes/buildKdfOtherInfo', () => ({
@@ -38,8 +41,8 @@ describe('ecdhesManageJwkKey', () => {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve: fakeCurve as any,
-      privateKey: new Uint8Array([10, 20, 30, 40]),
-      publicKey: new Uint8Array([50, 60, 70, 80]),
+      myPrivateKey: new Uint8Array([10, 20, 30, 40]),
+      yourPublicKey: new Uint8Array([50, 60, 70, 80]),
       providedParameters: {
         apu: new Uint8Array([1, 2, 3]),
         apv: new Uint8Array([4, 5, 6]),
@@ -60,11 +63,26 @@ describe('ecdhesManageJwkKey', () => {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve: fakeCurve as any,
-      privateKey: new Uint8Array([10, 20, 30, 40]),
-      publicKey: new Uint8Array([50, 60, 70, 80]),
+      myPrivateKey: new Uint8Array([10, 20, 30, 40]),
+      yourPublicKey: new Uint8Array([50, 60, 70, 80]),
       providedParameters: {},
     };
     const result = ecdhesManageJwkKey(params);
+    expect(result.parameters).toEqual({
+      epk: { kty: 'EC', crv: 'P-256', x: 'x-coord', y: 'y-coord' },
+    });
+  });
+
+  it('should generate random private key if not provided', () => {
+    const params: ManageJwkKeyParams = {
+      alg: 'ECDH-ES',
+      enc: 'A256GCM',
+      curve: fakeCurve as any,
+      yourPublicKey: new Uint8Array([50, 60, 70, 80]),
+      providedParameters: {},
+    };
+    const result = ecdhesManageJwkKey(params);
+    expect(fakeCurve.utils.randomPrivateKey).toHaveBeenCalled();
     expect(result.parameters).toEqual({
       epk: { kty: 'EC', crv: 'P-256', x: 'x-coord', y: 'y-coord' },
     });

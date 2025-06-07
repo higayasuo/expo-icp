@@ -11,16 +11,16 @@ import { ecdhesManageJwkKey } from './ecdhesManageJwkKey';
  * @property {string} alg - Algorithm identifier
  * @property {string} enc - Encryption algorithm identifier
  * @property {NistCurve} curve - Elliptic curve implementation
- * @property {Uint8Array} privateKey - Private key bytes
- * @property {Uint8Array} publicKey - Public key bytes
+ * @property {Uint8Array} myPrivateKey - Private key bytes
+ * @property {Uint8Array} yourPublicKey - Public key bytes
  * @property {JweKeyManagementHeaderParameters} providedParameters - Key management header parameters
  */
 export type ManageJwkKeyParams = {
   alg: string;
   enc: string;
   curve: NistCurve;
-  privateKey: Uint8Array;
-  publicKey: Uint8Array;
+  myPrivateKey?: Uint8Array;
+  yourPublicKey: Uint8Array;
   providedParameters: JweKeyManagementHeaderParameters;
 };
 
