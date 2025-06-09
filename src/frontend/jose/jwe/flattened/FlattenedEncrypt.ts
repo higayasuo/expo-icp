@@ -13,8 +13,14 @@ import {
 } from '../types';
 import { JweInvalid, JoseNotSupported } from '@/jose/errors/errors';
 import { NistCurve } from 'noble-curves-extended';
-import { AesCipher, isEnc } from 'aes-universal';
-import { toB64U, concatUint8Arrays } from 'u8a-utils';
+import { AesCipher, Enc, isEnc } from 'aes-universal';
+import {
+  toB64U,
+  ensureUint8Array,
+  isUint8Array,
+  fromB64U,
+  concatUint8Arrays,
+} from 'u8a-utils';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -48,10 +54,10 @@ export class FlattenedEncrypt {
    * @param plaintext Binary representation of the plaintext to encrypt.
    */
   constructor({ curve, aes, plaintext }: FlattenedEncryptParams) {
-    if (!(plaintext instanceof Uint8Array)) {
-      throw new TypeError('plaintext must be an instance of Uint8Array');
+    if (!isUint8Array(plaintext)) {
+      throw new TypeError('plaintext must be an Uint8Array');
     }
-    this.#plaintext = plaintext;
+    this.#plaintext = ensureUint8Array(plaintext);
     this.#curve = curve;
     this.#aes = aes;
   }
@@ -125,6 +131,73 @@ export class FlattenedEncrypt {
     yourPublicKey: Uint8Array,
     options?: EncryptOptions,
   ): Promise<FlattenedJwe> {
+    const joseHeader = this.buildJoseHeader();
+
+    validateCrit({
+      Err: JweInvalid,
+      recognizedOption: options?.crit,
+      protectedHeader: this.#protectedHeader,
+      joseHeader,
+    });
+
+    const { alg, enc } = this.getValidatedAlgAndEnc();
+
+    const { cek, encryptedKey, parameters } = manageEncryptKey({
+      alg,
+      enc,
+      curve: this.#curve,
+      yourPublicKey,
+      providedParameters: this.#keyManagementParameters,
+    });
+
+    this.updateProtectedHeader(parameters);
+    const protectedHeaderB64U = this.buildProtectedHeaderB64U();
+    const aadB64U = this.buildAadB64U(protectedHeaderB64U);
+    const aad = encoder.encode(aadB64U);
+
+    const { ciphertext, tag, iv } = await this.#aes.encrypt({
+      enc,
+      plaintext: this.#plaintext,
+      cek,
+      aad,
+    });
+
+    const jwe: FlattenedJwe = {
+      ciphertext: toB64U(ciphertext),
+    };
+
+    if (iv) {
+      jwe.iv = toB64U(iv);
+    }
+
+    if (tag) {
+      jwe.tag = toB64U(tag);
+    }
+
+    if (encryptedKey) {
+      jwe.encrypted_key = toB64U(encryptedKey);
+    }
+
+    if (this.#aad) {
+      jwe.aad = aadB64U;
+    }
+
+    if (this.#protectedHeader) {
+      jwe.protected = protectedHeaderB64U;
+    }
+
+    if (this.#sharedUnprotectedHeader) {
+      jwe.unprotected = this.#sharedUnprotectedHeader;
+    }
+
+    if (this.#unprotectedHeader) {
+      jwe.header = this.#unprotectedHeader;
+    }
+
+    return jwe;
+  }
+
+  verifyHeaders(): void {
     if (
       !this.#protectedHeader &&
       !this.#unprotectedHeader &&
@@ -146,6 +219,10 @@ export class FlattenedEncrypt {
         'JWE Protected, JWE Shared Unprotected and JWE Per-Recipient Header Parameter names must be disjoint',
       );
     }
+  }
+
+  buildJoseHeader(): JweHeaderParameters {
+    this.verifyHeaders();
 
     const joseHeader: JweHeaderParameters = {
       ...this.#protectedHeader,
@@ -153,45 +230,34 @@ export class FlattenedEncrypt {
       ...this.#sharedUnprotectedHeader,
     };
 
-    validateCrit({
-      Err: JweInvalid,
-      recognizedOption: options?.crit,
-      protectedHeader: this.#protectedHeader,
-      joseHeader,
-    });
-
     if (joseHeader.zip !== undefined) {
       throw new JoseNotSupported(
         'JWE "zip" (Compression Algorithm) Header Parameter is not supported.',
       );
     }
 
+    return joseHeader;
+  }
+
+  getValidatedAlgAndEnc(): { alg: string; enc: Enc } {
     if (!this.#protectedHeader) {
       throw new JweInvalid('JWE Protected Header Parameter missing');
     }
 
     const { alg, enc } = this.#protectedHeader;
 
-    if (typeof alg !== 'string' || !alg) {
-      throw new JweInvalid(
-        'JWE "alg" (Algorithm) Header Parameter missing or invalid',
-      );
+    if (!alg || typeof alg !== 'string') {
+      throw new JweInvalid('JWE "alg" Parameter missing/invalid');
     }
 
-    if (typeof enc !== 'string' || !isEnc(enc)) {
-      throw new JweInvalid(
-        'JWE "enc" (Encryption Algorithm) Header Parameter missing or invalid',
-      );
+    if (!enc || typeof enc !== 'string' || !isEnc(enc)) {
+      throw new JweInvalid('JWE "enc" Parameter missing/invalid');
     }
 
-    const { cek, encryptedKey, parameters } = manageEncryptKey({
-      alg,
-      enc,
-      curve: this.#curve,
-      yourPublicKey,
-      providedParameters: this.#keyManagementParameters,
-    });
+    return { alg, enc };
+  }
 
+  updateProtectedHeader(parameters: JweHeaderParameters | undefined) {
     if (parameters) {
       if (!this.#protectedHeader) {
         this.protectedHeader(parameters);
@@ -199,68 +265,22 @@ export class FlattenedEncrypt {
         this.#protectedHeader = { ...this.#protectedHeader, ...parameters };
       }
     }
+  }
 
-    let additionalData: Uint8Array;
-    let protectedHeader: Uint8Array;
-    let aadMember: string | undefined;
+  buildProtectedHeaderB64U(): string {
     if (this.#protectedHeader) {
-      protectedHeader = encoder.encode(
-        toB64U(encoder.encode(JSON.stringify(this.#protectedHeader))),
-      );
-    } else {
-      protectedHeader = encoder.encode('');
+      return toB64U(encoder.encode(JSON.stringify(this.#protectedHeader)));
     }
 
+    // RFC 7516: Return an empty string if the Protected Header is not present
+    return '';
+  }
+
+  buildAadB64U(protectedHeaderB64U: string): string {
     if (this.#aad) {
-      aadMember = toB64U(this.#aad);
-      additionalData = concatUint8Arrays(
-        protectedHeader,
-        encoder.encode('.'),
-        encoder.encode(aadMember),
-      );
-    } else {
-      additionalData = protectedHeader;
+      return `${protectedHeaderB64U}.${toB64U(this.#aad)}`;
     }
 
-    const { ciphertext, tag, iv } = await this.#aes.encrypt({
-      enc,
-      plaintext: this.#plaintext,
-      cek,
-      aad: additionalData,
-    });
-
-    const jwe: FlattenedJwe = {
-      ciphertext: toB64U(ciphertext),
-    };
-
-    if (iv) {
-      jwe.iv = toB64U(iv);
-    }
-
-    if (tag) {
-      jwe.tag = toB64U(tag);
-    }
-
-    if (encryptedKey) {
-      jwe.encrypted_key = toB64U(encryptedKey);
-    }
-
-    if (aadMember) {
-      jwe.aad = aadMember;
-    }
-
-    if (this.#protectedHeader) {
-      jwe.protected = decoder.decode(protectedHeader);
-    }
-
-    if (this.#sharedUnprotectedHeader) {
-      jwe.unprotected = this.#sharedUnprotectedHeader;
-    }
-
-    if (this.#unprotectedHeader) {
-      jwe.header = this.#unprotectedHeader;
-    }
-
-    return jwe;
+    return protectedHeaderB64U;
   }
 }
