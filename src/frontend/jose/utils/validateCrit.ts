@@ -22,28 +22,35 @@ export type ValidateCritHeader = {
  */
 export type ValidateCritParams = {
   Err: typeof JweInvalid | typeof JwsInvalid;
-  recognizedDefault?: string[];
-  recognizedOption: string[] | undefined;
+  recognizedDefault?: Record<string, boolean>;
+  recognizedOption: Record<string, boolean> | undefined;
   protectedHeader: ValidateCritHeader | undefined;
   joseHeader: ValidateCritHeader;
 };
 
 /**
- * Validates critical header parameters according to JOSE specifications
- * @param {ValidateCritParams} params - Parameters for validation
- * @param {typeof JweInvalid | typeof JwsInvalid} params.Err - Error constructor to use for validation errors
- * @param {string[]} [params.recognizedDefault] - Array of default recognized parameters
- * @param {string[]} [params.recognizedOption] - Array of optional recognized parameters
+ * Validates critical header parameters according to JOSE specifications.
+ *
+ * This function ensures that:
+ * - Critical parameters are properly integrity protected
+ * - Critical parameters are recognized and supported
+ * - Required critical parameters are present
+ * - Critical parameters meet format requirements
+ *
+ * @param {Object} params - Parameters for validation
+ * @param {typeof JweInvalid | typeof JwsInvalid} params.Err - Error constructor for validation errors
+ * @param {Record<string, boolean>} [params.recognizedDefault={}] - Default recognized parameters and their integrity protection requirements
+ * @param {Record<string, boolean>} [params.recognizedOption={}] - Optional recognized parameters and their integrity protection requirements
  * @param {ValidateCritHeader} [params.protectedHeader] - Protected header containing critical parameters
- * @param {ValidateCritHeader} params.joseHeader - Complete JOSE header
+ * @param {ValidateCritHeader} params.joseHeader - Complete JOSE header containing all parameters
  * @returns {Set<string>} Set of validated critical parameter names
- * @throws {JoseNotSupported} If an unrecognized critical parameter is found
- * @throws {JweInvalid | JwsInvalid} If critical parameters are invalid or missing
+ * @throws {JoseNotSupported} When an unrecognized critical parameter is found
+ * @throws {JweInvalid | JwsInvalid} When critical parameters are invalid or missing required integrity protection
  */
 export const validateCrit = ({
   Err,
-  recognizedDefault = [],
-  recognizedOption = [],
+  recognizedDefault = {},
+  recognizedOption = {},
   protectedHeader,
   joseHeader,
 }: ValidateCritParams): Set<string> => {
@@ -69,7 +76,10 @@ export const validateCrit = ({
     );
   }
 
-  const recognized = new Set([...recognizedDefault, ...recognizedOption]);
+  const recognized = new Map([
+    ...Object.entries(recognizedDefault),
+    ...Object.entries(recognizedOption),
+  ]);
 
   for (const parameter of protectedHeader.crit) {
     if (!recognized.has(parameter)) {
@@ -82,7 +92,7 @@ export const validateCrit = ({
       throw new Err(`Extension Header Parameter "${parameter}" is missing`);
     }
 
-    if (protectedHeader[parameter] === undefined) {
+    if (recognized.get(parameter) && protectedHeader[parameter] === undefined) {
       throw new Err(
         `Extension Header Parameter "${parameter}" MUST be integrity protected`,
       );

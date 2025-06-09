@@ -1,31 +1,33 @@
 import { describe, it, expect, vi } from 'vitest';
-import type { ManageJwkKeyParams, ManageJwkKeyResult } from '../manageJwkKey';
-import { manageJwkKey } from '../manageJwkKey';
-import { ecdhesManageJwkKey } from '../ecdhesManageJwkKey';
+import type {
+  ManageEncryptKeyParams,
+  ManageEncryptKeyResult,
+} from '../manageEncryptKey';
+import { manageEncryptKey } from '../manageEncryptKey';
+import { ecdhesManageEncryptKey } from '../ecdhesManageEncryptKey';
 
-vi.mock('../ecdhesManageJwkKey', () => {
-  const fakeResult: ManageJwkKeyResult = {
+vi.mock('../ecdhesManageEncryptKey', () => {
+  const fakeResult: ManageEncryptKeyResult = {
     cek: new Uint8Array([1, 2, 3]),
     encryptedKey: undefined,
     parameters: { epk: { kty: 'EC', crv: 'P-256', x: 'x', y: 'y' } },
   };
   return {
-    ecdhesManageJwkKey: vi.fn(() => fakeResult),
+    ecdhesManageEncryptKey: vi.fn(() => fakeResult),
   };
 });
 
-describe('manageJwkKey', () => {
-  it('should delegate to ecdhesManageJwkKey for ECDH-ES', () => {
-    const params: ManageJwkKeyParams = {
+describe('manageEncryptKey', () => {
+  it('should delegate to ecdhesManageEncryptKey for ECDH-ES', () => {
+    const params: ManageEncryptKeyParams = {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve: {} as any,
-      myPrivateKey: new Uint8Array([1]),
       yourPublicKey: new Uint8Array([2]),
       providedParameters: {},
     };
-    const result = manageJwkKey(params);
-    expect(ecdhesManageJwkKey).toHaveBeenCalledWith(params);
+    const result = manageEncryptKey(params);
+    expect(ecdhesManageEncryptKey).toHaveBeenCalledWith(params);
     expect(result).toEqual({
       cek: new Uint8Array([1, 2, 3]),
       encryptedKey: undefined,
@@ -33,16 +35,16 @@ describe('manageJwkKey', () => {
     });
   });
 
-  it('should delegate to ecdhesManageJwkKey for ECDH-ES without myPrivateKey', () => {
-    const params: ManageJwkKeyParams = {
+  it('should delegate to ecdhesManageEncryptKey for ECDH-ES without myPrivateKey', () => {
+    const params: ManageEncryptKeyParams = {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve: {} as any,
       yourPublicKey: new Uint8Array([2]),
       providedParameters: {},
     };
-    const result = manageJwkKey(params);
-    expect(ecdhesManageJwkKey).toHaveBeenCalledWith(params);
+    const result = manageEncryptKey(params);
+    expect(ecdhesManageEncryptKey).toHaveBeenCalledWith(params);
     expect(result).toEqual({
       cek: new Uint8Array([1, 2, 3]),
       encryptedKey: undefined,
@@ -51,15 +53,14 @@ describe('manageJwkKey', () => {
   });
 
   it('should throw for unsupported algorithms', () => {
-    const params: ManageJwkKeyParams = {
+    const params: ManageEncryptKeyParams = {
       alg: 'RSA-OAEP',
       enc: 'A256GCM',
       curve: {} as any,
-      myPrivateKey: new Uint8Array([1]),
       yourPublicKey: new Uint8Array([2]),
       providedParameters: {},
     };
-    expect(() => manageJwkKey(params)).toThrowError(
+    expect(() => manageEncryptKey(params)).toThrowError(
       'Unsupported JWE Algorithm: RSA-OAEP',
     );
   });

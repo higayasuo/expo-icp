@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ecdhesManageJwkKey } from '../ecdhesManageJwkKey';
-import type { ManageJwkKeyParams } from '../manageJwkKey';
+import { ecdhesManageEncryptKey } from '../ecdhesManageEncryptKey';
+import type { ManageEncryptKeyParams } from '../manageEncryptKey';
 import type { Jwk } from '@/jose/types';
 
 const fakeCurve = {
@@ -35,20 +35,19 @@ vi.mock('u8a-utils', () => ({
   toB64U: vi.fn((u: Uint8Array) => 'b64u-' + Array.from(u).join('-')),
 }));
 
-describe('ecdhesManageJwkKey', () => {
+describe('ecdhesManageEncryptKey', () => {
   it('should return correct CEK, undefined encryptedKey, and header parameters with apu/apv', () => {
-    const params: ManageJwkKeyParams = {
+    const params: ManageEncryptKeyParams = {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve: fakeCurve as any,
-      myPrivateKey: new Uint8Array([10, 20, 30, 40]),
       yourPublicKey: new Uint8Array([50, 60, 70, 80]),
       providedParameters: {
         apu: new Uint8Array([1, 2, 3]),
         apv: new Uint8Array([4, 5, 6]),
       },
     };
-    const result = ecdhesManageJwkKey(params);
+    const result = ecdhesManageEncryptKey(params);
     expect(result.cek).toEqual(new Uint8Array([42, 42, 42, 42]));
     expect(result.encryptedKey).toBeUndefined();
     expect(result.parameters).toEqual({
@@ -59,29 +58,28 @@ describe('ecdhesManageJwkKey', () => {
   });
 
   it('should omit apu/apv if not provided', () => {
-    const params: ManageJwkKeyParams = {
+    const params: ManageEncryptKeyParams = {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve: fakeCurve as any,
-      myPrivateKey: new Uint8Array([10, 20, 30, 40]),
       yourPublicKey: new Uint8Array([50, 60, 70, 80]),
       providedParameters: {},
     };
-    const result = ecdhesManageJwkKey(params);
+    const result = ecdhesManageEncryptKey(params);
     expect(result.parameters).toEqual({
       epk: { kty: 'EC', crv: 'P-256', x: 'x-coord', y: 'y-coord' },
     });
   });
 
   it('should generate random private key if not provided', () => {
-    const params: ManageJwkKeyParams = {
+    const params: ManageEncryptKeyParams = {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve: fakeCurve as any,
       yourPublicKey: new Uint8Array([50, 60, 70, 80]),
       providedParameters: {},
     };
-    const result = ecdhesManageJwkKey(params);
+    const result = ecdhesManageEncryptKey(params);
     expect(fakeCurve.utils.randomPrivateKey).toHaveBeenCalled();
     expect(result.parameters).toEqual({
       epk: { kty: 'EC', crv: 'P-256', x: 'x-coord', y: 'y-coord' },

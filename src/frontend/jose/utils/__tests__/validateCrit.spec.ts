@@ -4,9 +4,15 @@ import { JoseNotSupported, JweInvalid, JwsInvalid } from '../../errors';
 import type { ValidateCritHeader } from '../validateCrit';
 
 describe('validateCrit', () => {
-  const recognizedDefault = ['default-param', 'another-param'];
+  const recognizedDefault = {
+    'default-param': true,
+    'another-param': true,
+  };
 
-  const recognizedOption = ['optional-param'];
+  const recognizedOption = {
+    'optional-param': true,
+    'unprotected-param': false,
+  };
 
   describe('with JweInvalid', () => {
     it('should throw if crit exists in unprotected but not in protected', () => {
@@ -133,7 +139,7 @@ describe('validateCrit', () => {
   });
 
   describe('with optional recognized parameters', () => {
-    it('should accept recognized optional parameters', () => {
+    it('should accept recognized optional parameters that require integrity protection', () => {
       const joseHeader: ValidateCritHeader = { 'optional-param': 'value' };
       const protectedHeader: ValidateCritHeader = {
         crit: ['optional-param'],
@@ -149,6 +155,23 @@ describe('validateCrit', () => {
       });
 
       expect(result).toEqual(new Set(['optional-param']));
+    });
+
+    it('should accept recognized optional parameters that do not require integrity protection', () => {
+      const joseHeader: ValidateCritHeader = { 'unprotected-param': 'value' };
+      const protectedHeader: ValidateCritHeader = {
+        crit: ['unprotected-param'],
+      };
+
+      const result = validateCrit({
+        Err: JweInvalid,
+        recognizedDefault,
+        recognizedOption,
+        protectedHeader,
+        joseHeader,
+      });
+
+      expect(result).toEqual(new Set(['unprotected-param']));
     });
 
     it('should throw for unrecognized parameters', () => {
