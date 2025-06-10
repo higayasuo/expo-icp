@@ -28,8 +28,6 @@
     "delete:aasa": "node -e \"import('fs').then(fs => { try { fs.rmSync('src/frontend/public/.well-known/apple-app-site-association', { force: true }); } catch(e) {} })\"",
     "init:app-json": "node scripts/init-app-json.mjs"
   },
-  "dependencies": {
-  },
   "devDependencies": {
     "local-ssl-proxy": "^2.0.5"
   },
