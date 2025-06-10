@@ -1,104 +1,202 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ecdhesManageDecryptKey } from '../ecdhesManageDecryptKey';
 import { ecdhesManageEncryptKey } from '../ecdhesManageEncryptKey';
-import type { ManageEncryptKeyParams } from '../manageEncryptKey';
-import type { ManageDecryptKeyParams } from '../manageDecryptKey';
-import { webCryptoModule } from 'expo-crypto-universal-web';
 import { createNistCurve } from 'noble-curves-extended';
+import { webCryptoModule } from 'expo-crypto-universal-web';
+import { JweInvalid } from '@/jose/errors';
 
 const { getRandomBytes } = webCryptoModule;
-const curve = createNistCurve('P-256', getRandomBytes);
 
 describe('ecdhesManageDecryptKey', () => {
-  it('should derive the same CEK as ecdhesManageEncryptKey with apu/apv', async () => {
-    // Generate key pair
-    const rawPrivateKey = curve.utils.randomPrivateKey();
-    const rawPublicKey = curve.getPublicKey(rawPrivateKey, false);
-    const apu = new TextEncoder().encode('Alice');
-    const apv = new TextEncoder().encode('Bob');
+  const curve = createNistCurve('P-256', getRandomBytes);
+  const privateKey = curve.utils.randomPrivateKey();
+  const publicKey = curve.getPublicKey(privateKey, false);
 
-    // First, encrypt to get the header parameters
-    const encryptParams: ManageEncryptKeyParams = {
+  it('should derive the same CEK as ecdhesManageEncryptKey when apu and apv are provided', async () => {
+    const encryptResult = await ecdhesManageEncryptKey({
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve,
-      yourPublicKey: rawPublicKey,
+      yourPublicKey: publicKey,
       providedParameters: {
-        apu,
-        apv,
+        apu: new TextEncoder().encode('Alice'),
+        apv: new TextEncoder().encode('Bob'),
       },
-    };
+    });
 
-    const encryptResult = ecdhesManageEncryptKey(encryptParams);
-
-    // Then, decrypt using the same parameters
-    const decryptParams: ManageDecryptKeyParams = {
+    const decryptResult = ecdhesManageDecryptKey({
       alg: 'ECDH-ES',
       curve,
-      myPrivateKey: rawPrivateKey,
+      myPrivateKey: privateKey,
       encryptedKey: undefined,
       protectedHeader: {
-        ...encryptResult.parameters,
         alg: 'ECDH-ES',
         enc: 'A256GCM',
+        ...encryptResult.parameters,
       },
-    };
+    });
 
-    const decryptResult = ecdhesManageDecryptKey(decryptParams);
-
-    // Verify the CEKs match
     expect(decryptResult).toEqual(encryptResult.cek);
   });
 
-  it('should derive the same CEK as ecdhesManageEncryptKey without apu/apv', async () => {
-    // Generate key pair
-    const rawPrivateKey = curve.utils.randomPrivateKey();
-    const rawPublicKey = curve.getPublicKey(rawPrivateKey, false);
-
-    // First, encrypt to get the header parameters
-    const encryptParams: ManageEncryptKeyParams = {
+  it('should derive the same CEK as ecdhesManageEncryptKey when apu and apv are not provided', async () => {
+    const encryptResult = await ecdhesManageEncryptKey({
       alg: 'ECDH-ES',
       enc: 'A256GCM',
       curve,
-      yourPublicKey: rawPublicKey,
-      providedParameters: {},
-    };
+      yourPublicKey: publicKey,
+      providedParameters: undefined,
+    });
 
-    const encryptResult = ecdhesManageEncryptKey(encryptParams);
-
-    // Then, decrypt using the same parameters
-    const decryptParams: ManageDecryptKeyParams = {
+    const decryptResult = ecdhesManageDecryptKey({
       alg: 'ECDH-ES',
       curve,
-      myPrivateKey: rawPrivateKey,
+      myPrivateKey: privateKey,
       encryptedKey: undefined,
       protectedHeader: {
         alg: 'ECDH-ES',
         enc: 'A256GCM',
-        epk: encryptResult.parameters.epk,
+        ...encryptResult.parameters,
       },
-    };
+    });
 
-    const decryptResult = ecdhesManageDecryptKey(decryptParams);
-
-    // Verify the CEKs match
     expect(decryptResult).toEqual(encryptResult.cek);
   });
 
   it('should throw JweInvalid when epk is missing', () => {
-    const decryptParams: ManageDecryptKeyParams = {
-      alg: 'ECDH-ES',
-      curve,
-      myPrivateKey: new Uint8Array([1, 2, 3]),
-      encryptedKey: undefined,
-      protectedHeader: {
+    expect(() =>
+      ecdhesManageDecryptKey({
         alg: 'ECDH-ES',
-        enc: 'A256GCM',
-      },
-    };
+        curve,
+        myPrivateKey: privateKey,
+        encryptedKey: undefined,
+        protectedHeader: {
+          alg: 'ECDH-ES',
+          enc: 'A256GCM',
+        },
+      }),
+    ).toThrow(
+      new JweInvalid(
+        'JOSE Header "epk" (Ephemeral Public Key) missing/invalid',
+      ),
+    );
+  });
 
-    expect(() => ecdhesManageDecryptKey(decryptParams)).toThrow(
-      'JOSE Header "epk" (Ephemeral Public Key) missing/invalid',
+  it('should throw JweInvalid when apu is not base64url encoded', async () => {
+    const encryptResult = await ecdhesManageEncryptKey({
+      alg: 'ECDH-ES',
+      enc: 'A256GCM',
+      curve,
+      yourPublicKey: publicKey,
+      providedParameters: {
+        apu: new TextEncoder().encode('Alice'),
+        apv: new TextEncoder().encode('Bob'),
+      },
+    });
+
+    expect(() =>
+      ecdhesManageDecryptKey({
+        alg: 'ECDH-ES',
+        curve,
+        myPrivateKey: privateKey,
+        encryptedKey: undefined,
+        protectedHeader: {
+          alg: 'ECDH-ES',
+          enc: 'A256GCM',
+          ...encryptResult.parameters,
+          apu: 'invalid base64url!@#',
+        },
+      }),
+    ).toThrow(
+      new JweInvalid(
+        'Failed to base64url decode "apu (Agreement PartyUInfo)": InvalidCharacterError: Invalid character',
+      ),
+    );
+  });
+
+  it('should throw JweInvalid when apv is not base64url encoded', async () => {
+    const encryptResult = await ecdhesManageEncryptKey({
+      alg: 'ECDH-ES',
+      enc: 'A256GCM',
+      curve,
+      yourPublicKey: publicKey,
+      providedParameters: {
+        apu: new TextEncoder().encode('Alice'),
+        apv: new TextEncoder().encode('Bob'),
+      },
+    });
+
+    expect(() =>
+      ecdhesManageDecryptKey({
+        alg: 'ECDH-ES',
+        curve,
+        myPrivateKey: privateKey,
+        encryptedKey: undefined,
+        protectedHeader: {
+          alg: 'ECDH-ES',
+          enc: 'A256GCM',
+          ...encryptResult.parameters,
+          apv: 'invalid base64url!@#',
+        },
+      }),
+    ).toThrow(
+      new JweInvalid(
+        'Failed to base64url decode "apv (Agreement PartyVInfo)": InvalidCharacterError: Invalid character',
+      ),
+    );
+  });
+
+  it('should throw JweInvalid when enc is missing', async () => {
+    const encryptResult = await ecdhesManageEncryptKey({
+      alg: 'ECDH-ES',
+      enc: 'A256GCM',
+      curve,
+      yourPublicKey: publicKey,
+      providedParameters: undefined,
+    });
+
+    expect(() =>
+      ecdhesManageDecryptKey({
+        alg: 'ECDH-ES',
+        curve,
+        myPrivateKey: privateKey,
+        encryptedKey: undefined,
+        protectedHeader: {
+          alg: 'ECDH-ES',
+          ...encryptResult.parameters,
+          enc: undefined,
+        },
+      }),
+    ).toThrow(
+      new JweInvalid('JWE Header "enc" (Content Encryption Algorithm) missing'),
+    );
+  });
+
+  it('should throw JweInvalid when enc is invalid', async () => {
+    const encryptResult = await ecdhesManageEncryptKey({
+      alg: 'ECDH-ES',
+      enc: 'A256GCM',
+      curve,
+      yourPublicKey: publicKey,
+      providedParameters: undefined,
+    });
+
+    expect(() =>
+      ecdhesManageDecryptKey({
+        alg: 'ECDH-ES',
+        curve,
+        myPrivateKey: privateKey,
+        encryptedKey: undefined,
+        protectedHeader: {
+          alg: 'ECDH-ES',
+          ...encryptResult.parameters,
+          enc: 'INVALID-ENC' as any,
+        },
+      }),
+    ).toThrow(
+      new JweInvalid(
+        'JWE Header "enc" (Content Encryption Algorithm) must be A128GCM, A192GCM, A256GCM, A128CBC-HS256, A192CBC-HS384, or A256CBC-HS512',
+      ),
     );
   });
 });
