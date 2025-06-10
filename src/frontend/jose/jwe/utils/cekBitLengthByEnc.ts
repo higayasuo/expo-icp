@@ -1,7 +1,7 @@
 /**
- * Returns the key bit length for a given JWE encryption algorithm
+ * Returns the CEK bit length for a given JWE encryption algorithm
  * @param {string} enc - The JWE encryption algorithm identifier
- * @returns {number} The required key bit length for the encryption algorithm
+ * @returns {number} The required CEK bit length for the encryption algorithm
  * @throws {Error} If the encryption algorithm is not supported
  * @example
  * // Returns 256
@@ -10,7 +10,7 @@
  * // Throws Error: Unsupported JWE Encryption Algorithm: UNKNOWN
  * keyBitLengthByEnc('UNKNOWN');
  */
-export function keyBitLengthByEnc(enc: string) {
+export function cekBitLengthByEnc(enc: string) {
   switch (enc) {
     case 'A128GCM':
       return 128;

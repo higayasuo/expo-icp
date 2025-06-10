@@ -3,10 +3,10 @@ import {
   ManageEncryptKeyParams,
   ManageEncryptKeyResult,
 } from './manageEncryptKey';
-import { buildKdfOtherInfo } from '@/jose/ecdhes/buildKdfOtherInfo';
-import { keyBitLengthByEnc } from '../utils/keyBitLengthByEnc';
-import { concatKdf } from '@/jose/ecdhes/concatKdf';
+import { buildKdfOtherInfo } from '@/jose/jwe/key-management/ecdhes/buildKdfOtherInfo';
+import { concatKdf } from '@/jose/jwe/key-management/ecdhes/concatKdf';
 import { toB64U } from 'u8a-utils';
+import { cekBitLengthByEnc } from '../utils/cekBitLengthByEnc';
 
 export const ecdhesManageEncryptKey = ({
   enc,
@@ -27,7 +27,7 @@ export const ecdhesManageEncryptKey = ({
     parameters.apv = toB64U(apv);
   }
 
-  const keyBitLength = keyBitLengthByEnc(enc);
+  const keyBitLength = cekBitLengthByEnc(enc);
   const sharedSecret = curve
     .getSharedSecret(myPrivateKey, yourPublicKey, true)
     .slice(1);

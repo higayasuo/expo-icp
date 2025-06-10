@@ -74,7 +74,7 @@ describe('FlattenedEncrypt', () => {
       }).protectedHeader({ enc: 'A256GCM' });
 
       expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(
-        new JweInvalid('JWE "alg" Parameter missing/invalid'),
+        new JweInvalid('JWE Header "alg" (Key Management Algorithm) missing'),
       );
     });
 
@@ -87,7 +87,24 @@ describe('FlattenedEncrypt', () => {
       }).protectedHeader({ alg: 'ECDH-ES' });
 
       expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(
-        new JweInvalid('JWE "enc" Parameter missing/invalid'),
+        new JweInvalid(
+          'JWE Header "enc" (Content Encryption Algorithm) missing',
+        ),
+      );
+    });
+
+    it('should throw JweInvalid when alg is invalid', () => {
+      const plaintext = new TextEncoder().encode('Hello, World!');
+      const encrypt = new FlattenedEncrypt({
+        curve,
+        aes,
+        plaintext,
+      }).protectedHeader({ alg: 'INVALID' as any, enc: 'A256GCM' });
+
+      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(
+        new JweInvalid(
+          'JWE Header "alg" (Key Management Algorithm) must be ECDH-ES',
+        ),
       );
     });
 
@@ -97,10 +114,12 @@ describe('FlattenedEncrypt', () => {
         curve,
         aes,
         plaintext,
-      }).protectedHeader({ alg: 'ECDH-ES', enc: 'INVALID' });
+      }).protectedHeader({ alg: 'ECDH-ES', enc: 'INVALID' as any });
 
       expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(
-        new JweInvalid('JWE "enc" Parameter missing/invalid'),
+        new JweInvalid(
+          'JWE Header "enc" (Content Encryption Algorithm) must be A128GCM, A192GCM, A256GCM, A128CBC-HS256, A192CBC-HS384, or A256CBC-HS512',
+        ),
       );
     });
   });
@@ -281,7 +300,7 @@ describe('FlattenedEncrypt', () => {
         plaintext,
       });
 
-      const parameters = { alg: 'ECDH-ES', enc: 'A256GCM' };
+      const parameters = { alg: 'ECDH-ES' as const, enc: 'A256GCM' as const };
       encrypt.updateProtectedHeader(parameters);
 
       const { alg, enc } = encrypt.getValidatedAlgAndEnc();

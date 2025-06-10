@@ -2,6 +2,8 @@ import { NistCurve } from 'noble-curves-extended';
 import {
   JweHeaderParameters,
   JweKeyManagementHeaderParameters,
+  JweAlg,
+  JweEnc,
 } from '../types';
 import { ecdhesManageEncryptKey } from './ecdhesManageEncryptKey';
 
@@ -9,14 +11,14 @@ import { ecdhesManageEncryptKey } from './ecdhesManageEncryptKey';
  * Parameters for managing encryption key
  * @typedef {Object} ManageEncryptKeyParams
  * @property {string} alg - JWE Algorithm identifier
- * @property {string} enc - JWE Encryption Algorithm identifier
+ * @property {Enc} enc - JWE Encryption Algorithm identifier
  * @property {NistCurve} curve - Elliptic curve implementation
  * @property {Uint8Array} yourPublicKey - Recipient's public key
  * @property {JweKeyManagementHeaderParameters} providedParameters - Key management header parameters
  */
 export type ManageEncryptKeyParams = {
-  alg: string;
-  enc: string;
+  alg: JweAlg;
+  enc: JweEnc;
   curve: NistCurve;
   yourPublicKey: Uint8Array;
   providedParameters: JweKeyManagementHeaderParameters | undefined;

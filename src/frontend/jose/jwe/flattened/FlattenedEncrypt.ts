@@ -10,17 +10,15 @@ import {
   JweKeyManagementHeaderParameters,
   EncryptOptions,
   FlattenedJwe,
+  JweAlg,
+  JweEnc,
 } from '../types';
 import { JweInvalid, JoseNotSupported } from '@/jose/errors/errors';
 import { NistCurve } from 'noble-curves-extended';
-import { AesCipher, Enc, isEnc } from 'aes-universal';
-import {
-  toB64U,
-  ensureUint8Array,
-  isUint8Array,
-  fromB64U,
-  concatUint8Arrays,
-} from 'u8a-utils';
+import { AesCipher } from 'aes-universal';
+import { toB64U, ensureUint8Array, isUint8Array } from 'u8a-utils';
+import { validateJweAlg } from '../utils/validateJweAlg';
+import { validateJweEnc } from '../utils/validateJweEnc';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -239,20 +237,13 @@ export class FlattenedEncrypt {
     return joseHeader;
   }
 
-  getValidatedAlgAndEnc(): { alg: string; enc: Enc } {
+  getValidatedAlgAndEnc(): { alg: JweAlg; enc: JweEnc } {
     if (!this.#protectedHeader) {
       throw new JweInvalid('JWE Protected Header Parameter missing');
     }
 
-    const { alg, enc } = this.#protectedHeader;
-
-    if (!alg || typeof alg !== 'string') {
-      throw new JweInvalid('JWE "alg" Parameter missing/invalid');
-    }
-
-    if (!enc || typeof enc !== 'string' || !isEnc(enc)) {
-      throw new JweInvalid('JWE "enc" Parameter missing/invalid');
-    }
+    const alg = validateJweAlg(this.#protectedHeader.alg);
+    const enc = validateJweEnc(this.#protectedHeader.enc);
 
     return { alg, enc };
   }

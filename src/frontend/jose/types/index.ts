@@ -9,8 +9,8 @@ import { NistCurveName } from 'noble-curves-extended';
  * @property {string} [y] - Base64url-encoded y-coordinate of the public key (optional for some key types)
  */
 export type Jwk = {
-  kty: 'EC';
-  crv: CurveName;
+  kty: string;
+  crv: string;
   x: string;
   y: string;
 };

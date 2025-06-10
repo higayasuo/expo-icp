@@ -1,88 +1,118 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { ecdhesManageEncryptKey } from '../ecdhesManageEncryptKey';
 import type { ManageEncryptKeyParams } from '../manageEncryptKey';
-import type { Jwk } from '@/jose/types';
+import { webCryptoModule } from 'expo-crypto-universal-web';
+import { WebAesCipher } from 'aes-universal-web';
+import { createNistCurve } from 'noble-curves-extended';
+import { toB64U } from 'u8a-utils';
 
-const fakeCurve = {
-  getPublicKey: vi.fn(() => new Uint8Array([1, 2, 3, 4])),
-  toJwkPublicKey: vi.fn(
-    (pub: Uint8Array) =>
-      ({
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'x-coord',
-        y: 'y-coord',
-      } as Jwk),
-  ),
-  getSharedSecret: vi.fn(
-    () => new Uint8Array([0, 11, 22, 33, 44, 55, 66, 77, 88, 99]),
-  ),
-  utils: {
-    randomPrivateKey: vi.fn(() => new Uint8Array([10, 20, 30, 40])),
-  },
-};
-
-vi.mock('@/jose/ecdhes/buildKdfOtherInfo', () => ({
-  buildKdfOtherInfo: vi.fn(() => new Uint8Array([9, 9, 9])),
-}));
-vi.mock('../utils/keyBitLengthByEnc', () => ({
-  keyBitLengthByEnc: vi.fn(() => 128),
-}));
-vi.mock('@/jose/ecdhes/concatKdf', () => ({
-  concatKdf: vi.fn(() => new Uint8Array([42, 42, 42, 42])),
-}));
-vi.mock('u8a-utils', () => ({
-  toB64U: vi.fn((u: Uint8Array) => 'b64u-' + Array.from(u).join('-')),
-}));
+const { getRandomBytes } = webCryptoModule;
+const curve = createNistCurve('P-256', getRandomBytes);
+const aes = new WebAesCipher(getRandomBytes);
 
 describe('ecdhesManageEncryptKey', () => {
-  it('should return correct CEK, undefined encryptedKey, and header parameters with apu/apv', () => {
+  it('should return correct CEK, undefined encryptedKey, and header parameters with apu/apv', async () => {
+    // Generate key pair
+    const rawPrivateKey = curve.utils.randomPrivateKey();
+    const rawPublicKey = curve.getPublicKey(rawPrivateKey, false);
+    const apu = new TextEncoder().encode('Alice');
+    const apv = new TextEncoder().encode('Bob');
+
     const params: ManageEncryptKeyParams = {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
-      curve: fakeCurve as any,
-      yourPublicKey: new Uint8Array([50, 60, 70, 80]),
+      curve,
+      yourPublicKey: rawPublicKey,
       providedParameters: {
-        apu: new Uint8Array([1, 2, 3]),
-        apv: new Uint8Array([4, 5, 6]),
+        apu,
+        apv,
       },
     };
+
     const result = ecdhesManageEncryptKey(params);
-    expect(result.cek).toEqual(new Uint8Array([42, 42, 42, 42]));
+
+    // Verify CEK is a Uint8Array with correct length (256 bits = 32 bytes for A256GCM)
+    expect(result.cek).toBeInstanceOf(Uint8Array);
+    expect(result.cek.length).toBe(32);
+
+    // Verify encryptedKey is undefined for ECDH-ES
     expect(result.encryptedKey).toBeUndefined();
+
+    // Verify header parameters
     expect(result.parameters).toEqual({
-      epk: { kty: 'EC', crv: 'P-256', x: 'x-coord', y: 'y-coord' },
-      apu: 'b64u-1-2-3',
-      apv: 'b64u-4-5-6',
+      epk: expect.objectContaining({
+        kty: 'EC',
+        crv: 'P-256',
+        x: expect.any(String),
+        y: expect.any(String),
+      }),
+      apu: toB64U(apu),
+      apv: toB64U(apv),
     });
+    expect(curve.toRawPublicKey(result.parameters.epk!).length).toEqual(65);
   });
 
-  it('should omit apu/apv if not provided', () => {
+  it('should omit apu/apv if not provided', async () => {
+    // Generate key pair
+    const rawPrivateKey = curve.utils.randomPrivateKey();
+    const rawPublicKey = curve.getPublicKey(rawPrivateKey, false);
+
     const params: ManageEncryptKeyParams = {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
-      curve: fakeCurve as any,
-      yourPublicKey: new Uint8Array([50, 60, 70, 80]),
+      curve,
+      yourPublicKey: rawPublicKey,
       providedParameters: {},
     };
+
     const result = ecdhesManageEncryptKey(params);
+
+    // Verify CEK is a Uint8Array with correct length
+    expect(result.cek).toBeInstanceOf(Uint8Array);
+    expect(result.cek.length).toBe(32);
+
+    // Verify encryptedKey is undefined
+    expect(result.encryptedKey).toBeUndefined();
+
+    // Verify header parameters only contain epk
     expect(result.parameters).toEqual({
-      epk: { kty: 'EC', crv: 'P-256', x: 'x-coord', y: 'y-coord' },
+      epk: expect.objectContaining({
+        kty: 'EC',
+        crv: 'P-256',
+        x: expect.any(String),
+        y: expect.any(String),
+      }),
     });
+    expect(curve.toRawPublicKey(result.parameters.epk!).length).toEqual(65);
   });
 
-  it('should generate random private key if not provided', () => {
-    const params: ManageEncryptKeyParams = {
+  it('should generate different CEKs for different key pairs', async () => {
+    // Generate two different key pairs
+    const rawPrivateKey1 = curve.utils.randomPrivateKey();
+    const rawPublicKey1 = curve.getPublicKey(rawPrivateKey1, false);
+    const rawPrivateKey2 = curve.utils.randomPrivateKey();
+    const rawPublicKey2 = curve.getPublicKey(rawPrivateKey2, false);
+
+    const params1: ManageEncryptKeyParams = {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
-      curve: fakeCurve as any,
-      yourPublicKey: new Uint8Array([50, 60, 70, 80]),
+      curve,
+      yourPublicKey: rawPublicKey1,
       providedParameters: {},
     };
-    const result = ecdhesManageEncryptKey(params);
-    expect(fakeCurve.utils.randomPrivateKey).toHaveBeenCalled();
-    expect(result.parameters).toEqual({
-      epk: { kty: 'EC', crv: 'P-256', x: 'x-coord', y: 'y-coord' },
-    });
+
+    const params2: ManageEncryptKeyParams = {
+      alg: 'ECDH-ES',
+      enc: 'A256GCM',
+      curve,
+      yourPublicKey: rawPublicKey2,
+      providedParameters: {},
+    };
+
+    const result1 = ecdhesManageEncryptKey(params1);
+    const result2 = ecdhesManageEncryptKey(params2);
+
+    // Verify CEKs are different
+    expect(result1.cek).not.toEqual(result2.cek);
   });
 });

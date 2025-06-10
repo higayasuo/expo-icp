@@ -1,4 +1,22 @@
 import { CritOption, JoseHeaderParameters } from '@/jose/types';
+import { Jwk } from '@/jose/types';
+import { Enc } from 'aes-universal';
+
+/**
+ * JWE Key Management Algorithm
+ *
+ * Currently only supports ECDH-ES (Elliptic Curve Diffie-Hellman Ephemeral Static)
+ */
+export type JweAlg = 'ECDH-ES';
+
+/**
+ * JWE Content Encryption Algorithm
+ *
+ * Represents the supported encryption algorithms for JWE content encryption
+ *
+ * @see {@link Enc} from 'aes-universal' for supported algorithms
+ */
+export type JweEnc = Enc;
 
 /** Recognized JWE Key Management-related Header Parameters. */
 export interface JweKeyManagementHeaderParameters {
@@ -8,21 +26,44 @@ export interface JweKeyManagementHeaderParameters {
 
 export interface JweHeaderParameters extends JoseHeaderParameters {
   /**
-   * JWE "alg" (Algorithm) Header Parameter
+   * JWE "alg" (Key Management Algorithm) Header Parameter
+   * Identifies the cryptographic algorithm used to encrypt or determine the value of the CEK.
    *
    * @see {@link https://github.com/panva/jose/issues/210#jwe-alg Algorithm Key Requirements}
    */
-  alg?: string;
+  alg?: JweAlg;
 
   /**
-   * JWE "enc" (Encryption Algorithm) Header Parameter
+   * JWE "enc" (Content Encryption Algorithm) Header Parameter
+   * Identifies the content encryption algorithm used to perform authenticated encryption on the plaintext.
    *
    * @see {@link https://github.com/panva/jose/issues/210#jwe-alg Algorithm Key Requirements}
    */
-  enc?: string;
+  enc?: JweEnc;
 
   /** JWE "crit" (Critical) Header Parameter */
   crit?: string[];
+
+  /**
+   * JWE "apu" (Agreement PartyUInfo) Header Parameter
+   * Used in key agreement algorithms to provide information about the producer of the key agreement.
+   * The value is base64url encoded.
+   */
+  apu?: string;
+
+  /**
+   * JWE "apv" (Agreement PartyVInfo) Header Parameter
+   * Used in key agreement algorithms to provide information about the recipient of the key agreement.
+   * The value is base64url encoded.
+   */
+  apv?: string;
+
+  /**
+   * JWE "epk" (Ephemeral Public Key) Header Parameter
+   * Used in key agreement algorithms to provide the ephemeral public key.
+   * The value is a JSON Web Key object.
+   */
+  epk?: Jwk;
 
   /** Any other JWE Header member. */
   [propName: string]: unknown;
