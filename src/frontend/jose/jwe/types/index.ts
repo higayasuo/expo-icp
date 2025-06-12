@@ -121,20 +121,20 @@ export interface FlattenedJwe {
    * The "iv" member MUST be present and contain the value BASE64URL(JWE Initialization Vector) when
    * the JWE Initialization Vector value is non-empty; otherwise, it MUST be absent.
    */
-  iv?: string;
+  iv: string;
 
   /**
    * The "protected" member MUST be present and contain the value BASE64URL(UTF8(JWE Protected
    * Header)) when the JWE Protected Header value is non-empty; otherwise, it MUST be absent. These
    * Header Parameter values are integrity protected.
    */
-  protected?: string;
+  protected: string;
 
   /**
    * The "tag" member MUST be present and contain the value BASE64URL(JWE Authentication Tag) when
    * the JWE Authentication Tag value is non-empty; otherwise, it MUST be absent.
    */
-  tag?: string;
+  tag: string;
 
   /**
    * The "unprotected" member MUST be present and contain the value JWE Shared Unprotected Header

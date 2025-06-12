@@ -4,10 +4,8 @@
  * @module
  */
 
-import { JoseNotSupported, JweInvalid } from '@/jose/errors/errors.js';
+import { JweInvalid } from '@/jose/errors/errors.js';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
-import { deriveDecryptionKey } from '../key-management/deriveDecryptionKey';
-import { concatUint8Arrays } from 'u8a-utils';
 import { validateCrit } from '@/jose/utils/validateCrit';
 import { DecryptOptions, FlattenedDecryptResult, FlattenedJwe } from '../types';
 import { validateFlattenedJwe } from './utils/validateFlattenedJwe';
@@ -17,13 +15,9 @@ import { checkJweAlgAllowed } from './utils/checkJweAlgAllowed';
 import { checkJweEncAllowed } from './utils/checkJweEncAllowed';
 import { NistCurve } from 'noble-curves-extended';
 import { AesCipher } from 'aes-universal';
-import { ensureUint8Array, isUint8Array } from 'u8a-utils';
-import { sleep } from '@/jose/utils/sleep';
-import { cekBitLengthByEnc } from '../utils/cekBitLengthByEnc';
-import { generateMitigatedCek } from './utils/generateMitigatedCek';
+import { isUint8Array } from 'u8a-utils';
 import { deriveDecryptionKeyWithMitigation } from './utils/deriveDecryptionKeyWithMitigation';
-
-const encoder = new TextEncoder();
+import { buildAesAad } from './utils/buildAesAad';
 
 type FlattenedDecryptionParams = {
   curve: NistCurve;
@@ -84,33 +78,21 @@ export class FlattenedDecryption {
       protectedHeader: parsedProtected,
     });
 
-    const protectedHeader: Uint8Array = encoder.encode(jwe.protected ?? '');
-    let additionalData: Uint8Array;
+    const aesAad = buildAesAad(jwe.protected, jwe.aad);
 
-    if (jwe.aad !== undefined) {
-      additionalData = concat(
-        protectedHeader,
-        encoder.encode('.'),
-        encoder.encode(jwe.aad),
-      );
-    } else {
-      additionalData = protectedHeader;
-    }
-
-    const plaintext = await decrypt(
+    const plaintext = await this.#aes.decrypt({
       enc,
       cek,
       ciphertext,
       iv,
       tag,
-      additionalData,
-    );
+      aad: aesAad,
+    });
 
-    const result: FlattenedDecryptResult = { plaintext };
-
-    if (jwe.protected !== undefined) {
-      result.protectedHeader = parsedProtected;
-    }
+    const result: FlattenedDecryptResult = {
+      plaintext,
+      protectedHeader: parsedProtected,
+    };
 
     if (jwe.aad !== undefined) {
       result.additionalAuthenticatedData = aad;

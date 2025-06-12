@@ -166,15 +166,10 @@ export class FlattenedEncryption {
 
     const jwe: FlattenedJwe = {
       ciphertext: encodeBase64Url(ciphertext),
+      iv: encodeBase64Url(iv),
+      tag: encodeBase64Url(tag),
+      protected: protectedHeaderB64U,
     };
-
-    if (iv) {
-      jwe.iv = encodeBase64Url(iv);
-    }
-
-    if (tag) {
-      jwe.tag = encodeBase64Url(tag);
-    }
 
     if (encryptedKey) {
       jwe.encrypted_key = encodeBase64Url(encryptedKey);
@@ -182,10 +177,6 @@ export class FlattenedEncryption {
 
     if (this.#aad) {
       jwe.aad = aadB64U;
-    }
-
-    if (this.#protectedHeader) {
-      jwe.protected = protectedHeaderB64U;
     }
 
     if (this.#sharedUnprotectedHeader) {
