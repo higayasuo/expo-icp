@@ -21,12 +21,27 @@ export type ConcatKdfParams = {
  * Implements the Concatenation Key Derivation Function (Concat KDF) as specified in NIST SP 800-56A
  * using SHA-256 as the hash function.
  *
+ * The implementation follows RFC 7518 §4.6.2 Concat KDF Pseudocode:
+ * 1. Initialize a 32-bit, big-endian counter set to 1.
+ * 2. For i = 1 to ceil(keydatalen / hashlen):
+ *    a. Compute Hashi = SHA-256(counter || Z || OtherInfo)
+ *    b. Increment counter (modulo 2^32)
+ * 3. Set K = leftmost(Hash1 || Hash2 || ... || Hashi, keydatalen)
+ *
+ * Where:
+ * - Z = sharedSecret
+ * - OtherInfo = otherInfo
+ * - hashlen = 32 (SHA-256 output size in bytes)
+ * - keydatalen = keyBitLength >> 3 (convert bits to bytes)
+ * - "||" denotes concatenation
+ *
  * @param {ConcatKdfParams} params - The parameters for the KDF
  * @param {Uint8Array} params.sharedSecret - The shared secret used as input to the KDF
  * @param {number} params.keyBitLength - The desired output length in bits
  * @param {Uint8Array} params.otherInfo - Additional context/application-specific information
  * @returns {Uint8Array} The derived key material with length equal to keyBitLength / 8 bytes
  * @throws {RangeError} If keyBitLength is not a positive integer
+ * @see {@link https://datatracker.ietf.org/doc/html/rfc7518#section-4.6.2}
  *
  * @example
  * const sharedSecret = new Uint8Array([...]);
@@ -44,7 +59,6 @@ export const concatKdf = ({
   if (!Number.isInteger(keyBitLength) || keyBitLength <= 0) {
     throw new RangeError('keyBitLength must be a positive integer');
   }
-
   const iterations = Math.ceil((keyBitLength >> 3) / 32);
   const res = new Uint8Array(iterations * 32);
 

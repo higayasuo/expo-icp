@@ -1,6 +1,7 @@
 import { CritOption, JoseHeaderParameters } from '@/jose/types';
 import { Jwk } from '@/jose/types';
 import { Enc } from 'aes-universal';
+import { NistCurveName } from 'noble-curves-extended';
 
 /**
  * JWE Key Management Algorithm
@@ -17,6 +18,8 @@ export type JweAlg = 'ECDH-ES';
  * @see {@link Enc} from 'aes-universal' for supported algorithms
  */
 export type JweEnc = Enc;
+
+export type JweCrv = NistCurveName;
 
 /** Recognized JWE Key Management-related Header Parameters. */
 export interface JweKeyManagementHeaderParameters {
@@ -140,4 +143,22 @@ export interface FlattenedJwe {
    * Parameter values are not integrity protected.
    */
   unprotected?: JweHeaderParameters;
+}
+
+/** Flattened JWE JSON Serialization Syntax decryption result */
+export interface FlattenedDecryptResult {
+  /** JWE AAD. */
+  additionalAuthenticatedData?: Uint8Array;
+
+  /** Plaintext. */
+  plaintext: Uint8Array;
+
+  /** JWE Protected Header. */
+  protectedHeader?: JweHeaderParameters;
+
+  /** JWE Shared Unprotected Header. */
+  sharedUnprotectedHeader?: JweHeaderParameters;
+
+  /** JWE Per-Recipient Unprotected Header. */
+  unprotectedHeader?: JweHeaderParameters;
 }

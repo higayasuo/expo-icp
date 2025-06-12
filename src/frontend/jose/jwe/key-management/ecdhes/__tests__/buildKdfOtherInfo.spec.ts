@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildKdfOtherInfo } from '../buildKdfOtherInfo';
+import { JweInvalid, JweNotSupported } from '@/jose/errors';
 
 describe('buildKdfOtherInfo', () => {
   it('should build correct KDF Other Info structure', () => {
@@ -94,16 +95,68 @@ describe('buildKdfOtherInfo', () => {
     expect(result.slice(21, 25)).toEqual(new Uint8Array([0, 0, 0, 128]));
   });
 
-  it('should handle non-ASCII algorithm names', () => {
+  it('should throw JweNotSupported for non-ASCII algorithm names', () => {
     const params = {
       algorithm: 'アルゴリズム', // Japanese for "algorithm"
       keyBitLength: 256,
     };
+    expect(() => buildKdfOtherInfo(params)).toThrow(JweNotSupported);
+    expect(() => buildKdfOtherInfo(params)).toThrow(
+      '"enc" (Content Encryption Algorithm) is not supported',
+    );
+  });
+
+  it('should throw JweInvalid for APU longer than 32 bytes', () => {
+    const params = {
+      algorithm: 'A256GCM',
+      apu: new Uint8Array(33),
+      keyBitLength: 256,
+    };
+    expect(() => buildKdfOtherInfo(params)).toThrow(JweInvalid);
+    expect(() => buildKdfOtherInfo(params)).toThrow(
+      'APU/APV must be ≤32 bytes',
+    );
+  });
+
+  it('should throw JweInvalid for APV longer than 32 bytes', () => {
+    const params = {
+      algorithm: 'A256GCM',
+      apv: new Uint8Array(33),
+      keyBitLength: 256,
+    };
+    expect(() => buildKdfOtherInfo(params)).toThrow(JweInvalid);
+    expect(() => buildKdfOtherInfo(params)).toThrow(
+      'APU/APV must be ≤32 bytes',
+    );
+  });
+
+  it('should throw JweNotSupported for unsupported algorithm', () => {
+    const params = {
+      algorithm: 'UNSUPPORTED',
+      keyBitLength: 256,
+    };
+    expect(() => buildKdfOtherInfo(params)).toThrow(JweNotSupported);
+    expect(() => buildKdfOtherInfo(params)).toThrow(
+      '"enc" (Content Encryption Algorithm) is not supported',
+    );
+  });
+
+  it('should handle maximum allowed APU/APV size (32 bytes)', () => {
+    const params = {
+      algorithm: 'A256GCM',
+      apu: new Uint8Array(32),
+      apv: new Uint8Array(32),
+      keyBitLength: 256,
+    };
     const result = buildKdfOtherInfo(params);
-    // The first 4 bytes are the length of the encoded algorithm string
-    const algLen = result[3];
-    expect(algLen).toBeGreaterThan(0);
-    // The rest of the structure should still be valid
-    expect(result.slice(-4)).toEqual(new Uint8Array([0, 0, 1, 0]));
+    // Expected structure:
+    // algorithm: [0, 0, 0, 7, 65, 50, 53, 54, 71, 67, 77] (11 bytes)
+    // apu: [0, 0, 0, 32, ...] (36 bytes)
+    // apv: [0, 0, 0, 32, ...] (36 bytes)
+    // keyBitLength: [0, 0, 1, 0] (4 bytes)
+    // Total: 11 + 36 + 36 + 4 = 87 bytes
+    expect(result.length).toBe(87);
+    expect(result.slice(11, 15)).toEqual(new Uint8Array([0, 0, 0, 32]));
+    expect(result.slice(47, 51)).toEqual(new Uint8Array([0, 0, 0, 32]));
   });
 });

@@ -3,9 +3,12 @@
  */
 export type ErrorCode =
   | 'ERR_JOSE_GENERIC'
+  | 'ERR_JOSE_INVALID'
   | 'ERR_JOSE_NOT_SUPPORTED'
   | 'ERR_JWE_INVALID'
-  | 'ERR_JWS_INVALID';
+  | 'ERR_JWE_NOT_SUPPORTED'
+  | 'ERR_JWS_INVALID'
+  | 'ERR_JWS_NOT_SUPPORTED';
 
 /**
  * Abstract base class for JOSE related errors
@@ -35,6 +38,16 @@ export class JoseGeneric extends AbstractJoseError {
   readonly code = 'ERR_JOSE_GENERIC' as const;
 }
 
+/**
+ * Error thrown when JOSE is invalid
+ */
+export class JoseInvalid extends AbstractJoseError {
+  readonly code = 'ERR_JOSE_INVALID' as const;
+}
+
+/**
+ * Error thrown when JOSE is not supported
+ */
 export class JoseNotSupported extends AbstractJoseError {
   readonly code = 'ERR_JOSE_NOT_SUPPORTED' as const;
 }
@@ -47,8 +60,22 @@ export class JweInvalid extends AbstractJoseError {
 }
 
 /**
+ * Error thrown when a JWE (JSON Web Encryption) feature is not supported
+ */
+export class JweNotSupported extends AbstractJoseError {
+  readonly code = 'ERR_JWE_NOT_SUPPORTED' as const;
+}
+
+/**
  * Error thrown when JWS (JSON Web Signature) is invalid
  */
 export class JwsInvalid extends AbstractJoseError {
   readonly code = 'ERR_JWS_INVALID' as const;
+}
+
+/**
+ * Error thrown when a JWS (JSON Web Signature) feature is not supported
+ */
+export class JwsNotSupported extends AbstractJoseError {
+  readonly code = 'ERR_JWS_NOT_SUPPORTED' as const;
 }

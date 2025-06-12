@@ -1,5 +1,7 @@
 import { concatUint8Arrays, toUint32BE } from 'u8a-utils';
 import { lengthAndInput } from './lengthAndInput';
+import { JweInvalid, JweNotSupported } from '@/jose/errors';
+import { isEnc } from 'aes-universal';
 
 const encoder = new TextEncoder();
 
@@ -30,10 +32,24 @@ export const buildKdfOtherInfo = ({
   apv = new Uint8Array(),
   keyBitLength,
 }: BuildKdfOtherInfoParams) => {
+  // RFC 7518 §4.6.1.2
+  if (apu?.byteLength > 32 || apv?.byteLength > 32) {
+    throw new JweInvalid('APU/APV must be ≤32 bytes');
+  }
+
+  if (!isEnc(algorithm)) {
+    console.error(
+      `"enc" (Content Encryption Algorithm) is not supported: ${algorithm}`,
+    );
+    throw new JweNotSupported(
+      '"enc" (Content Encryption Algorithm) is not supported',
+    );
+  }
+
   return concatUint8Arrays(
-    lengthAndInput(encoder.encode(algorithm)),
-    lengthAndInput(apu),
-    lengthAndInput(apv),
-    toUint32BE(keyBitLength),
+    lengthAndInput(encoder.encode(algorithm)), // AlgorithmID (4.6.2.1)
+    lengthAndInput(apu), // PartyUInfo (4.6.2.2)
+    lengthAndInput(apv), // PartyVInfo (4.6.2.3)
+    toUint32BE(keyBitLength), // SuppPubInfo (4.6.2.4)
   );
 };

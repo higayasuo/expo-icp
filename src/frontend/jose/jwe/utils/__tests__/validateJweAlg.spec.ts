@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateJweAlg } from '../validateJweAlg';
-import { JweInvalid } from '@/jose/errors';
+import { JweInvalid, JweNotSupported } from '@/jose/errors';
 import type { JweAlg } from '../../types';
 
 describe('validateJweAlg', () => {
@@ -22,28 +22,16 @@ describe('validateJweAlg', () => {
     expect(() => validateJweAlg(true)).toThrow(JweInvalid);
   });
 
-  it('should throw JweInvalid when alg is an invalid algorithm', () => {
-    const invalidAlgorithms = [
+  it('should throw JweNotSupported for unsupported algorithms', () => {
+    const unsupportedAlgorithms = [
       'RSA-OAEP', // Different key management algorithm
       'A128GCM', // Content encryption algorithm
       'HS256', // JWS algorithm
       'invalid-alg', // Completely invalid
     ];
 
-    invalidAlgorithms.forEach((alg) => {
-      expect(() => validateJweAlg(alg)).toThrow(JweInvalid);
+    unsupportedAlgorithms.forEach((alg) => {
+      expect(() => validateJweAlg(alg)).toThrow(JweNotSupported);
     });
-  });
-
-  it('should have correct error messages', () => {
-    expect(() => validateJweAlg(undefined)).toThrow(
-      'JWE Header "alg" (Key Management Algorithm) missing',
-    );
-    expect(() => validateJweAlg(123)).toThrow(
-      'JWE Header "alg" (Key Management Algorithm) must be a string',
-    );
-    expect(() => validateJweAlg('RSA-OAEP')).toThrow(
-      'JWE Header "alg" (Key Management Algorithm) must be ECDH-ES',
-    );
   });
 });

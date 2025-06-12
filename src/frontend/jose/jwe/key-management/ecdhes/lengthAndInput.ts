@@ -1,10 +1,13 @@
 import { concatUint8Arrays, toUint32BE } from 'u8a-utils';
 
 /**
- * Prepends the length of the input array as a 32-bit big-endian value
- * @param {Uint8Array} input - The input byte array
- * @returns {Uint8Array} A new Uint8Array containing the length (as 32-bit BE) followed by the input bytes
+ * Prepends a 32-bit big-endian length to the input, as required by RFC 7518 §4.6.2 (Concat KDF OtherInfo).
+ * @param input - The input Uint8Array
+ * @returns A new Uint8Array: [length (4 bytes BE)] + input
  */
 export const lengthAndInput = (input: Uint8Array): Uint8Array => {
+  if (input.length > 0xffffffff) {
+    throw new RangeError('Input too large');
+  }
   return concatUint8Arrays(toUint32BE(input.length), input);
 };

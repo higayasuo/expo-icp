@@ -1,0 +1,44 @@
+import { NistCurve } from 'noble-curves-extended';
+import {
+  JweHeaderParameters,
+  JweKeyManagementHeaderParameters,
+  JweAlg,
+  JweEnc,
+} from '../types';
+import { ecdhesDeriveEncryptionKey } from './ecdhesDeriveEncryptKey';
+import { JweNotSupported } from '@/jose/errors/errors';
+
+export type DeriveEncryptionKeyParams = {
+  alg: JweAlg;
+  enc: JweEnc;
+  curve: NistCurve;
+  yourPublicKey: Uint8Array;
+  providedParameters: JweKeyManagementHeaderParameters | undefined;
+};
+
+export type DeriveEncryptionKeyResult = {
+  cek: Uint8Array;
+  encryptedKey?: Uint8Array;
+  parameters: JweHeaderParameters;
+};
+
+export const deriveEncryptionKey = ({
+  alg,
+  enc,
+  curve,
+  yourPublicKey,
+  providedParameters,
+}: DeriveEncryptionKeyParams): DeriveEncryptionKeyResult => {
+  if (alg === 'ECDH-ES') {
+    return ecdhesDeriveEncryptionKey({
+      alg,
+      enc,
+      curve,
+      yourPublicKey,
+      providedParameters,
+    });
+  }
+
+  console.error(`Unsupported JWE Key Management Algorithm: ${alg}`);
+  throw new JweNotSupported(`Unsupported JWE Key Management Algorithm`);
+};

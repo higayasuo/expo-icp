@@ -2,8 +2,7 @@
  * Encrypting JSON Web Encryption (JWE) in Flattened JSON Serialization
  */
 
-import { manageEncryptKey } from '../key-management/manageEncryptKey';
-import { hasNoDuplicateKeys } from '../utils/hasNoDuplicateKeys';
+import { deriveEncryptionKey } from '../key-management/deriveEncryptionKey';
 import { validateCrit } from '../../utils/validateCrit';
 import {
   JweHeaderParameters,
@@ -13,12 +12,13 @@ import {
   JweAlg,
   JweEnc,
 } from '../types';
-import { JweInvalid, JoseNotSupported } from '@/jose/errors/errors';
+import { JweInvalid } from '@/jose/errors/errors';
 import { NistCurve } from 'noble-curves-extended';
 import { AesCipher } from 'aes-universal';
 import { toB64U, ensureUint8Array, isUint8Array } from 'u8a-utils';
 import { validateJweAlg } from '../utils/validateJweAlg';
 import { validateJweEnc } from '../utils/validateJweEnc';
+import { buildJoseHeader } from './utils/buildJoseHeader';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -129,7 +129,11 @@ export class FlattenedEncrypt {
     yourPublicKey: Uint8Array,
     options?: EncryptOptions,
   ): Promise<FlattenedJwe> {
-    const joseHeader = this.buildJoseHeader();
+    const joseHeader = buildJoseHeader({
+      protectedHeader: this.#protectedHeader,
+      sharedUnprotectedHeader: this.#sharedUnprotectedHeader,
+      unprotectedHeader: this.#unprotectedHeader,
+    });
 
     validateCrit({
       Err: JweInvalid,
@@ -140,7 +144,7 @@ export class FlattenedEncrypt {
 
     const { alg, enc } = this.getValidatedAlgAndEnc();
 
-    const { cek, encryptedKey, parameters } = manageEncryptKey({
+    const { cek, encryptedKey, parameters } = deriveEncryptionKey({
       alg,
       enc,
       curve: this.#curve,
@@ -193,48 +197,6 @@ export class FlattenedEncrypt {
     }
 
     return jwe;
-  }
-
-  verifyHeaders(): void {
-    if (
-      !this.#protectedHeader &&
-      !this.#unprotectedHeader &&
-      !this.#sharedUnprotectedHeader
-    ) {
-      throw new JweInvalid(
-        'either setProtectedHeader, setUnprotectedHeader, or sharedUnprotectedHeader must be called before #encrypt()',
-      );
-    }
-
-    if (
-      !hasNoDuplicateKeys(
-        this.#protectedHeader,
-        this.#unprotectedHeader,
-        this.#sharedUnprotectedHeader,
-      )
-    ) {
-      throw new JweInvalid(
-        'JWE Protected, JWE Shared Unprotected and JWE Per-Recipient Header Parameter names must be disjoint',
-      );
-    }
-  }
-
-  buildJoseHeader(): JweHeaderParameters {
-    this.verifyHeaders();
-
-    const joseHeader: JweHeaderParameters = {
-      ...this.#protectedHeader,
-      ...this.#unprotectedHeader,
-      ...this.#sharedUnprotectedHeader,
-    };
-
-    if (joseHeader.zip !== undefined) {
-      throw new JoseNotSupported(
-        'JWE "zip" (Compression Algorithm) Header Parameter is not supported.',
-      );
-    }
-
-    return joseHeader;
   }
 
   getValidatedAlgAndEnc(): { alg: JweAlg; enc: JweEnc } {

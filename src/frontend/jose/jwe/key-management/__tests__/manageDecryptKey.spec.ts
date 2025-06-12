@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { manageDecryptKey } from '../manageDecryptKey';
-import type { ManageDecryptKeyParams } from '../manageDecryptKey';
-import * as ecdhesManageDecryptKeyModule from '../ecdhesManageDecryptKey';
+import { deriveDecryptionKey } from '../deriveDecryptionKey';
+import type { ManageDecryptKeyParams } from '../deriveDecryptionKey';
+import * as ecdhesManageDecryptKeyModule from '../ecdhesDriveDecryptionKey';
 
 describe('manageDecryptKey', () => {
   it('should call ecdhesManageDecryptKey for ECDH-ES', () => {
@@ -22,10 +22,10 @@ describe('manageDecryptKey', () => {
       },
     };
 
-    const result = manageDecryptKey(params);
+    const result = deriveDecryptionKey(params);
 
     expect(
-      ecdhesManageDecryptKeyModule.ecdhesManageDecryptKey,
+      ecdhesManageDecryptKeyModule.ecdhesDeriveDecryptionKey,
     ).toHaveBeenCalledWith(params);
     expect(result).toBe(mockCek);
   });
@@ -42,7 +42,7 @@ describe('manageDecryptKey', () => {
       },
     };
 
-    expect(() => manageDecryptKey(params)).toThrow(
+    expect(() => deriveDecryptionKey(params)).toThrow(
       'Unsupported JWE Algorithm: RSA-OAEP',
     );
   });

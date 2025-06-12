@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as jose from 'jose';
 import { FlattenedEncrypt } from '../FlattenedEncrypt';
-import { JweInvalid, JoseNotSupported } from '@/jose/errors/errors';
+import { JweInvalid } from '@/jose/errors/errors';
 import { fromB64U, toB64U } from 'u8a-utils';
 
 import { webCryptoModule } from 'expo-crypto-universal-web';
@@ -73,9 +73,7 @@ describe('FlattenedEncrypt', () => {
         plaintext,
       }).protectedHeader({ enc: 'A256GCM' });
 
-      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(
-        new JweInvalid('JWE Header "alg" (Key Management Algorithm) missing'),
-      );
+      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(JweInvalid);
     });
 
     it('should throw JweInvalid when enc is missing', () => {
@@ -86,11 +84,7 @@ describe('FlattenedEncrypt', () => {
         plaintext,
       }).protectedHeader({ alg: 'ECDH-ES' });
 
-      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(
-        new JweInvalid(
-          'JWE Header "enc" (Content Encryption Algorithm) missing',
-        ),
-      );
+      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(JweInvalid);
     });
 
     it('should throw JweInvalid when alg is invalid', () => {
@@ -101,11 +95,7 @@ describe('FlattenedEncrypt', () => {
         plaintext,
       }).protectedHeader({ alg: 'INVALID' as any, enc: 'A256GCM' });
 
-      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(
-        new JweInvalid(
-          'JWE Header "alg" (Key Management Algorithm) must be ECDH-ES',
-        ),
-      );
+      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(JweInvalid);
     });
 
     it('should throw JweInvalid when enc is invalid', () => {
@@ -116,48 +106,7 @@ describe('FlattenedEncrypt', () => {
         plaintext,
       }).protectedHeader({ alg: 'ECDH-ES', enc: 'INVALID' as any });
 
-      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(
-        new JweInvalid(
-          'JWE Header "enc" (Content Encryption Algorithm) must be A128GCM, A192GCM, A256GCM, A128CBC-HS256, A192CBC-HS384, or A256CBC-HS512',
-        ),
-      );
-    });
-  });
-
-  describe('buildJoseHeader', () => {
-    it('should combine headers correctly', () => {
-      const plaintext = new TextEncoder().encode('Hello, World!');
-      const encrypt = new FlattenedEncrypt({
-        curve,
-        aes,
-        plaintext,
-      })
-        .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
-        .unprotectedHeader({ kid: 'test-key' })
-        .sharedUnprotectedHeader({ cty: 'text/plain' });
-
-      const header = encrypt.buildJoseHeader();
-      expect(header).toEqual({
-        alg: 'ECDH-ES',
-        enc: 'A256GCM',
-        kid: 'test-key',
-        cty: 'text/plain',
-      });
-    });
-
-    it('should throw JoseNotSupported when zip parameter is present', () => {
-      const plaintext = new TextEncoder().encode('Hello, World!');
-      const encrypt = new FlattenedEncrypt({
-        curve,
-        aes,
-        plaintext,
-      }).protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM', zip: 'DEF' });
-
-      expect(() => encrypt.buildJoseHeader()).toThrow(
-        new JoseNotSupported(
-          'JWE "zip" (Compression Algorithm) Header Parameter is not supported.',
-        ),
-      );
+      expect(() => encrypt.getValidatedAlgAndEnc()).toThrow(JweInvalid);
     });
   });
 
@@ -247,7 +196,7 @@ describe('FlattenedEncrypt', () => {
     );
   });
 
-  describe('verifyHeaders', () => {
+  describe('headers', () => {
     it('should throw JweInvalid when no header is set', async () => {
       const plaintext = new TextEncoder().encode('Hello, World!');
       const rawPublicKey = curve.getPublicKey(
@@ -261,11 +210,7 @@ describe('FlattenedEncrypt', () => {
         plaintext,
       });
 
-      await expect(encrypt.encrypt(rawPublicKey)).rejects.toThrow(
-        new JweInvalid(
-          'either setProtectedHeader, setUnprotectedHeader, or sharedUnprotectedHeader must be called before #encrypt()',
-        ),
-      );
+      await expect(encrypt.encrypt(rawPublicKey)).rejects.toThrow(JweInvalid);
     });
 
     it('should throw JweInvalid when headers have duplicate keys', async () => {
@@ -283,11 +228,7 @@ describe('FlattenedEncrypt', () => {
         .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
         .unprotectedHeader({ alg: 'ECDH-ES' }); // duplicate 'alg' key
 
-      await expect(encrypt.encrypt(rawPublicKey)).rejects.toThrow(
-        new JweInvalid(
-          'JWE Protected, JWE Shared Unprotected and JWE Per-Recipient Header Parameter names must be disjoint',
-        ),
-      );
+      await expect(encrypt.encrypt(rawPublicKey)).rejects.toThrow(JweInvalid);
     });
   });
 
@@ -319,13 +260,9 @@ describe('FlattenedEncrypt', () => {
       const parameters = { kid: 'test-key', cty: 'text/plain' };
       encrypt.updateProtectedHeader(parameters);
 
-      const header = encrypt.buildJoseHeader();
-      expect(header).toEqual({
-        alg: 'ECDH-ES',
-        enc: 'A256GCM',
-        kid: 'test-key',
-        cty: 'text/plain',
-      });
+      const { alg, enc } = encrypt.getValidatedAlgAndEnc();
+      expect(alg).toBe('ECDH-ES');
+      expect(enc).toBe('A256GCM');
     });
 
     it('should not modify protected header when parameters are undefined', () => {

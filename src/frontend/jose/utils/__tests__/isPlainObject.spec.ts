@@ -33,6 +33,13 @@ describe('Plain Object type checks', () => {
       expect(isObjectLike(new Map())).toBe(false);
       expect(isObjectLike(new Set())).toBe(false);
     });
+
+    it('should return false for functions', () => {
+      expect(isObjectLike(() => {})).toBe(false);
+      expect(isObjectLike(function () {})).toBe(false);
+      expect(isObjectLike(class {})).toBe(false);
+      expect(isObjectLike(new Function())).toBe(false);
+    });
   });
 
   describe('isPlainObject', () => {
