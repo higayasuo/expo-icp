@@ -20,19 +20,21 @@ import { AesCipher } from 'aes-universal';
 import { ensureUint8Array, isUint8Array } from 'u8a-utils';
 import { sleep } from '@/jose/utils/sleep';
 import { cekBitLengthByEnc } from '../utils/cekBitLengthByEnc';
+import { generateMitigatedCek } from './utils/generateMitigatedCek';
+import { deriveDecryptionKeyWithMitigation } from './utils/deriveDecryptionKeyWithMitigation';
 
 const encoder = new TextEncoder();
 
-type FlattenedDecryptParams = {
+type FlattenedDecryptionParams = {
   curve: NistCurve;
   aes: AesCipher;
 };
 
-export class FlattenedDecrypt {
+export class FlattenedDecryption {
   #curve: NistCurve;
   #aes: AesCipher;
 
-  constructor({ curve, aes }: FlattenedDecryptParams) {
+  constructor({ curve, aes }: FlattenedDecryptionParams) {
     this.#curve = curve;
     this.#aes = aes;
   }
@@ -73,31 +75,14 @@ export class FlattenedDecrypt {
     checkJweAlgAllowed(alg, options?.keyManagementAlgorithms);
     checkJweEncAllowed(enc, options?.contentEncryptionAlgorithms);
 
-    let cek: Uint8Array;
-    try {
-      cek = await deriveDecryptionKey({
-        alg,
-        curve: this.#curve,
-        myPrivateKey,
-        encryptedKey,
-        protectedHeader: parsedProtected,
-      });
-    } catch (err) {
-      console.error(err);
-
-      // https://www.rfc-editor.org/rfc/rfc7516#section-11.5
-      // To mitigate the attacks described in RFC 3218, the
-      // recipient MUST NOT distinguish between format, padding, and length
-      // errors of encrypted keys.  It is strongly recommended, in the event
-      // of receiving an improperly formatted key, that the recipient
-      // substitute a randomly generated CEK and proceed to the next step, to
-      // mitigate timing attacks.
-
-      // Add random delay to mitigate timing attacks
-      await sleep(Math.random() * 500);
-      const cekBitLength = cekBitLengthByEnc(enc);
-      cek = this.#curve.randomBytes(cekBitLength >> 3);
-    }
+    const cek = await deriveDecryptionKeyWithMitigation({
+      alg,
+      enc,
+      curve: this.#curve,
+      myPrivateKey,
+      encryptedKey,
+      protectedHeader: parsedProtected,
+    });
 
     const protectedHeader: Uint8Array = encoder.encode(jwe.protected ?? '');
     let additionalData: Uint8Array;

@@ -15,47 +15,36 @@ import {
 import { JweInvalid } from '@/jose/errors/errors';
 import { NistCurve } from 'noble-curves-extended';
 import { AesCipher } from 'aes-universal';
-import { toB64U, ensureUint8Array, isUint8Array } from 'u8a-utils';
+import { encodeBase64Url, ensureUint8Array, isUint8Array } from 'u8a-utils';
 import { validateJweAlg } from '../utils/validateJweAlg';
 import { validateJweEnc } from '../utils/validateJweEnc';
 import { buildJoseHeader } from './utils/buildJoseHeader';
+import { buildBase64UrlJweHeader } from './utils/buildBase64UrlJweHeader';
+import { buildAesAad } from './utils/buildAesAad';
 
 const encoder = new TextEncoder();
-const decoder = new TextDecoder();
 
-type FlattenedEncryptParams = {
+type FlattenedEncryptionParams = {
   curve: NistCurve;
   aes: AesCipher;
-  plaintext: Uint8Array;
 };
 
-export class FlattenedEncrypt {
+export class FlattenedEncryption {
   #curve: NistCurve;
-
   #aes: AesCipher;
-
-  #plaintext: Uint8Array;
-
   #protectedHeader!: JweHeaderParameters | undefined;
-
   #sharedUnprotectedHeader!: JweHeaderParameters | undefined;
-
   #unprotectedHeader!: JweHeaderParameters | undefined;
-
   #aad!: Uint8Array | undefined;
-
   #keyManagementParameters!: JweKeyManagementHeaderParameters;
 
   /**
-   * {@link FlattenedEncrypt} constructor
+   * {@link FlattenedEncryption} constructor
    *
-   * @param plaintext Binary representation of the plaintext to encrypt.
+   * @param curve The curve to use for key derivation
+   * @param aes The AES cipher to use for encryption
    */
-  constructor({ curve, aes, plaintext }: FlattenedEncryptParams) {
-    if (!isUint8Array(plaintext)) {
-      throw new TypeError('plaintext must be an Uint8Array');
-    }
-    this.#plaintext = ensureUint8Array(plaintext);
+  constructor({ curve, aes }: FlattenedEncryptionParams) {
     this.#curve = curve;
     this.#aes = aes;
   }
@@ -77,7 +66,7 @@ export class FlattenedEncrypt {
   }
 
   /**
-   * Sets the JWE Protected Header on the FlattenedEncrypt object.
+   * Sets the JWE Protected Header on the FlattenedEncryption object.
    *
    * @param protectedHeader JWE Protected Header.
    */
@@ -90,7 +79,7 @@ export class FlattenedEncrypt {
   }
 
   /**
-   * Sets the JWE Shared Unprotected Header on the FlattenedEncrypt object.
+   * Sets the JWE Shared Unprotected Header on the FlattenedEncryption object.
    *
    * @param sharedUnprotectedHeader JWE Shared Unprotected Header.
    */
@@ -103,7 +92,7 @@ export class FlattenedEncrypt {
   }
 
   /**
-   * Sets the JWE Per-Recipient Unprotected Header on the FlattenedEncrypt object.
+   * Sets the JWE Per-Recipient Unprotected Header on the FlattenedEncryption object.
    *
    * @param unprotectedHeader JWE Per-Recipient Unprotected Header.
    */
@@ -116,7 +105,7 @@ export class FlattenedEncrypt {
   }
 
   /**
-   * Sets the Additional Authenticated Data on the FlattenedEncrypt object.
+   * Sets the Additional Authenticated Data on the FlattenedEncryption object.
    *
    * @param aad Additional Authenticated Data.
    */
@@ -126,9 +115,19 @@ export class FlattenedEncrypt {
   }
 
   async encrypt(
+    plaintext: Uint8Array,
     yourPublicKey: Uint8Array,
     options?: EncryptOptions,
   ): Promise<FlattenedJwe> {
+    if (!isUint8Array(plaintext)) {
+      throw new TypeError('plaintext must be an Uint8Array');
+    }
+    const validatedPlaintext = ensureUint8Array(plaintext);
+
+    if (!this.#protectedHeader) {
+      throw new JweInvalid('JWE Protected Header is missing');
+    }
+
     const joseHeader = buildJoseHeader({
       protectedHeader: this.#protectedHeader,
       sharedUnprotectedHeader: this.#sharedUnprotectedHeader,
@@ -142,7 +141,8 @@ export class FlattenedEncrypt {
       joseHeader,
     });
 
-    const { alg, enc } = this.getValidatedAlgAndEnc();
+    const alg = validateJweAlg(this.#protectedHeader.alg);
+    const enc = validateJweEnc(this.#protectedHeader.enc);
 
     const { cek, encryptedKey, parameters } = deriveEncryptionKey({
       alg,
@@ -153,31 +153,31 @@ export class FlattenedEncrypt {
     });
 
     this.updateProtectedHeader(parameters);
-    const protectedHeaderB64U = this.buildProtectedHeaderB64U();
-    const aadB64U = this.buildAadB64U(protectedHeaderB64U);
-    const aad = encoder.encode(aadB64U);
+    const protectedHeaderB64U = buildBase64UrlJweHeader(this.#protectedHeader);
+    const aadB64U = this.#aad ? encodeBase64Url(this.#aad) : undefined;
+    const aad = buildAesAad(protectedHeaderB64U, aadB64U);
 
     const { ciphertext, tag, iv } = await this.#aes.encrypt({
       enc,
-      plaintext: this.#plaintext,
+      plaintext: validatedPlaintext,
       cek,
       aad,
     });
 
     const jwe: FlattenedJwe = {
-      ciphertext: toB64U(ciphertext),
+      ciphertext: encodeBase64Url(ciphertext),
     };
 
     if (iv) {
-      jwe.iv = toB64U(iv);
+      jwe.iv = encodeBase64Url(iv);
     }
 
     if (tag) {
-      jwe.tag = toB64U(tag);
+      jwe.tag = encodeBase64Url(tag);
     }
 
     if (encryptedKey) {
-      jwe.encrypted_key = toB64U(encryptedKey);
+      jwe.encrypted_key = encodeBase64Url(encryptedKey);
     }
 
     if (this.#aad) {
@@ -199,17 +199,6 @@ export class FlattenedEncrypt {
     return jwe;
   }
 
-  getValidatedAlgAndEnc(): { alg: JweAlg; enc: JweEnc } {
-    if (!this.#protectedHeader) {
-      throw new JweInvalid('JWE Protected Header Parameter missing');
-    }
-
-    const alg = validateJweAlg(this.#protectedHeader.alg);
-    const enc = validateJweEnc(this.#protectedHeader.enc);
-
-    return { alg, enc };
-  }
-
   updateProtectedHeader(parameters: JweHeaderParameters | undefined) {
     if (parameters) {
       if (!this.#protectedHeader) {
@@ -218,22 +207,5 @@ export class FlattenedEncrypt {
         this.#protectedHeader = { ...this.#protectedHeader, ...parameters };
       }
     }
-  }
-
-  buildProtectedHeaderB64U(): string {
-    if (this.#protectedHeader) {
-      return toB64U(encoder.encode(JSON.stringify(this.#protectedHeader)));
-    }
-
-    // RFC 7516: Return an empty string if the Protected Header is not present
-    return '';
-  }
-
-  buildAadB64U(protectedHeaderB64U: string): string {
-    if (this.#aad) {
-      return `${protectedHeaderB64U}.${toB64U(this.#aad)}`;
-    }
-
-    return protectedHeaderB64U;
   }
 }

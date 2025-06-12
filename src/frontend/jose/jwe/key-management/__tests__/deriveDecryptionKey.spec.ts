@@ -1,18 +1,20 @@
 import { describe, it, expect, vi } from 'vitest';
 import { deriveDecryptionKey } from '../deriveDecryptionKey';
-import type { ManageDecryptKeyParams } from '../deriveDecryptionKey';
-import * as ecdhesManageDecryptKeyModule from '../ecdhesDriveDecryptionKey';
+import type { DeriveDecryptionKeyParams } from '../deriveDecryptionKey';
+import * as ecdhesDeriveDecryptionKeyModule from '../ecdhesDriveDecryptionKey';
+import { JweNotSupported } from '@/jose/errors/errors';
 
-describe('manageDecryptKey', () => {
-  it('should call ecdhesManageDecryptKey for ECDH-ES', () => {
+describe('deriveDecryptionKey', () => {
+  it('should call ecdhesDeriveDecryptionKey for ECDH-ES', () => {
     const mockCek = new Uint8Array([1, 2, 3, 4]);
     vi.spyOn(
-      ecdhesManageDecryptKeyModule,
-      'ecdhesManageDecryptKey',
+      ecdhesDeriveDecryptionKeyModule,
+      'ecdhesDeriveDecryptionKey',
     ).mockReturnValue(mockCek);
 
-    const params: ManageDecryptKeyParams = {
+    const params: DeriveDecryptionKeyParams = {
       alg: 'ECDH-ES',
+      enc: 'A256GCM',
       curve: {} as any,
       myPrivateKey: new Uint8Array([1, 2, 3]),
       encryptedKey: undefined,
@@ -25,14 +27,15 @@ describe('manageDecryptKey', () => {
     const result = deriveDecryptionKey(params);
 
     expect(
-      ecdhesManageDecryptKeyModule.ecdhesDeriveDecryptionKey,
+      ecdhesDeriveDecryptionKeyModule.ecdhesDeriveDecryptionKey,
     ).toHaveBeenCalledWith(params);
     expect(result).toBe(mockCek);
   });
 
   it('should throw error for unsupported algorithm', () => {
-    const params: ManageDecryptKeyParams = {
+    const params: DeriveDecryptionKeyParams = {
       alg: 'RSA-OAEP' as any,
+      enc: 'A256GCM',
       curve: {} as any,
       myPrivateKey: new Uint8Array([1, 2, 3]),
       encryptedKey: undefined,
@@ -42,8 +45,6 @@ describe('manageDecryptKey', () => {
       },
     };
 
-    expect(() => deriveDecryptionKey(params)).toThrow(
-      'Unsupported JWE Algorithm: RSA-OAEP',
-    );
+    expect(() => deriveDecryptionKey(params)).toThrow(JweNotSupported);
   });
 });
