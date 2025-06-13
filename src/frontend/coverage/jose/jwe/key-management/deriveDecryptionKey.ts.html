@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">86.95% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>20/23</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>1/2</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">86.95% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>20/23</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -118,8 +118,8 @@
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -147,32 +147,32 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { NistCurve } from 'noble-curves-extended';
 import { JweAlg, JweEnc, JweHeaderParameters } from '../types';
-<span class="cstat-no" title="statement not covered" >import { ecdhesDeriveDecryptionKey } from './ecdhesDriveDecryptionKey';</span>
-<span class="cstat-no" title="statement not covered" >import { JweNotSupported } from '@/jose/errors/errors';</span>
+import { ecdhesDeriveDecryptionKey } from './ecdhesDriveDecryptionKey';
+import { JweNotSupported } from '@/jose/errors/errors';
 &nbsp;
 /**
  * Parameters for deriving a decryption key.
@@ -200,24 +200,24 @@ export type DeriveDecryptionKeyParams = {
  * @returns {Uint8Array} The derived decryption key.
  * @throws {JweNotSupported} If the JWE key management algorithm is not supported.
  */
-<span class="cstat-no" title="statement not covered" >export const deriveDecryptionKey = ({</span>
-<span class="cstat-no" title="statement not covered" >  alg,</span>
-<span class="cstat-no" title="statement not covered" >  enc,</span>
-<span class="cstat-no" title="statement not covered" >  curve,</span>
-<span class="cstat-no" title="statement not covered" >  myPrivateKey,</span>
-<span class="cstat-no" title="statement not covered" >  encryptedKey,</span>
-<span class="cstat-no" title="statement not covered" >  protectedHeader,</span>
-<span class="cstat-no" title="statement not covered" >}: DeriveDecryptionKeyParams): Uint8Array =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (alg === 'ECDH-ES') {</span>
-<span class="cstat-no" title="statement not covered" >    return ecdhesDeriveDecryptionKey({</span>
-<span class="cstat-no" title="statement not covered" >      alg,</span>
-<span class="cstat-no" title="statement not covered" >      enc,</span>
-<span class="cstat-no" title="statement not covered" >      curve,</span>
-<span class="cstat-no" title="statement not covered" >      myPrivateKey,</span>
-<span class="cstat-no" title="statement not covered" >      encryptedKey,</span>
-<span class="cstat-no" title="statement not covered" >      protectedHeader,</span>
-<span class="cstat-no" title="statement not covered" >    });</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
+export const deriveDecryptionKey = ({
+  alg,
+  enc,
+  curve,
+  myPrivateKey,
+  encryptedKey,
+  protectedHeader,
+}: DeriveDecryptionKeyParams): Uint8Array =&gt; {
+  if (alg === 'ECDH-ES') {
+    return ecdhesDeriveDecryptionKey({
+      alg,
+      enc,
+      curve,
+      myPrivateKey,
+      encryptedKey,
+      protectedHeader,
+    });
+<span class="branch-0 cbranch-no" title="branch not covered" >  }</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  console.error(`Unsupported JWE key management algorithm: ${alg}`);</span>
 <span class="cstat-no" title="statement not covered" >  throw new JweNotSupported('Unsupported JWE key management algorithm');</span>
@@ -229,7 +229,7 @@ export type DeriveDecryptionKeyParams = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-13T11:51:02.568Z
+                at 2025-06-13T12:53:58.538Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

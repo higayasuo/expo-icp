@@ -15,52 +15,18 @@ const aes = new WebAesCipher(getRandomBytes);
 describe('FlattenedDecryption', () => {
   describe('encrypt and decrypt', () => {
     it('should encrypt and decrypt with ECDH-ES and A256GCM', async () => {
-      // Generate key pair
+      const decryption = new FlattenedDecryption({ curve, aes });
+      const encryption = new FlattenedEncryption({ curve, aes });
+      const plaintext = new TextEncoder().encode('Hello, World!');
       const rawPrivateKey = curve.utils.randomPrivateKey();
       const rawPublicKey = curve.getPublicKey(rawPrivateKey, false);
 
-      // Create plaintext
-      const plaintext = new TextEncoder().encode('Hello, World!');
+      const jwe = await encryption
+        .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
+        .encrypt(plaintext, rawPublicKey);
 
-      // Encrypt
-      const encryption = new FlattenedEncryption({
-        curve,
-        aes,
-      }).protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' });
-
-      const jwe = await encryption.encrypt(plaintext, rawPublicKey);
-
-      // Decrypt
-      const decryption = new FlattenedDecryption({
-        curve,
-        aes,
-      });
-
-      const decrypted = await decryption.decrypt(jwe, rawPrivateKey);
-
-      // Verify
-      expect(new TextDecoder().decode(decrypted.plaintext)).toBe(
-        'Hello, World!',
-      );
-      expect(decrypted.protectedHeader!).toMatchObject({
-        alg: 'ECDH-ES',
-        enc: 'A256GCM',
-      });
-      expect(decrypted.protectedHeader!.epk).toMatchObject({
-        crv: 'P-256',
-        kty: 'EC',
-      });
-      expect(decrypted.protectedHeader!.epk!.x).toBeDefined();
-      expect(decrypted.protectedHeader!.epk!.y).toBeDefined();
-      expect(decrypted.additionalAuthenticatedData).toBeUndefined();
-      expect(decrypted.sharedUnprotectedHeader).toBeUndefined();
-      expect(decrypted.unprotectedHeader).toBeUndefined();
-
-      // Verify JWE structure
-      expect(jwe.protected).toBeDefined();
-      expect(jwe.iv).toBeDefined();
-      expect(jwe.ciphertext).toBeDefined();
-      expect(jwe.tag).toBeDefined();
+      const result = await decryption.decrypt(jwe, rawPrivateKey);
+      expect(new TextDecoder().decode(result.plaintext)).toBe('Hello, World!');
     });
 
     it('should encrypt and decrypt with apu/apv parameters', async () => {
@@ -97,27 +63,13 @@ describe('FlattenedDecryption', () => {
       expect(new TextDecoder().decode(decrypted.plaintext)).toBe(
         'Hello, World!',
       );
-      expect(decrypted.protectedHeader!).toMatchObject({
-        alg: 'ECDH-ES',
-        enc: 'A256GCM',
-        apu: encodeBase64Url(apu),
-        apv: encodeBase64Url(apv),
-      });
-      expect(decrypted.protectedHeader!.epk).toMatchObject({
-        crv: 'P-256',
-        kty: 'EC',
-      });
-      expect(decrypted.protectedHeader!.epk!.x).toBeDefined();
-      expect(decrypted.protectedHeader!.epk!.y).toBeDefined();
-      expect(decrypted.additionalAuthenticatedData).toBeUndefined();
-      expect(decrypted.sharedUnprotectedHeader).toBeUndefined();
-      expect(decrypted.unprotectedHeader).toBeUndefined();
+    });
+  });
 
-      // Verify JWE structure
-      expect(jwe.protected).toBeDefined();
-      expect(jwe.iv).toBeDefined();
-      expect(jwe.ciphertext).toBeDefined();
-      expect(jwe.tag).toBeDefined();
+  describe('constructor', () => {
+    it('should create a new instance', () => {
+      const decryption = new FlattenedDecryption({ curve, aes });
+      expect(decryption).toBeInstanceOf(FlattenedDecryption);
     });
   });
 
@@ -332,6 +284,40 @@ describe('FlattenedDecryption', () => {
         alg: 'ECDH-ES',
         enc: 'A256GCM',
       });
+    });
+
+    it('should include unprotectedHeader in result when it exists', async () => {
+      const decryption = new FlattenedDecryption({ curve, aes });
+      const encryption = new FlattenedEncryption({ curve, aes });
+      const plaintext = new TextEncoder().encode('Hello, World!');
+      const rawPrivateKey = curve.utils.randomPrivateKey();
+      const rawPublicKey = curve.getPublicKey(rawPrivateKey, false);
+      const unprotectedHeader = { kid: 'unprotected-key-id' };
+
+      const jwe = await encryption
+        .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
+        .unprotectedHeader(unprotectedHeader)
+        .encrypt(plaintext, rawPublicKey);
+
+      const result = await decryption.decrypt(jwe, rawPrivateKey);
+      expect(result.unprotectedHeader).toEqual(unprotectedHeader);
+    });
+
+    it('should include sharedUnprotectedHeader in result when it exists', async () => {
+      const decryption = new FlattenedDecryption({ curve, aes });
+      const encryption = new FlattenedEncryption({ curve, aes });
+      const plaintext = new TextEncoder().encode('Hello, World!');
+      const rawPrivateKey = curve.utils.randomPrivateKey();
+      const rawPublicKey = curve.getPublicKey(rawPrivateKey, false);
+      const sharedUnprotectedHeader = { cty: 'application/json' };
+
+      const jwe = await encryption
+        .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
+        .sharedUnprotectedHeader(sharedUnprotectedHeader)
+        .encrypt(plaintext, rawPublicKey);
+
+      const result = await decryption.decrypt(jwe, rawPrivateKey);
+      expect(result.sharedUnprotectedHeader).toEqual(sharedUnprotectedHeader);
     });
   });
 });

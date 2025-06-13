@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>22/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>4/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>22/22</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -99,8 +99,8 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
-<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -114,29 +114,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { JweInvalid } from '@/jose/errors';<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-<span class="cstat-no" title="statement not covered" >import { validateStringArrayAsSet } from '@/jose/utils/validateStringArrayAsSet';</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { JweInvalid } from '@/jose/errors';
+import { validateStringArrayAsSet } from '@/jose/utils/validateStringArrayAsSet';
 &nbsp;
 /**
  * Checks if a JWE Key Management Algorithm is allowed based on provided allowed algorithms.
@@ -150,27 +150,27 @@
  * @param {unknown} keyManagementAlgorithms - The allowed algorithms (can be undefined, array, or other type)
  * @throws {JweInvalid} - If the algorithm is not allowed
  */
-<span class="cstat-no" title="statement not covered" >export const checkJweAlgAllowed = (</span>
-<span class="cstat-no" title="statement not covered" >  alg: string,</span>
-<span class="cstat-no" title="statement not covered" >  keyManagementAlgorithms: unknown,</span>
-<span class="cstat-no" title="statement not covered" >) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  const allowedAlgorithms = validateStringArrayAsSet(</span>
-<span class="cstat-no" title="statement not covered" >    keyManagementAlgorithms,</span>
-<span class="cstat-no" title="statement not covered" >    'keyManagementAlgorithms',</span>
-<span class="cstat-no" title="statement not covered" >  );</span>
+export const checkJweAlgAllowed = (
+  alg: string,
+  keyManagementAlgorithms: unknown,
+) =&gt; {
+  const allowedAlgorithms = validateStringArrayAsSet(
+    keyManagementAlgorithms,
+    'keyManagementAlgorithms',
+  );
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (</span>
-<span class="cstat-no" title="statement not covered" >    (allowedAlgorithms &amp;&amp; !allowedAlgorithms.has(alg)) ||</span>
-<span class="cstat-no" title="statement not covered" >    (!allowedAlgorithms &amp;&amp; alg.startsWith('PBES2'))</span>
-<span class="cstat-no" title="statement not covered" >  ) {</span>
-<span class="cstat-no" title="statement not covered" >    console.error(</span>
-<span class="cstat-no" title="statement not covered" >      '"alg" (Key Management Algorithm) is not allowed: %s, allowedAlgorithms: %s',</span>
-<span class="cstat-no" title="statement not covered" >      alg,</span>
-<span class="cstat-no" title="statement not covered" >      Array.from(allowedAlgorithms || []).join(', '),</span>
-<span class="cstat-no" title="statement not covered" >    );</span>
-<span class="cstat-no" title="statement not covered" >    throw new JweInvalid('"alg" (Key Management Algorithm) is not allowed');</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+  if (
+    (allowedAlgorithms &amp;&amp; !allowedAlgorithms.has(alg)) ||
+    (!allowedAlgorithms &amp;&amp; alg.startsWith('PBES2'))
+  ) {
+    console.error(
+      '"alg" (Key Management Algorithm) is not allowed: %s, allowedAlgorithms: %s',
+      alg,
+      Array.from(<span class="branch-0 cbranch-no" title="branch not covered" >allowedAlgorithms || [])</span>.join(', '),
+    );
+    throw new JweInvalid('"alg" (Key Management Algorithm) is not allowed');
+  }
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -178,7 +178,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-13T11:51:02.568Z
+                at 2025-06-13T12:53:58.538Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
