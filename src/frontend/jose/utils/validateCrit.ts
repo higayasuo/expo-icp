@@ -83,7 +83,7 @@ export const validateCrit = ({
 
   for (const parameter of protectedHeader.crit) {
     if (!recognized.has(parameter)) {
-      throw new JoseNotSupported(
+      throw new Err(
         `Extension Header Parameter "${parameter}" is not recognized`,
       );
     }

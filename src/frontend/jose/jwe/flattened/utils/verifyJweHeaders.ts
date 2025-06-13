@@ -1,6 +1,7 @@
 import { JweInvalid } from '@/jose/errors/errors';
 import { areDisjoint } from '../../utils/areDisjoint';
 import { JweHeaderParameters } from '../../types';
+import { isPlainObject } from '@/jose/utils/isPlainObject';
 
 /**
  * Parameters for verifying JWE headers
@@ -40,6 +41,28 @@ export const verifyJweHeaders = ({
   ) {
     throw new JweInvalid(
       'JWE Protected, JWE Shared Unprotected and JWE Per-Recipient Header Parameter names must be disjoint',
+    );
+  }
+
+  if (!protectedHeader) {
+    throw new JweInvalid('JWE Protected Header is missing');
+  }
+
+  if (!isPlainObject(protectedHeader)) {
+    throw new JweInvalid('JWE Protected Header is not a plain object');
+  }
+
+  if (Object.keys(protectedHeader).length === 0) {
+    throw new JweInvalid('JWE Protected Header is empty');
+  }
+
+  if (sharedUnprotectedHeader && !isPlainObject(sharedUnprotectedHeader)) {
+    throw new JweInvalid('JWE Shared Unprotected Header is not a plain object');
+  }
+
+  if (unprotectedHeader && !isPlainObject(unprotectedHeader)) {
+    throw new JweInvalid(
+      'JWE Per-Recipient Unprotected Header is not a plain object',
     );
   }
 };

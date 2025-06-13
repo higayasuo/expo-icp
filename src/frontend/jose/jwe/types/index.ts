@@ -154,7 +154,7 @@ export interface FlattenedDecryptResult {
   plaintext: Uint8Array;
 
   /** JWE Protected Header. */
-  protectedHeader?: JweHeaderParameters;
+  protectedHeader: JweHeaderParameters;
 
   /** JWE Shared Unprotected Header. */
   sharedUnprotectedHeader?: JweHeaderParameters;

@@ -9,8 +9,6 @@ import {
   JweKeyManagementHeaderParameters,
   EncryptOptions,
   FlattenedJwe,
-  JweAlg,
-  JweEnc,
 } from '../types';
 import { JweInvalid } from '@/jose/errors/errors';
 import { NistCurve } from 'noble-curves-extended';
@@ -21,8 +19,6 @@ import { validateJweEnc } from '../utils/validateJweEnc';
 import { buildJoseHeader } from './utils/buildJoseHeader';
 import { buildBase64UrlJweHeader } from './utils/buildBase64UrlJweHeader';
 import { buildAesAad } from './utils/buildAesAad';
-
-const encoder = new TextEncoder();
 
 type FlattenedEncryptionParams = {
   curve: NistCurve;
@@ -124,8 +120,8 @@ export class FlattenedEncryption {
     }
     const validatedPlaintext = ensureUint8Array(plaintext);
 
-    if (!this.#protectedHeader) {
-      throw new JweInvalid('JWE Protected Header is missing');
+    if (!this.#curve.isValidPublicKey(yourPublicKey)) {
+      throw new JweInvalid('yourPublicKey is invalid');
     }
 
     const joseHeader = buildJoseHeader({
@@ -141,8 +137,8 @@ export class FlattenedEncryption {
       joseHeader,
     });
 
-    const alg = validateJweAlg(this.#protectedHeader.alg);
-    const enc = validateJweEnc(this.#protectedHeader.enc);
+    const alg = validateJweAlg(this.#protectedHeader?.alg);
+    const enc = validateJweEnc(this.#protectedHeader?.enc);
 
     const { cek, encryptedKey, parameters } = deriveEncryptionKey({
       alg,
