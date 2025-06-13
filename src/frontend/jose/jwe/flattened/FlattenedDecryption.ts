@@ -42,8 +42,8 @@ export class FlattenedDecryption {
       throw new JweInvalid('Flattened JWE must be a plain object');
     }
 
-    if (!isUint8Array(myPrivateKey)) {
-      throw new TypeError('myPrivateKey must be an Uint8Array');
+    if (!this.#curve.utils.isValidPrivateKey(myPrivateKey)) {
+      throw new JweInvalid('myPrivateKey is invalid');
     }
 
     const {
