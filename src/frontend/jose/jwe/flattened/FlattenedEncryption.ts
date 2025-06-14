@@ -20,7 +20,7 @@ import { buildJoseHeader } from './utils/buildJoseHeader';
 import { buildBase64UrlJweHeader } from './utils/buildBase64UrlJweHeader';
 import { buildAesAad } from './utils/buildAesAad';
 
-type FlattenedEncryptionParams = {
+export type FlattenedEncryptionParams = {
   curve: NistCurve;
   aes: AesCipher;
 };

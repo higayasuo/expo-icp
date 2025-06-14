@@ -19,7 +19,7 @@ import { isUint8Array } from 'u8a-utils';
 import { deriveDecryptionKeyWithMitigation } from './utils/deriveDecryptionKeyWithMitigation';
 import { buildAesAad } from './utils/buildAesAad';
 
-type FlattenedDecryptionParams = {
+export type FlattenedDecryptionParams = {
   curve: NistCurve;
   aes: AesCipher;
 };
