@@ -35,7 +35,7 @@ const decodeBase64Url = ({
 }: DecodeBase64UrlBaseParams): Uint8Array | undefined => {
   if (b64u === undefined) {
     if (required) {
-      console.error(`"${label}" is required`);
+      console.error(`"${label}" is missing`);
       throw new Err(`"${label}" is invalid`);
     }
     return undefined;

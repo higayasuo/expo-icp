@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { generateMitigatedCek } from '../generateMitigatedCek';
-import { createNistCurve } from 'noble-curves-extended';
+import { createEcdhCurve } from 'noble-curves-extended';
 import { webCryptoModule } from 'expo-crypto-universal-web';
 
 const { getRandomBytes } = webCryptoModule;
-const curve = createNistCurve('P-256', getRandomBytes);
+const curve = createEcdhCurve('P-256', getRandomBytes);
 
 describe('generateMitigatedCek', () => {
   it('should generate CEK with correct length for each encryption algorithm', async () => {

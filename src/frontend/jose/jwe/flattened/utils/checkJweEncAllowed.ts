@@ -23,10 +23,12 @@ export const checkJweEncAllowed = (
 
   if (allowedAlgorithms && !allowedAlgorithms.has(enc)) {
     console.error(
-      '"enc" (Content Encryption Algorithm) is not allowed: %s, allowedAlgorithms: %s',
+      'The specified "enc" (Content Encryption Algorithm) is not allowed: %s, allowedAlgorithms: %s',
       enc,
       Array.from(allowedAlgorithms || []).join(', '),
     );
-    throw new JweInvalid('"enc" (Content Encryption Algorithm) is not allowed');
+    throw new JweInvalid(
+      'The specified "enc" (Content Encryption Algorithm) is not allowed',
+    );
   }
 };

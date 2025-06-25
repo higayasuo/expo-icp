@@ -1,4 +1,4 @@
-import { NistCurve } from 'noble-curves-extended';
+import { EcdhCurve } from 'noble-curves-extended';
 import {
   JweHeaderParameters,
   JweKeyManagementHeaderParameters,
@@ -11,7 +11,7 @@ import { JweNotSupported } from '@/jose/errors/errors';
 export type DeriveEncryptionKeyParams = {
   alg: JweAlg;
   enc: JweEnc;
-  curve: NistCurve;
+  curve: EcdhCurve;
   yourPublicKey: Uint8Array;
   providedParameters: JweKeyManagementHeaderParameters | undefined;
 };

@@ -15,7 +15,7 @@ import { validateJweEnc } from '../utils/validateJweEnc';
  *
  * @param {DeriveEncryptionKeyParams} params - The parameters required for deriving the encryption key.
  * @param {JweEnc} params.enc - The encryption algorithm to be used.
- * @param {NistCurve} params.curve - The elliptic curve to be used for key derivation.
+ * @param {EcdhCurve} params.curve - The elliptic curve to be used for key derivation.
  * @param {Uint8Array} params.yourPublicKey - The public key of the recipient.
  * @param {JweKeyManagementHeaderParameters | undefined} params.providedParameters - Optional parameters for key management.
  * @returns {DeriveEncryptionKeyResult} The derived encryption key and associated parameters.
@@ -26,8 +26,8 @@ export const ecdhesDeriveEncryptionKey = ({
   yourPublicKey,
   providedParameters,
 }: DeriveEncryptionKeyParams): DeriveEncryptionKeyResult => {
-  const myPrivateKey = curve.utils.randomPrivateKey();
-  const myPublicKey = curve.getPublicKey(myPrivateKey, false);
+  const myPrivateKey = curve.randomPrivateKey();
+  const myPublicKey = curve.getPublicKey(myPrivateKey);
   const epk = curve.toJwkPublicKey(myPublicKey);
   const parameters: JweHeaderParameters = { epk };
 
@@ -40,16 +40,15 @@ export const ecdhesDeriveEncryptionKey = ({
     parameters.apv = encodeBase64Url(apv);
   }
 
-  const validatedEnc = validateJweEnc(enc);
+  enc = validateJweEnc(enc);
 
-  const keyBitLength = cekBitLengthByEnc(validatedEnc);
-  // getSharedSecret returns a compressed SEC format (0x02 or 0x03 prefix)
-  // We need to remove the prefix to get the raw shared secret
-  const sharedSecret = curve
-    .getSharedSecret(myPrivateKey, yourPublicKey, true)
-    .slice(1);
+  const keyBitLength = cekBitLengthByEnc(enc);
+  const sharedSecret = curve.getSharedSecret({
+    privateKey: myPrivateKey,
+    publicKey: yourPublicKey,
+  });
   const otherInfo = buildKdfOtherInfo({
-    algorithm: validatedEnc,
+    algorithm: enc,
     apu,
     apv,
     keyBitLength,

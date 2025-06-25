@@ -4,7 +4,7 @@ import { isJweAlg } from './isJweAlg';
 
 const INVALID_ERROR_MESSAGE = '"alg" (Key Management Algorithm) is invalid';
 const NOT_SUPPORTED_ERROR_MESSAGE =
-  '"alg" (Key Management Algorithm) is not supported';
+  'The specified "alg" (Key Management Algorithm) is not supported';
 
 /**
  * Validates the JWE "alg" (Key Management Algorithm) header parameter.
@@ -33,7 +33,7 @@ export const validateJweAlg = (alg: unknown): JweAlg => {
 
   if (!isJweAlg(alg)) {
     console.error(
-      `"alg" (Key Management Algorithm) is not supported: ${alg}. Only "ECDH-ES" is supported.`,
+      `The specified "alg" (Key Management Algorithm) is not supported: ${alg}. Only "ECDH-ES" is supported.`,
     );
     throw new JweNotSupported(NOT_SUPPORTED_ERROR_MESSAGE);
   }

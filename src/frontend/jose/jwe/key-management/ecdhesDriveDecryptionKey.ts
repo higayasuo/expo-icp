@@ -7,7 +7,6 @@ import { validateJweEpk } from '../utils/validateJweEpk';
 import { JweInvalid } from '@/jose/errors/errors';
 import { validateJweApu, validateJweApv } from '../utils/validateJweApi';
 import { validateJweEnc } from '../utils/validateJweEnc';
-import { validateJwkPublicKeyAgainstCurve } from '@/jose/utils/validateJwkPublicKeyAgainstCurve';
 
 /**
  * Derives a decryption key using ECDH-ES (Elliptic Curve Diffie-Hellman Ephemeral Static) method.
@@ -26,11 +25,7 @@ export const ecdhesDeriveDecryptionKey = ({
   protectedHeader,
 }: DeriveDecryptionKeyParams): Uint8Array => {
   const epk = validateJweEpk(protectedHeader.epk);
-  const yourPublicKey = validateJwkPublicKeyAgainstCurve(epk, curve);
-
-  if (!curve.utils.isValidPrivateKey(myPrivateKey)) {
-    throw new JweInvalid('Invalid private key');
-  }
+  const yourPublicKey = curve.toRawPublicKey(epk);
 
   const apu = decodeJweOptionalBase64Url({
     b64u: protectedHeader.apu,
@@ -49,16 +44,15 @@ export const ecdhesDeriveDecryptionKey = ({
     validateJweApv(apv);
   }
 
-  const validatedEnc = validateJweEnc(enc);
+  enc = validateJweEnc(enc);
 
-  const keyBitLength = cekBitLengthByEnc(validatedEnc);
-  // getSharedSecret returns a compressed SEC format (0x02 or 0x03 prefix)
-  // We need to remove the prefix to get the raw shared secret
-  const sharedSecret = curve
-    .getSharedSecret(myPrivateKey, yourPublicKey, true)
-    .slice(1);
+  const keyBitLength = cekBitLengthByEnc(enc);
+  const sharedSecret = curve.getSharedSecret({
+    privateKey: myPrivateKey,
+    publicKey: yourPublicKey,
+  });
   const otherInfo = buildKdfOtherInfo({
-    algorithm: validatedEnc,
+    algorithm: enc,
     apu,
     apv,
     keyBitLength,

@@ -27,10 +27,12 @@ export const checkJweAlgAllowed = (
     (!allowedAlgorithms && alg.startsWith('PBES2'))
   ) {
     console.error(
-      '"alg" (Key Management Algorithm) is not allowed: %s, allowedAlgorithms: %s',
+      'The specified "alg" (Key Management Algorithm) is not allowed: %s, allowedAlgorithms: %s',
       alg,
       Array.from(allowedAlgorithms || []).join(', '),
     );
-    throw new JweInvalid('"alg" (Key Management Algorithm) is not allowed');
+    throw new JweInvalid(
+      'The specified "alg" (Key Management Algorithm) is not allowed',
+    );
   }
 };

@@ -18,5 +18,7 @@ import { JweCrv } from '../types';
  * isJweCrv('invalid-curve');
  */
 export const isJweCrv = (crv: unknown): crv is JweCrv => {
-  return crv === 'P-256' || crv === 'P-384' || crv === 'P-521';
+  return (
+    crv === 'P-256' || crv === 'P-384' || crv === 'P-521' || crv === 'X25519'
+  );
 };

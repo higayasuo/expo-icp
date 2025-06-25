@@ -1,5 +1,3 @@
-import { NistCurveName } from 'noble-curves-extended';
-
 /**
  * Represents a JSON Web Key (JWK) for elliptic curve cryptography
  * @typedef {Object} Jwk
@@ -12,10 +10,8 @@ export type Jwk = {
   kty: string;
   crv: string;
   x: string;
-  y: string;
+  y?: string;
 };
-
-export type CurveName = NistCurveName;
 
 export interface JoseHeaderParameters {
   /** "kid" (Key ID) Header Parameter */

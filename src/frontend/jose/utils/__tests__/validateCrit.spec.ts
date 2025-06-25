@@ -68,24 +68,6 @@ describe('validateCrit', () => {
       );
     });
 
-    it('should throw if crit contains unrecognized parameter', () => {
-      const joseHeader: ValidateCritHeader = { 'unknown-param': 'value' };
-      const protectedHeader: ValidateCritHeader = {
-        crit: ['unknown-param'],
-        'unknown-param': 'value',
-      };
-
-      expect(() =>
-        validateCrit({
-          Err: JweInvalid,
-          recognizedDefault,
-          recognizedOption: undefined,
-          protectedHeader,
-          joseHeader,
-        }),
-      ).toThrow('Extension Header Parameter "unknown-param" is not recognized');
-    });
-
     it('should throw if critical parameter is missing in unprotected header', () => {
       const joseHeader: ValidateCritHeader = {};
       const protectedHeader: ValidateCritHeader = { crit: ['default-param'] };
@@ -98,7 +80,9 @@ describe('validateCrit', () => {
           protectedHeader,
           joseHeader,
         }),
-      ).toThrow('Extension Header Parameter "default-param" is missing');
+      ).toThrow(
+        '"crit" (Critical) header parameter "default-param" is missing in the JOSE header',
+      );
     });
 
     it('should throw if critical parameter is missing in protected header', () => {
@@ -114,8 +98,47 @@ describe('validateCrit', () => {
           joseHeader,
         }),
       ).toThrow(
-        'Extension Header Parameter "default-param" MUST be integrity protected',
+        '"crit" (Critical) header parameter "default-param" MUST be integrity protected',
       );
+    });
+  });
+
+  describe('crit parameter validation', () => {
+    it('should throw JweInvalid when options.crit contains non-existent parameter', () => {
+      const joseHeader: ValidateCritHeader = { 'unknown-param': 'value' };
+      const protectedHeader: ValidateCritHeader = {
+        crit: ['unknown-param'],
+        'unknown-param': 'value',
+      };
+
+      expect(() =>
+        validateCrit({
+          Err: JweInvalid,
+          recognizedDefault,
+          recognizedOption: undefined,
+          protectedHeader,
+          joseHeader,
+        }),
+      ).toThrow(
+        '"crit" (Critical) header parameter "unknown-param" is not recognized',
+      );
+    });
+
+    it('should work correctly when protectedHeader.crit is properly configured', () => {
+      const joseHeader: ValidateCritHeader = { 'default-param': 'value' };
+      const protectedHeader: ValidateCritHeader = {
+        crit: ['default-param'],
+        'default-param': 'value',
+      };
+
+      const result = validateCrit({
+        Err: JweInvalid,
+        recognizedDefault,
+        recognizedOption: undefined,
+        protectedHeader,
+        joseHeader,
+      });
+      expect(result).toEqual(new Set(['default-param']));
     });
   });
 
@@ -189,7 +212,9 @@ describe('validateCrit', () => {
           protectedHeader,
           joseHeader,
         }),
-      ).toThrow('Extension Header Parameter "unknown-param" is not recognized');
+      ).toThrow(
+        '"crit" (Critical) header parameter "unknown-param" is not recognized',
+      );
     });
   });
 
@@ -206,23 +231,6 @@ describe('validateCrit', () => {
         joseHeader,
       });
       expect(result).toEqual(new Set());
-    });
-
-    it('should return set of critical parameters when valid', () => {
-      const joseHeader: ValidateCritHeader = { 'default-param': 'value' };
-      const protectedHeader: ValidateCritHeader = {
-        crit: ['default-param'],
-        'default-param': 'value',
-      };
-
-      const result = validateCrit({
-        Err: JweInvalid,
-        recognizedDefault,
-        recognizedOption: undefined,
-        protectedHeader,
-        joseHeader,
-      });
-      expect(result).toEqual(new Set(['default-param']));
     });
 
     it('should handle multiple critical parameters', () => {

@@ -4,7 +4,7 @@ import { JweCrv } from '../../types';
 
 describe('isJweCrv', () => {
   it('should return true for valid JWE curve names', () => {
-    const validCurves: JweCrv[] = ['P-256', 'P-384', 'P-521'];
+    const validCurves: JweCrv[] = ['P-256', 'P-384', 'P-521', 'X25519'];
     validCurves.forEach((crv) => {
       expect(isJweCrv(crv)).toBe(true);
     });

@@ -13,99 +13,119 @@ import { validateJweAlg } from '../utils/validateJweAlg';
 import { validateJweEnc } from '../utils/validateJweEnc';
 import { checkJweAlgAllowed } from './utils/checkJweAlgAllowed';
 import { checkJweEncAllowed } from './utils/checkJweEncAllowed';
-import { NistCurve } from 'noble-curves-extended';
+import {
+  createEcdhCurve,
+  EcdhCurve,
+  JwkPrivateKey,
+} from 'noble-curves-extended';
 import { AesCipher } from 'aes-universal';
 import { isUint8Array } from 'u8a-utils';
 import { deriveDecryptionKeyWithMitigation } from './utils/deriveDecryptionKeyWithMitigation';
 import { buildAesAad } from './utils/buildAesAad';
 
-export type FlattenedDecryptionParams = {
-  curve: NistCurve;
-  aes: AesCipher;
-};
-
 export class FlattenedDecryption {
-  #curve: NistCurve;
   #aes: AesCipher;
 
-  constructor({ curve, aes }: FlattenedDecryptionParams) {
-    this.#curve = curve;
+  constructor(aes: AesCipher) {
     this.#aes = aes;
   }
 
   async decrypt(
     jwe: FlattenedJwe,
-    myPrivateKey: Uint8Array,
+    myJwkPrivateKey: JwkPrivateKey,
     options?: DecryptOptions,
   ): Promise<FlattenedDecryptResult> {
+    if (!jwe) {
+      throw new JweInvalid('jwe is missing');
+    }
+
     if (!isPlainObject(jwe)) {
       throw new JweInvalid('Flattened JWE must be a plain object');
     }
 
-    if (!this.#curve.utils.isValidPrivateKey(myPrivateKey)) {
-      throw new JweInvalid('myPrivateKey is invalid');
+    if (!myJwkPrivateKey) {
+      throw new JweInvalid('myJwkPrivateKey is missing');
     }
 
-    const {
-      iv,
-      ciphertext,
-      tag,
-      encryptedKey,
-      aad,
-      joseHeader,
-      parsedProtected,
-    } = validateFlattenedJwe(jwe);
-
-    validateCrit({
-      Err: JweInvalid,
-      recognizedOption: options?.crit,
-      protectedHeader: parsedProtected,
-      joseHeader,
-    });
-
-    const alg = validateJweAlg(joseHeader.alg);
-    const enc = validateJweEnc(joseHeader.enc);
-
-    checkJweAlgAllowed(alg, options?.keyManagementAlgorithms);
-    checkJweEncAllowed(enc, options?.contentEncryptionAlgorithms);
-
-    const cek = await deriveDecryptionKeyWithMitigation({
-      alg,
-      enc,
-      curve: this.#curve,
-      myPrivateKey,
-      encryptedKey,
-      protectedHeader: parsedProtected,
-    });
-
-    const aesAad = buildAesAad(jwe.protected, jwe.aad);
-
-    const plaintext = await this.#aes.decrypt({
-      enc,
-      cek,
-      ciphertext,
-      iv,
-      tag,
-      aad: aesAad,
-    });
-
-    const result: FlattenedDecryptResult = {
-      plaintext,
-      protectedHeader: parsedProtected,
-    };
-
-    if (jwe.aad !== undefined) {
-      result.additionalAuthenticatedData = aad;
+    if (!isPlainObject(myJwkPrivateKey)) {
+      throw new JweInvalid('myJwkPrivateKey must be a plain object');
     }
 
-    if (jwe.unprotected !== undefined) {
-      result.sharedUnprotectedHeader = jwe.unprotected;
+    if (!myJwkPrivateKey.crv) {
+      throw new JweInvalid('myJwkPrivateKey.crv is missing');
     }
 
-    if (jwe.header !== undefined) {
-      result.unprotectedHeader = jwe.header;
-    }
+    try {
+      const ecdhCurve = createEcdhCurve(
+        myJwkPrivateKey.crv,
+        this.#aes.randomBytes,
+      );
+      const myPrivateKey = ecdhCurve.toRawPrivateKey(myJwkPrivateKey);
 
-    return result;
+      const {
+        iv,
+        ciphertext,
+        tag,
+        encryptedKey,
+        aad,
+        joseHeader,
+        parsedProtected,
+      } = validateFlattenedJwe(jwe);
+
+      validateCrit({
+        Err: JweInvalid,
+        recognizedOption: options?.crit,
+        protectedHeader: parsedProtected,
+        joseHeader,
+      });
+
+      const alg = validateJweAlg(joseHeader.alg);
+      const enc = validateJweEnc(joseHeader.enc);
+
+      checkJweAlgAllowed(alg, options?.keyManagementAlgorithms);
+      checkJweEncAllowed(enc, options?.contentEncryptionAlgorithms);
+
+      const cek = await deriveDecryptionKeyWithMitigation({
+        alg,
+        enc,
+        curve: ecdhCurve,
+        myPrivateKey,
+        encryptedKey,
+        protectedHeader: parsedProtected,
+      });
+
+      const aesAad = buildAesAad(jwe.protected, jwe.aad);
+
+      const plaintext = await this.#aes.decrypt({
+        enc,
+        cek,
+        ciphertext,
+        iv,
+        tag,
+        aad: aesAad,
+      });
+
+      const result: FlattenedDecryptResult = {
+        plaintext,
+        protectedHeader: parsedProtected,
+      };
+
+      if (jwe.aad !== undefined) {
+        result.additionalAuthenticatedData = aad;
+      }
+
+      if (jwe.unprotected !== undefined) {
+        result.sharedUnprotectedHeader = jwe.unprotected;
+      }
+
+      if (jwe.header !== undefined) {
+        result.unprotectedHeader = jwe.header;
+      }
+
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw new JweInvalid('Failed to decrypt JWE');
+    }
   }
 }

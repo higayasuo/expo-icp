@@ -11,7 +11,6 @@ import {
   FlattenedJwe,
 } from '../types';
 import { JweInvalid } from '@/jose/errors/errors';
-import { NistCurve } from 'noble-curves-extended';
 import { AesCipher } from 'aes-universal';
 import { encodeBase64Url, ensureUint8Array, isUint8Array } from 'u8a-utils';
 import { validateJweAlg } from '../utils/validateJweAlg';
@@ -19,14 +18,13 @@ import { validateJweEnc } from '../utils/validateJweEnc';
 import { buildJoseHeader } from './utils/buildJoseHeader';
 import { buildBase64UrlJweHeader } from './utils/buildBase64UrlJweHeader';
 import { buildAesAad } from './utils/buildAesAad';
+import { JwkPublicKey, createEcdhCurve } from 'noble-curves-extended';
+import { isPlainObject } from '@/jose/utils/isPlainObject';
 
-export type FlattenedEncryptionParams = {
-  curve: NistCurve;
-  aes: AesCipher;
-};
-
+/**
+ * Class representing the Flattened Encryption for JSON Web Encryption (JWE).
+ */
 export class FlattenedEncryption {
-  #curve: NistCurve;
   #aes: AesCipher;
   #protectedHeader!: JweHeaderParameters | undefined;
   #sharedUnprotectedHeader!: JweHeaderParameters | undefined;
@@ -35,13 +33,11 @@ export class FlattenedEncryption {
   #keyManagementParameters!: JweKeyManagementHeaderParameters;
 
   /**
-   * {@link FlattenedEncryption} constructor
+   * Creates an instance of FlattenedEncryption.
    *
-   * @param curve The curve to use for key derivation
-   * @param aes The AES cipher to use for encryption
+   * @param {AesCipher} aes - An instance of AesCipher used for encryption operations.
    */
-  constructor({ curve, aes }: FlattenedEncryptionParams) {
-    this.#curve = curve;
+  constructor(aes: AesCipher) {
     this.#aes = aes;
   }
 
@@ -55,7 +51,7 @@ export class FlattenedEncryption {
    */
   keyManagementParameters(parameters: JweKeyManagementHeaderParameters): this {
     if (this.#keyManagementParameters) {
-      throw new TypeError('keyManagementParameters can only be called once');
+      throw new JweInvalid('keyManagementParameters can only be called once');
     }
     this.#keyManagementParameters = parameters;
     return this;
@@ -68,7 +64,7 @@ export class FlattenedEncryption {
    */
   protectedHeader(protectedHeader: JweHeaderParameters): this {
     if (this.#protectedHeader) {
-      throw new TypeError('protectedHeader can only be called once');
+      throw new JweInvalid('protectedHeader can only be called once');
     }
     this.#protectedHeader = protectedHeader;
     return this;
@@ -81,7 +77,7 @@ export class FlattenedEncryption {
    */
   sharedUnprotectedHeader(sharedUnprotectedHeader: JweHeaderParameters): this {
     if (this.#sharedUnprotectedHeader) {
-      throw new TypeError('sharedUnprotectedHeader can only be called once');
+      throw new JweInvalid('sharedUnprotectedHeader can only be called once');
     }
     this.#sharedUnprotectedHeader = sharedUnprotectedHeader;
     return this;
@@ -94,7 +90,7 @@ export class FlattenedEncryption {
    */
   unprotectedHeader(unprotectedHeader: JweHeaderParameters): this {
     if (this.#unprotectedHeader) {
-      throw new TypeError('unprotectedHeader can only be called once');
+      throw new JweInvalid('unprotectedHeader can only be called once');
     }
     this.#unprotectedHeader = unprotectedHeader;
     return this;
@@ -112,78 +108,105 @@ export class FlattenedEncryption {
 
   async encrypt(
     plaintext: Uint8Array,
-    yourPublicKey: Uint8Array,
+    yourJwkPublicKey: JwkPublicKey,
     options?: EncryptOptions,
   ): Promise<FlattenedJwe> {
+    if (!plaintext) {
+      throw new JweInvalid('plaintext is missing');
+    }
+
     if (!isUint8Array(plaintext)) {
-      throw new TypeError('plaintext must be an Uint8Array');
-    }
-    const validatedPlaintext = ensureUint8Array(plaintext);
-
-    if (!this.#curve.isValidPublicKey(yourPublicKey)) {
-      throw new JweInvalid('yourPublicKey is invalid');
+      throw new JweInvalid('plaintext must be an Uint8Array');
     }
 
-    const joseHeader = buildJoseHeader({
-      protectedHeader: this.#protectedHeader,
-      sharedUnprotectedHeader: this.#sharedUnprotectedHeader,
-      unprotectedHeader: this.#unprotectedHeader,
-    });
-
-    validateCrit({
-      Err: JweInvalid,
-      recognizedOption: options?.crit,
-      protectedHeader: this.#protectedHeader,
-      joseHeader,
-    });
-
-    const alg = validateJweAlg(this.#protectedHeader?.alg);
-    const enc = validateJweEnc(this.#protectedHeader?.enc);
-
-    const { cek, encryptedKey, parameters } = deriveEncryptionKey({
-      alg,
-      enc,
-      curve: this.#curve,
-      yourPublicKey,
-      providedParameters: this.#keyManagementParameters,
-    });
-
-    this.updateProtectedHeader(parameters);
-    const protectedHeaderB64U = buildBase64UrlJweHeader(this.#protectedHeader);
-    const aadB64U = this.#aad ? encodeBase64Url(this.#aad) : undefined;
-    const aad = buildAesAad(protectedHeaderB64U, aadB64U);
-
-    const { ciphertext, tag, iv } = await this.#aes.encrypt({
-      enc,
-      plaintext: validatedPlaintext,
-      cek,
-      aad,
-    });
-
-    const jwe: FlattenedJwe = {
-      ciphertext: encodeBase64Url(ciphertext),
-      iv: encodeBase64Url(iv),
-      tag: encodeBase64Url(tag),
-      protected: protectedHeaderB64U,
-    };
-
-    if (encryptedKey) {
-      jwe.encrypted_key = encodeBase64Url(encryptedKey);
+    if (!yourJwkPublicKey) {
+      throw new JweInvalid('yourJwkPublicKey is missing');
     }
 
-    if (this.#aad) {
-      jwe.aad = aadB64U;
+    if (!isPlainObject(yourJwkPublicKey)) {
+      throw new JweInvalid('yourJwkPublicKey must be a plain object');
     }
 
-    if (this.#sharedUnprotectedHeader) {
-      jwe.unprotected = this.#sharedUnprotectedHeader;
+    if (!yourJwkPublicKey.crv) {
+      throw new JweInvalid('yourJwkPublicKey.crv is missing');
     }
 
-    if (this.#unprotectedHeader) {
-      jwe.header = this.#unprotectedHeader;
-    }
+    try {
+      plaintext = ensureUint8Array(plaintext);
 
-    return jwe;
+      const ecdhCurve = createEcdhCurve(
+        yourJwkPublicKey.crv,
+        this.#aes.randomBytes,
+      );
+
+      const yourPublicKey = ecdhCurve.toRawPublicKey(yourJwkPublicKey);
+
+      const joseHeader = buildJoseHeader({
+        protectedHeader: this.#protectedHeader,
+        sharedUnprotectedHeader: this.#sharedUnprotectedHeader,
+        unprotectedHeader: this.#unprotectedHeader,
+      });
+
+      validateCrit({
+        Err: JweInvalid,
+        recognizedOption: options?.crit,
+        protectedHeader: this.#protectedHeader,
+        joseHeader,
+      });
+
+      const alg = validateJweAlg(this.#protectedHeader?.alg);
+      const enc = validateJweEnc(this.#protectedHeader?.enc);
+
+      const { cek, encryptedKey, parameters } = deriveEncryptionKey({
+        alg,
+        enc,
+        curve: ecdhCurve,
+        yourPublicKey,
+        providedParameters: this.#keyManagementParameters,
+      });
+
+      this.updateProtectedHeader(parameters);
+      const protectedHeaderB64U = buildBase64UrlJweHeader(
+        this.#protectedHeader,
+      );
+      const aadB64U = this.#aad ? encodeBase64Url(this.#aad) : undefined;
+      const aad = buildAesAad(protectedHeaderB64U, aadB64U);
+
+      const { ciphertext, tag, iv } = await this.#aes.encrypt({
+        enc,
+        plaintext,
+        cek,
+        aad,
+      });
+
+      const jwe: FlattenedJwe = {
+        ciphertext: encodeBase64Url(ciphertext),
+        iv: encodeBase64Url(iv),
+        tag: encodeBase64Url(tag),
+        protected: protectedHeaderB64U,
+      };
+
+      if (encryptedKey) {
+        jwe.encrypted_key = encodeBase64Url(encryptedKey);
+      }
+
+      if (this.#aad) {
+        jwe.aad = aadB64U;
+      }
+
+      if (this.#sharedUnprotectedHeader) {
+        jwe.unprotected = this.#sharedUnprotectedHeader;
+      }
+
+      if (this.#unprotectedHeader) {
+        jwe.header = this.#unprotectedHeader;
+      }
+
+      return jwe;
+    } catch (error) {
+      console.error(error);
+      throw new JweInvalid('Failed to encrypt plaintext');
+    }
   }
 
   updateProtectedHeader(parameters: JweHeaderParameters | undefined) {

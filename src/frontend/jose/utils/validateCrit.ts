@@ -84,17 +84,19 @@ export const validateCrit = ({
   for (const parameter of protectedHeader.crit) {
     if (!recognized.has(parameter)) {
       throw new Err(
-        `Extension Header Parameter "${parameter}" is not recognized`,
+        `"crit" (Critical) header parameter "${parameter}" is not recognized`,
       );
     }
 
     if (joseHeader[parameter] === undefined) {
-      throw new Err(`Extension Header Parameter "${parameter}" is missing`);
+      throw new Err(
+        `"crit" (Critical) header parameter "${parameter}" is missing in the JOSE header`,
+      );
     }
 
-    if (recognized.get(parameter) && protectedHeader[parameter] === undefined) {
+    if (recognized.get(parameter) && protectedHeader[parameter] == null) {
       throw new Err(
-        `Extension Header Parameter "${parameter}" MUST be integrity protected`,
+        `"crit" (Critical) header parameter "${parameter}" MUST be integrity protected`,
       );
     }
   }

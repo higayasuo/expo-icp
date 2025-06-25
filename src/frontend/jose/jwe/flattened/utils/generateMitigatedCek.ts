@@ -1,5 +1,5 @@
 import { JweEnc } from '@/jose/jwe/types';
-import { NistCurve } from 'noble-curves-extended';
+import { EcdhCurve } from 'noble-curves-extended';
 import { cekBitLengthByEnc } from '@/jose/jwe/utils/cekBitLengthByEnc';
 import { sleep } from '@/jose/utils/sleep';
 
@@ -13,7 +13,7 @@ import { sleep } from '@/jose/utils/sleep';
  * @see https://www.rfc-editor.org/rfc/rfc7516#section-11.5
  */
 export const generateMitigatedCek = async (
-  curve: NistCurve,
+  curve: EcdhCurve,
   enc: JweEnc,
 ): Promise<Uint8Array> => {
   // Add a random delay (e.g., between 200ms and 500ms) to further mitigate timing attacks

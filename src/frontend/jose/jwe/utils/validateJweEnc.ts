@@ -4,7 +4,7 @@ import { JweEnc } from '../types';
 
 const INVALID_ERROR_MESSAGE = '"enc" (Content Encryption Algorithm) is invalid';
 const NOT_SUPPORTED_ERROR_MESSAGE =
-  '"enc" (Content Encryption Algorithm) is not supported';
+  'The specified "enc" (Content Encryption Algorithm) is not supported';
 
 /**
  * Validates the JWE "enc" (Content Encryption Algorithm) header parameter.
@@ -37,7 +37,7 @@ export const validateJweEnc = (enc: unknown): JweEnc => {
   }
   if (!isEnc(enc)) {
     console.error(
-      `"enc" (Content Encryption Algorithm) is not supported: ${enc}. Only "A128GCM", "A192GCM", "A256GCM", "A128CBC-HS256", "A192CBC-HS384", and "A256CBC-HS512" are supported.`,
+      `The specified "enc" (Content Encryption Algorithm) is not supported: ${enc}. Only "A128GCM", "A192GCM", "A256GCM", "A128CBC-HS256", "A192CBC-HS384", and "A256CBC-HS512" are supported.`,
     );
     throw new JweNotSupported(NOT_SUPPORTED_ERROR_MESSAGE);
   }

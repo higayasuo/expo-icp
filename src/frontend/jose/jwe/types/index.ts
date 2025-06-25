@@ -1,7 +1,7 @@
 import { CritOption, JoseHeaderParameters } from '@/jose/types';
 import { Jwk } from '@/jose/types';
 import { Enc } from 'aes-universal';
-import { NistCurveName } from 'noble-curves-extended';
+import { EcdhCurveName } from 'noble-curves-extended';
 
 /**
  * JWE Key Management Algorithm
@@ -19,7 +19,12 @@ export type JweAlg = 'ECDH-ES';
  */
 export type JweEnc = Enc;
 
-export type JweCrv = NistCurveName;
+/**
+ * JWE Curve Name
+ *
+ * Represents the supported elliptic curve names for JWE operations.
+ */
+export type JweCrv = EcdhCurveName;
 
 /** Recognized JWE Key Management-related Header Parameters. */
 export interface JweKeyManagementHeaderParameters {

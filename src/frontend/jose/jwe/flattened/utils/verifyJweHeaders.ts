@@ -1,5 +1,5 @@
 import { JweInvalid } from '@/jose/errors/errors';
-import { areDisjoint } from '../../utils/areDisjoint';
+import { areDisjoint } from '../../../utils/areDisjoint';
 import { JweHeaderParameters } from '../../types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 

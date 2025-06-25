@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateJweEnc } from '../validateJweEnc';
-import { JweInvalid } from '@/jose/errors';
+import { JweInvalid, JweNotSupported } from '@/jose/errors';
 
 describe('validateJweEnc', () => {
   it('should return the encryption algorithm when valid', () => {
@@ -40,7 +40,7 @@ describe('validateJweEnc', () => {
     ];
 
     invalidAlgorithms.forEach((alg) => {
-      expect(() => validateJweEnc(alg)).toThrow(JweInvalid);
+      expect(() => validateJweEnc(alg)).toThrow(JweNotSupported);
     });
   });
 });

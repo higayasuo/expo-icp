@@ -1,4 +1,4 @@
-import { NistCurve } from 'noble-curves-extended';
+import { EcdhCurve } from 'noble-curves-extended';
 import { JweAlg, JweEnc, JweHeaderParameters } from '../types';
 import { ecdhesDeriveDecryptionKey } from './ecdhesDriveDecryptionKey';
 import { JweNotSupported } from '@/jose/errors/errors';
@@ -8,7 +8,7 @@ import { JweNotSupported } from '@/jose/errors/errors';
  * @typedef {Object} DeriveDecryptionKeyParams
  * @property {JweAlg} alg - The JWE algorithm to be used.
  * @property {JweEnc} enc - The encryption algorithm to be used.
- * @property {NistCurve} curve - The elliptic curve to be used for key derivation.
+ * @property {EcdhCurve} curve - The elliptic curve to be used for key derivation.
  * @property {Uint8Array} myPrivateKey - The private key of the recipient.
  * @property {Uint8Array | undefined} encryptedKey - The encrypted key, if applicable.
  * @property {JweHeaderParameters} protectedHeader - The protected header containing necessary parameters.
@@ -16,7 +16,7 @@ import { JweNotSupported } from '@/jose/errors/errors';
 export type DeriveDecryptionKeyParams = {
   alg: JweAlg;
   enc: JweEnc;
-  curve: NistCurve;
+  curve: EcdhCurve;
   myPrivateKey: Uint8Array;
   encryptedKey: Uint8Array | undefined;
   protectedHeader: JweHeaderParameters;
