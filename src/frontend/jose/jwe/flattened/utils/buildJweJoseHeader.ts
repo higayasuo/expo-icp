@@ -8,7 +8,7 @@ import { verifyJweHeaders } from './verifyJweHeaders';
  * @property {JweHeaderParameters | undefined} sharedUnprotectedHeader - The JWE Shared Unprotected Header
  * @property {JweHeaderParameters | undefined} unprotectedHeader - The JWE Per-Recipient Unprotected Header
  */
-type BuildJoseHeaderParams = {
+type BuildJweJoseHeaderParams = {
   protectedHeader: JweHeaderParameters | undefined;
   sharedUnprotectedHeader: JweHeaderParameters | undefined;
   unprotectedHeader: JweHeaderParameters | undefined;
@@ -27,11 +27,11 @@ type BuildJoseHeaderParams = {
  * @throws {JweNotSupported} If the "zip" header parameter is present
  * @see {@link https://tools.ietf.org/html/rfc7516#section-5.2}
  */
-export const buildJoseHeader = ({
+export const buildJweJoseHeader = ({
   protectedHeader,
   sharedUnprotectedHeader,
   unprotectedHeader,
-}: BuildJoseHeaderParams): JweHeaderParameters => {
+}: BuildJweJoseHeaderParams): JweHeaderParameters => {
   verifyJweHeaders({
     protectedHeader,
     sharedUnprotectedHeader,

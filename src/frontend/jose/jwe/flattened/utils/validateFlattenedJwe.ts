@@ -1,7 +1,7 @@
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 import { FlattenedJwe, JweHeaderParameters } from '../../types';
 import { JweInvalid } from '@/jose/errors/errors';
-import { buildJoseHeader } from './buildJoseHeader';
+import { buildJweJoseHeader } from './buildJweJoseHeader';
 import {
   decodeJweOptionalBase64Url,
   decodeJweRequiredBase64Url,
@@ -76,7 +76,7 @@ export const validateFlattenedJwe = (
 
   const parsedProtected = parseJweProtected(jwe.protected);
 
-  const joseHeader = buildJoseHeader({
+  const joseHeader = buildJweJoseHeader({
     protectedHeader: parsedProtected,
     sharedUnprotectedHeader: jwe.unprotected,
     unprotectedHeader: jwe.header,

@@ -4,12 +4,13 @@
  * @module
  */
 
-import { encodeBase64Url } from 'u8a-utils';
+import { encodeBase64Url, isUint8Array } from 'u8a-utils';
 import { areDisjoint } from '@/jose/utils/areDisjoint';
-import { JwsInvalid } from '@/jose/errors/errors';
+import { JweInvalid, JwsInvalid } from '@/jose/errors/errors';
 import { validateCrit } from '@/jose/utils/validateCrit';
 import { JwkPrivateKey, RandomBytes } from 'noble-curves-extended';
 import { FlattenedJws, JwsHeaderParameters, SignOptions } from '../types';
+import { isPlainObject } from '@/jose/utils/isPlainObject';
 
 export class FlattenedSigner {
   #randomBytes: RandomBytes;
@@ -47,6 +48,26 @@ export class FlattenedSigner {
     jwkPrivateKey: JwkPrivateKey,
     options?: SignOptions,
   ): Promise<FlattenedJws> => {
+    if (!payload) {
+      throw new JwsInvalid('payload is missing');
+    }
+
+    if (!isUint8Array(payload)) {
+      throw new JwsInvalid('payload must be a Uint8Array');
+    }
+
+    if (!jwkPrivateKey) {
+      throw new JwsInvalid('jwkPrivateKey is missing');
+    }
+
+    if (!isPlainObject(jwkPrivateKey)) {
+      throw new JwsInvalid('jwkPrivateKey must be a plain object');
+    }
+
+    if (!jwkPrivateKey.crv) {
+      throw new JwsInvalid('jwkPrivateKey.crv is missing');
+    }
+
     if (!this.#protectedHeader && !this.#unprotectedHeader) {
       throw new JWSInvalid(
         'either setProtectedHeader or setUnprotectedHeader must be called before #sign()',

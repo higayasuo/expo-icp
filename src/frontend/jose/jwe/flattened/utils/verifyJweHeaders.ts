@@ -30,20 +30,6 @@ export const verifyJweHeaders = ({
   sharedUnprotectedHeader,
   unprotectedHeader,
 }: VerifyJweHeadersParams): void => {
-  if (!protectedHeader && !sharedUnprotectedHeader && !unprotectedHeader) {
-    throw new JweInvalid(
-      'At least one of JWE Protected Header, JWE Shared Unprotected Header, or JWE Per-Recipient Unprotected Header must be present',
-    );
-  }
-
-  if (
-    !areDisjoint(protectedHeader, sharedUnprotectedHeader, unprotectedHeader)
-  ) {
-    throw new JweInvalid(
-      'JWE Protected, JWE Shared Unprotected and JWE Per-Recipient Header Parameter names must be disjoint',
-    );
-  }
-
   if (!protectedHeader) {
     throw new JweInvalid('JWE Protected Header is missing');
   }
@@ -63,6 +49,14 @@ export const verifyJweHeaders = ({
   if (unprotectedHeader && !isPlainObject(unprotectedHeader)) {
     throw new JweInvalid(
       'JWE Per-Recipient Unprotected Header is not a plain object',
+    );
+  }
+
+  if (
+    !areDisjoint(protectedHeader, sharedUnprotectedHeader, unprotectedHeader)
+  ) {
+    throw new JweInvalid(
+      'JWE Protected, JWE Shared Unprotected and JWE Per-Recipient Header Parameter names must be disjoint',
     );
   }
 };

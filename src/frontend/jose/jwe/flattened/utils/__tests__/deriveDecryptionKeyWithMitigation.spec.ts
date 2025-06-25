@@ -2,12 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { deriveDecryptionKeyWithMitigation } from '../deriveDecryptionKeyWithMitigation';
 import { deriveDecryptionKey } from '@/jose/jwe/key-management/deriveDecryptionKey';
 import { generateMitigatedCek } from '../generateMitigatedCek';
-import { createNistCurve } from 'noble-curves-extended';
+import { createEcdhCurve } from 'noble-curves-extended';
 import { webCryptoModule } from 'expo-crypto-universal-web';
 import { JweInvalid, JoseNotSupported } from '@/jose/errors/errors';
 
 const { getRandomBytes } = webCryptoModule;
-const curve = createNistCurve('P-256', getRandomBytes);
+const curve = createEcdhCurve('P-256', getRandomBytes);
 
 vi.mock('@/jose/jwe/key-management/deriveDecryptionKey');
 vi.mock('../generateMitigatedCek');

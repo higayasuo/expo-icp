@@ -38,13 +38,35 @@ describe('verifyJweHeaders', () => {
     });
 
     it('should throw JweInvalid when no headers are present', () => {
-      expect(() =>
-        verifyJweHeaders({
+      const invalidCases: Array<{
+        protectedHeader: JweHeaderParameters | undefined;
+        sharedUnprotectedHeader: JweHeaderParameters | undefined;
+        unprotectedHeader: JweHeaderParameters | undefined;
+      }> = [
+        {
           protectedHeader: undefined,
           sharedUnprotectedHeader: undefined,
           unprotectedHeader: undefined,
-        }),
-      ).toThrow(JweInvalid);
+        },
+        {
+          protectedHeader: undefined,
+          sharedUnprotectedHeader: { enc: 'A256GCM' },
+          unprotectedHeader: undefined,
+        },
+        {
+          protectedHeader: undefined,
+          sharedUnprotectedHeader: undefined,
+          unprotectedHeader: { kid: 'key-1' },
+        },
+        {
+          protectedHeader: undefined,
+          sharedUnprotectedHeader: { enc: 'A256GCM' },
+          unprotectedHeader: { kid: 'key-1' },
+        },
+      ];
+      invalidCases.forEach((headers) => {
+        expect(() => verifyJweHeaders(headers)).toThrow(JweInvalid);
+      });
     });
 
     it('should throw JweInvalid when headers have duplicate keys', () => {
@@ -117,28 +139,11 @@ describe('verifyJweHeaders', () => {
     });
   });
 
-  describe('protectedHeader only', () => {
-    it('should throw JweInvalid if protectedHeader is missing', () => {
-      expect(() =>
-        verifyJweHeaders({
-          protectedHeader: undefined,
-          sharedUnprotectedHeader: { enc: 'A256GCM' },
-          unprotectedHeader: { kid: 'key-1' },
-        }),
-      ).toThrow(JweInvalid);
-    });
-
+  describe('invalid headers', () => {
     it('should throw JweInvalid if protectedHeader is not a plain object', () => {
       expect(() =>
         verifyJweHeaders({
           protectedHeader: 123 as any,
-          sharedUnprotectedHeader: { enc: 'A256GCM' },
-          unprotectedHeader: { kid: 'key-1' },
-        }),
-      ).toThrow(JweInvalid);
-      expect(() =>
-        verifyJweHeaders({
-          protectedHeader: null as any,
           sharedUnprotectedHeader: { enc: 'A256GCM' },
           unprotectedHeader: { kid: 'key-1' },
         }),
