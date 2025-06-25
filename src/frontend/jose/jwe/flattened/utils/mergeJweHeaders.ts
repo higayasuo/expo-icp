@@ -3,23 +3,23 @@ import { JweNotSupported } from '@/jose/errors/errors';
 import { verifyJweHeaders } from './verifyJweHeaders';
 
 /**
- * Parameters for building a JOSE header
+ * Parameters for merging JWE headers
  * @property {JweHeaderParameters | undefined} protectedHeader - The JWE Protected Header
  * @property {JweHeaderParameters | undefined} sharedUnprotectedHeader - The JWE Shared Unprotected Header
  * @property {JweHeaderParameters | undefined} unprotectedHeader - The JWE Per-Recipient Unprotected Header
  */
-type BuildJweJoseHeaderParams = {
+type MergeJweHeadersParams = {
   protectedHeader: JweHeaderParameters | undefined;
   sharedUnprotectedHeader: JweHeaderParameters | undefined;
   unprotectedHeader: JweHeaderParameters | undefined;
 };
 
 /**
- * Builds JOSE Header according to RFC 7516 §5.2.
+ * Merges JWE Headers according to RFC 7516 §5.2.
  * The headers are merged in the following order:
  * 1. JWE Per-Recipient Unprotected Header
  * 2. JWE Shared Unprotected Header
- * 3. JWE Protected Header
+ * 3. JWE Protected Header (takes precedence)
  *
  * @param params - The header parameters to merge
  * @returns The merged JWE header
@@ -27,11 +27,11 @@ type BuildJweJoseHeaderParams = {
  * @throws {JweNotSupported} If the "zip" header parameter is present
  * @see {@link https://tools.ietf.org/html/rfc7516#section-5.2}
  */
-export const buildJweJoseHeader = ({
+export const mergeJweHeaders = ({
   protectedHeader,
   sharedUnprotectedHeader,
   unprotectedHeader,
-}: BuildJweJoseHeaderParams): JweHeaderParameters => {
+}: MergeJweHeadersParams): JweHeaderParameters => {
   verifyJweHeaders({
     protectedHeader,
     sharedUnprotectedHeader,

@@ -11,6 +11,7 @@ import { validateCrit } from '@/jose/utils/validateCrit';
 import { JwkPrivateKey, RandomBytes } from 'noble-curves-extended';
 import { FlattenedJws, JwsHeaderParameters, SignOptions } from '../types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
+import { mergeJwsHeaders } from './utils/mergeJwsHeader';
 
 export class FlattenedSigner {
   #randomBytes: RandomBytes;
@@ -68,36 +69,32 @@ export class FlattenedSigner {
       throw new JwsInvalid('jwkPrivateKey.crv is missing');
     }
 
-    if (!this.#protectedHeader && !this.#unprotectedHeader) {
-      throw new JWSInvalid(
-        'either setProtectedHeader or setUnprotectedHeader must be called before #sign()',
-      );
-    }
+    const joseHeader = mergeJwsHeaders({
+      protectedHeader: this.#protectedHeader,
+      unprotectedHeader: this.#unprotectedHeader,
+    });
 
-    if (!isDisjoint(this.#protectedHeader, this.#unprotectedHeader)) {
-      throw new JWSInvalid(
-        'JWS Protected and JWS Unprotected Header Parameter names must be disjoint',
-      );
-    }
-
-    const joseHeader: types.JWSHeaderParameters = {
-      ...this.#protectedHeader,
-      ...this.#unprotectedHeader,
-    };
-
-    const extensions = validateCrit(
-      JWSInvalid,
-      new Map([['b64', true]]),
-      options?.crit,
-      this.#protectedHeader,
+    const criticalParamNames = validateCrit({
+      Err: JweInvalid,
+      recognizedDefault: { b64: true },
+      recognizedOption: options?.crit,
+      protectedHeader: this.#protectedHeader,
       joseHeader,
-    );
+    });
+
+    // const criticalParamNames = validateCrit(
+    //   JwsInvalid,
+    //   new Map([['b64', true]]),
+    //   options?.crit,
+    //   this.#protectedHeader,
+    //   joseHeader,
+    // );
 
     let b64 = true;
-    if (extensions.has('b64')) {
+    if (criticalParamNames.has('b64')) {
       b64 = this.#protectedHeader.b64!;
       if (typeof b64 !== 'boolean') {
-        throw new JWSInvalid(
+        throw new JwsInvalid(
           'The "b64" (base64url-encode payload) Header Parameter must be a boolean',
         );
       }

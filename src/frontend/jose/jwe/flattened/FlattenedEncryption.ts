@@ -15,7 +15,7 @@ import { AesCipher } from 'aes-universal';
 import { encodeBase64Url, ensureUint8Array, isUint8Array } from 'u8a-utils';
 import { validateJweAlg } from '../utils/validateJweAlg';
 import { validateJweEnc } from '../utils/validateJweEnc';
-import { buildJweJoseHeader } from './utils/buildJweJoseHeader';
+import { mergeJweHeaders } from './utils/mergeJweHeaders';
 import { buildBase64UrlJweHeader } from './utils/buildBase64UrlJweHeader';
 import { buildAesAad } from './utils/buildAesAad';
 import { JwkPublicKey, createEcdhCurve } from 'noble-curves-extended';
@@ -141,7 +141,7 @@ export class FlattenedEncryption {
 
       const yourPublicKey = ecdhCurve.toRawPublicKey(yourJwkPublicKey);
 
-      const joseHeader = buildJweJoseHeader({
+      const joseHeader = mergeJweHeaders({
         protectedHeader: this.#protectedHeader,
         sharedUnprotectedHeader: this.#sharedUnprotectedHeader,
         unprotectedHeader: this.#unprotectedHeader,

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { buildJweJoseHeader } from '../buildJweJoseHeader';
+import { mergeJweHeaders } from '../mergeJweHeaders';
 import { JweInvalid, JweNotSupported } from '@/jose/errors/errors';
 
-describe('buildJoseHeader', () => {
+describe('mergeJweHeaders', () => {
   it('should merge headers with different keys', () => {
     const params = {
       protectedHeader: { alg: 'ECDH-ES' as const },
@@ -10,7 +10,7 @@ describe('buildJoseHeader', () => {
       unprotectedHeader: { kid: 'key-1' },
     };
 
-    const result = buildJweJoseHeader(params);
+    const result = mergeJweHeaders(params);
 
     expect(result).toEqual({
       alg: 'ECDH-ES',
@@ -26,7 +26,7 @@ describe('buildJoseHeader', () => {
       unprotectedHeader: undefined,
     };
 
-    const result = buildJweJoseHeader(params);
+    const result = mergeJweHeaders(params);
 
     expect(result).toEqual({
       alg: 'ECDH-ES',
@@ -40,7 +40,7 @@ describe('buildJoseHeader', () => {
       unprotectedHeader: undefined,
     };
 
-    expect(() => buildJweJoseHeader(params)).toThrow(JweInvalid);
+    expect(() => mergeJweHeaders(params)).toThrow(JweInvalid);
   });
 
   it('should throw JweInvalid when headers have duplicate keys', () => {
@@ -50,7 +50,7 @@ describe('buildJoseHeader', () => {
       unprotectedHeader: undefined,
     };
 
-    expect(() => buildJweJoseHeader(params)).toThrow(JweInvalid);
+    expect(() => mergeJweHeaders(params)).toThrow(JweInvalid);
   });
 
   it('should throw JweNotSupported when zip parameter is present', () => {
@@ -60,7 +60,7 @@ describe('buildJoseHeader', () => {
       unprotectedHeader: undefined,
     };
 
-    expect(() => buildJweJoseHeader(params)).toThrow(JweNotSupported);
+    expect(() => mergeJweHeaders(params)).toThrow(JweNotSupported);
   });
 
   it('should throw JweNotSupported when zip parameter is in protected header', () => {
@@ -70,7 +70,7 @@ describe('buildJoseHeader', () => {
       unprotectedHeader: undefined,
     };
 
-    expect(() => buildJweJoseHeader(params)).toThrow(JweNotSupported);
+    expect(() => mergeJweHeaders(params)).toThrow(JweNotSupported);
   });
 
   it('should throw JweNotSupported when zip parameter is in unprotected header', () => {
@@ -80,6 +80,6 @@ describe('buildJoseHeader', () => {
       unprotectedHeader: { zip: 'DEF' as const },
     };
 
-    expect(() => buildJweJoseHeader(params)).toThrow(JweNotSupported);
+    expect(() => mergeJweHeaders(params)).toThrow(JweNotSupported);
   });
 });
