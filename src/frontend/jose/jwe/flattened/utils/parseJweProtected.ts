@@ -1,6 +1,6 @@
 import { JweInvalid } from '@/jose/errors/errors';
 import { decodeJweRequiredBase64Url } from '@/jose/utils/decodeBase64Url';
-import { JweHeaderParameters } from '../types';
+import { JweHeaderParameters } from '../../types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 
 const ERROR_MESSAGE = 'JWE Protected Header is invalid';

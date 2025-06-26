@@ -6,7 +6,7 @@ import { WebAesCipher } from 'aes-universal-web';
 import { createEcdhCurve } from 'noble-curves-extended';
 import { JweInvalid } from '@/jose/errors/errors';
 import { FlattenedJwe } from '../../types';
-import { parseJweProtected } from '../../utils/parseJweProtected';
+import { parseJweProtected } from '../utils/parseJweProtected';
 import { buildBase64UrlJweHeader } from '../utils/buildBase64UrlJweHeader';
 
 const { getRandomBytes } = webCryptoModule;

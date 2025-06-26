@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>13/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -99,43 +99,43 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">25x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Checks if a value is object-like (not null and has typeof 'object' with [object Object] tag).
  *
  * @param value - The value to check
  * @returns True if the value is object-like, false otherwise
  */
-<span class="cstat-no" title="statement not covered" >export const isObjectLike = (value: unknown) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  return (</span>
-<span class="cstat-no" title="statement not covered" >    typeof value === 'object' &amp;&amp;</span>
-<span class="cstat-no" title="statement not covered" >    value !== null &amp;&amp;</span>
-<span class="cstat-no" title="statement not covered" >    Object.prototype.toString.call(value) === '[object Object]'</span>
+export const isObjectLike = (value: unknown) =&gt; {
+  return (
+    typeof value === 'object' &amp;&amp;
+    value !== null &amp;&amp;
+    Object.prototype.toString.call(value) === '[object Object]'
   );
-<span class="cstat-no" title="statement not covered" >};</span>
+};
 &nbsp;
 /**
  * Checks if a value is a plain object (object created by Object constructor or with null prototype).
@@ -144,15 +144,15 @@
  * @param input - The value to check
  * @returns True if the value is a plain object, false otherwise
  */
-<span class="cstat-no" title="statement not covered" >export const isPlainObject = &lt;T = object&gt;(input: unknown): input is T =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  if (!isObjectLike(input)) {</span>
-<span class="cstat-no" title="statement not covered" >    return false;</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
+export const isPlainObject = &lt;T = object&gt;(input: unknown): input is T =&gt; {
+  if (!isObjectLike(input)) {
+    return false;
+  }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  const proto = Object.getPrototypeOf(input);</span>
+  const proto = Object.getPrototypeOf(input);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return proto === null || proto === Object.prototype;</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+  return proto === null || proto === Object.prototype;
+};
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -160,7 +160,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-26T11:16:40.162Z
+                at 2025-06-26T11:21:03.512Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

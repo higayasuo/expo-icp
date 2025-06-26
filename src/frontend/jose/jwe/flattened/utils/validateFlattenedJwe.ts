@@ -6,7 +6,7 @@ import {
   decodeJweOptionalBase64Url,
   decodeJweRequiredBase64Url,
 } from '@/jose/utils/decodeBase64Url';
-import { parseJweProtected } from '../../utils/parseJweProtected';
+import { parseJweProtected } from './parseJweProtected';
 
 /**
  * Represents the validated components of a Flattened JWE structure

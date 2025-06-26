@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for jose/jwe/utils/cekBitLengthByEnc.ts</title>
+    <title>Code coverage report for jose/jwe/key-management/ecdhes/cekBitLengthByEnc.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../prettify.css" />
-    <link rel="stylesheet" href="../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../sort-arrow-sprite.png);
+            background-image: url(../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../index.html">All files</a> / <a href="index.html">jose/jwe/utils</a> cekBitLengthByEnc.ts</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">jose/jwe/key-management/ecdhes</a> cekBitLengthByEnc.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70.58% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>12/17</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">16.66% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/6</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70.58% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/17</span>
+                <span class='fraction'>0/17</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -104,23 +104,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Returns the CEK bit length for a given JWE encryption algorithm
  * @param {string} enc - The JWE encryption algorithm identifier
@@ -133,23 +133,23 @@
  * // Throws Error: Unsupported JWE Encryption Algorithm: UNKNOWN
  * keyBitLengthByEnc('UNKNOWN');
  */
-export function cekBitLengthByEnc(enc: string) {
-  switch (enc) {
-<span class="branch-0 cbranch-no" title="branch not covered" >    case 'A128GCM':</span>
+<span class="cstat-no" title="statement not covered" >export function cekBitLengthByEnc(enc: string) {</span>
+<span class="cstat-no" title="statement not covered" >  switch (enc) {</span>
+<span class="cstat-no" title="statement not covered" >    case 'A128GCM':</span>
 <span class="cstat-no" title="statement not covered" >      return 128;</span>
-<span class="branch-0 cbranch-no" title="branch not covered" >    case 'A192GCM':</span>
+<span class="cstat-no" title="statement not covered" >    case 'A192GCM':</span>
 <span class="cstat-no" title="statement not covered" >      return 192;</span>
-    case 'A256GCM':
-    case 'A128CBC-HS256':
-      return 256;
-<span class="branch-0 cbranch-no" title="branch not covered" >    case 'A192CBC-HS384':</span>
+<span class="cstat-no" title="statement not covered" >    case 'A256GCM':</span>
+<span class="cstat-no" title="statement not covered" >    case 'A128CBC-HS256':</span>
+<span class="cstat-no" title="statement not covered" >      return 256;</span>
+<span class="cstat-no" title="statement not covered" >    case 'A192CBC-HS384':</span>
 <span class="cstat-no" title="statement not covered" >      return 384;</span>
-<span class="branch-0 cbranch-no" title="branch not covered" >    case 'A256CBC-HS512':</span>
+<span class="cstat-no" title="statement not covered" >    case 'A256CBC-HS512':</span>
 <span class="cstat-no" title="statement not covered" >      return 512;</span>
-<span class="branch-0 cbranch-no" title="branch not covered" >    default:</span>
+<span class="cstat-no" title="statement not covered" >    default:</span>
 <span class="cstat-no" title="statement not covered" >      throw new Error(`Unsupported JWE Encryption Algorithm: ${enc}`);</span>
-  }
-}
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -157,16 +157,16 @@ export function cekBitLengthByEnc(enc: string) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-26T11:16:40.162Z
+                at 2025-06-26T11:21:03.512Z
             </div>
-        <script src="../../../prettify.js"></script>
+        <script src="../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../sorter.js"></script>
-        <script src="../../../block-navigation.js"></script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
     </body>
 </html>
     
