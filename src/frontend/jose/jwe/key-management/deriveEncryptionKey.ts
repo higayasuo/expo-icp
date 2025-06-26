@@ -8,7 +8,7 @@ import {
 import { ecdhesDeriveEncryptionKey } from './ecdhes/ecdhesDeriveEncryptKey';
 import { JweNotSupported } from '@/jose/errors/errors';
 
-type DeriveEncryptionKeyParams = {
+export type DeriveEncryptionKeyParams = {
   alg: JweAlg;
   enc: JweEnc;
   curve: EcdhCurve;
@@ -16,7 +16,7 @@ type DeriveEncryptionKeyParams = {
   providedParameters: JweKeyManagementHeaderParameters | undefined;
 };
 
-type DeriveEncryptionKeyResult = {
+export type DeriveEncryptionKeyResult = {
   cek: Uint8Array;
   encryptedKey?: Uint8Array;
   parameters: JweHeaderParameters;

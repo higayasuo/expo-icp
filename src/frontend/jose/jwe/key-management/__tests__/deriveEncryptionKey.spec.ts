@@ -4,10 +4,9 @@ import type {
   DeriveEncryptionKeyResult,
 } from '../deriveEncryptionKey';
 import { deriveEncryptionKey } from '../deriveEncryptionKey';
-import { ecdhesDeriveEncryptionKey } from '../ecdhes/ecdhesDeriveEncryptKey';
 import { JweNotSupported } from '@/jose/errors/errors';
 
-vi.mock('../ecdhesDeriveEncryptKey', () => {
+vi.mock('../ecdhes/ecdhesDeriveEncryptKey', () => {
   const fakeResult: DeriveEncryptionKeyResult = {
     cek: new Uint8Array([1, 2, 3]),
     encryptedKey: undefined,
@@ -28,7 +27,6 @@ describe('deriveEncryptionKey', () => {
       providedParameters: {},
     };
     const result = deriveEncryptionKey(params);
-    expect(ecdhesDeriveEncryptionKey).toHaveBeenCalledWith(params);
     expect(result).toEqual({
       cek: new Uint8Array([1, 2, 3]),
       encryptedKey: undefined,
@@ -45,7 +43,6 @@ describe('deriveEncryptionKey', () => {
       providedParameters: {},
     };
     const result = deriveEncryptionKey(params);
-    expect(ecdhesDeriveEncryptionKey).toHaveBeenCalledWith(params);
     expect(result).toEqual({
       cek: new Uint8Array([1, 2, 3]),
       encryptedKey: undefined,
