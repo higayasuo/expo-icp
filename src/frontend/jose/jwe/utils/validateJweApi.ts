@@ -1,7 +1,12 @@
 import { JweInvalid } from '@/jose/errors/errors';
 import { ensureUint8Array, isUint8Array } from 'u8a-utils';
 
-type PartyInfoType = 'Agreement PartyUInfo' | 'Agreement PartyVInfo';
+type PartyInfoType = 'apu' | 'apv';
+
+const partyInfoTypeToLabel = {
+  apu: '"apu (Agreement PartyUInfo)"',
+  apv: '"apv (Agreement PartyVInfo)"',
+} as const;
 
 /**
  * Validates a JWE party info parameter (apu or apv).
@@ -24,17 +29,19 @@ const validatePartyInfo = (
   }
 
   if (!isUint8Array(value)) {
-    console.error(`${type} must be a Uint8Array`);
-    throw new JweInvalid(`${type} must be a Uint8Array`);
+    console.error(`${partyInfoTypeToLabel[type]} must be a Uint8Array`);
+    throw new JweInvalid(`${partyInfoTypeToLabel[type]} must be a Uint8Array`);
   }
 
   const valueU8a = ensureUint8Array(value);
 
   if (valueU8a.byteLength > 32) {
     console.error(
-      `${type} must be less than or equal to 32 bytes: value.byteLength (${value.byteLength})`,
+      `${partyInfoTypeToLabel[type]} must be less than or equal to 32 bytes: value.byteLength (${value.byteLength})`,
     );
-    throw new JweInvalid(`${type} must be less than or equal to 32 bytes`);
+    throw new JweInvalid(
+      `${partyInfoTypeToLabel[type]} must be less than or equal to 32 bytes`,
+    );
   }
 
   return valueU8a;
@@ -48,7 +55,7 @@ const validatePartyInfo = (
  * @throws {JweInvalid} If the "apu" parameter is not a Uint8Array or exceeds 32 bytes in length.
  */
 export const validateJweApu = (apu: unknown): Uint8Array | undefined => {
-  return validatePartyInfo(apu, 'Agreement PartyUInfo');
+  return validatePartyInfo(apu, 'apu');
 };
 
 /**
@@ -59,5 +66,5 @@ export const validateJweApu = (apu: unknown): Uint8Array | undefined => {
  * @throws {JweInvalid} If the "apv" parameter is not a Uint8Array or exceeds 32 bytes in length.
  */
 export const validateJweApv = (apv: unknown): Uint8Array | undefined => {
-  return validatePartyInfo(apv, 'Agreement PartyVInfo');
+  return validatePartyInfo(apv, 'apv');
 };

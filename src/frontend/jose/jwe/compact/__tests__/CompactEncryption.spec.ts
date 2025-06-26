@@ -1,27 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import { CompactEncryption } from '../CompactEncryption';
-import { FlattenedEncryption } from '../../flattened/FlattenedEncryption';
 import { FlattenedDecryption } from '../../flattened/FlattenedDecryption';
 import { webCryptoModule } from 'expo-crypto-universal-web';
 import { WebAesCipher } from 'aes-universal-web';
-import { createNistCurve } from 'noble-curves-extended';
+import { createEcdhCurve } from 'noble-curves-extended';
 
 const { getRandomBytes } = webCryptoModule;
-const curve = createNistCurve('P-256', getRandomBytes);
 const aes = new WebAesCipher(getRandomBytes);
+const curve = createEcdhCurve('P-256', getRandomBytes);
 
 describe('CompactEncryption', () => {
   describe('encrypt', () => {
     it('should be decryptable by FlattenedDecryption', async () => {
-      const compactEncryption = new CompactEncryption({ curve, aes });
-      const decryption = new FlattenedDecryption({ curve, aes });
+      const compactEncryption = new CompactEncryption(aes);
+      const decryption = new FlattenedDecryption(aes);
       const plaintext = new TextEncoder().encode('Hello, World!');
-      const rawPrivateKey = curve.utils.randomPrivateKey();
+      const rawPrivateKey = curve.randomPrivateKey();
       const rawPublicKey = curve.getPublicKey(rawPrivateKey, false);
+      const jwkPrivateKey = curve.toJwkPrivateKey(rawPrivateKey);
+      const jwkPublicKey = curve.toJwkPublicKey(rawPublicKey);
 
       const compactJwe = await compactEncryption
         .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
-        .encrypt(plaintext, rawPublicKey);
+        .encrypt(plaintext, jwkPublicKey);
 
       const [protectedHeader, encryptedKey, iv, ciphertext, tag] =
         compactJwe.split('.');
@@ -33,7 +34,7 @@ describe('CompactEncryption', () => {
         tag,
       };
 
-      const result = await decryption.decrypt(flattenedJwe, rawPrivateKey);
+      const result = await decryption.decrypt(flattenedJwe, jwkPrivateKey);
       expect(new TextDecoder().decode(result.plaintext)).toBe('Hello, World!');
     });
   });

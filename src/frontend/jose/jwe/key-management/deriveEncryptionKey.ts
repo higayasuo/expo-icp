@@ -5,10 +5,10 @@ import {
   JweAlg,
   JweEnc,
 } from '../types';
-import { ecdhesDeriveEncryptionKey } from './ecdhesDeriveEncryptKey';
+import { ecdhesDeriveEncryptionKey } from './ecdhes/ecdhesDeriveEncryptKey';
 import { JweNotSupported } from '@/jose/errors/errors';
 
-export type DeriveEncryptionKeyParams = {
+type DeriveEncryptionKeyParams = {
   alg: JweAlg;
   enc: JweEnc;
   curve: EcdhCurve;
@@ -16,7 +16,7 @@ export type DeriveEncryptionKeyParams = {
   providedParameters: JweKeyManagementHeaderParameters | undefined;
 };
 
-export type DeriveEncryptionKeyResult = {
+type DeriveEncryptionKeyResult = {
   cek: Uint8Array;
   encryptedKey?: Uint8Array;
   parameters: JweHeaderParameters;

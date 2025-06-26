@@ -4,15 +4,14 @@
  * @module
  */
 
-import {
-  FlattenedEncryption,
-  FlattenedEncryptionParams,
-} from '../flattened/FlattenedEncryption';
+import { AesCipher } from 'aes-universal';
+import { FlattenedEncryption } from '../flattened/FlattenedEncryption';
 import {
   CompactJweHeaderParameters,
   EncryptOptions,
   JweKeyManagementHeaderParameters,
 } from '../types';
+import { JwkPublicKey } from 'noble-curves-extended';
 
 /**
  * Class for encrypting JSON Web Encryption (JWE) in Compact Serialization.
@@ -25,8 +24,8 @@ export class CompactEncryption {
    *
    * @param {FlattenedEncryptionParams} params - The parameters for flattened encryption.
    */
-  constructor(params: FlattenedEncryptionParams) {
-    this.#flattened = new FlattenedEncryption(params);
+  constructor(aes: AesCipher) {
+    this.#flattened = new FlattenedEncryption(aes);
   }
 
   /**
@@ -55,18 +54,18 @@ export class CompactEncryption {
    * Encrypts the given plaintext using the provided public key and options.
    *
    * @param {Uint8Array} plaintext - The plaintext to encrypt.
-   * @param {Uint8Array} yourPublicKey - The public key to use for encryption.
+   * @param {JwkPublicKey} yourJwkPublicKey - The JWKpublic key to use for encryption.
    * @param {EncryptOptions} [options] - Optional encryption options.
    * @returns {Promise<string>} A promise that resolves to the JWE in compact serialization format.
    */
   async encrypt(
     plaintext: Uint8Array,
-    yourPublicKey: Uint8Array,
+    yourJwkPublicKey: JwkPublicKey,
     options?: EncryptOptions,
   ): Promise<string> {
     const jwe = await this.#flattened.encrypt(
       plaintext,
-      yourPublicKey,
+      yourJwkPublicKey,
       options,
     );
 

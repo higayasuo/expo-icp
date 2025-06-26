@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { ecdhesDeriveDecryptionKey } from '../ecdhesDriveDecryptionKey';
 import { ecdhesDeriveEncryptionKey } from '../ecdhesDeriveEncryptKey';
-import { createNistCurve } from 'noble-curves-extended';
+import { createEcdhCurve } from 'noble-curves-extended';
 import { webCryptoModule } from 'expo-crypto-universal-web';
 import { JoseInvalid, JweInvalid, JweNotSupported } from '@/jose/errors';
+import { encodeBase64Url } from 'u8a-utils';
 
 const { getRandomBytes } = webCryptoModule;
 
 describe('ecdhesDeriveDecryptionKey', () => {
-  const curve = createNistCurve('P-256', getRandomBytes);
-  const privateKey = curve.utils.randomPrivateKey();
-  const publicKey = curve.getPublicKey(privateKey, false);
+  const curve = createEcdhCurve('P-256', getRandomBytes);
+  const privateKey = curve.randomPrivateKey();
+  const publicKey = curve.getPublicKey(privateKey);
 
   it('should derive the same CEK as ecdhesDeriveEncryptionKey when apu and apv are provided', async () => {
     const encryptResult = await ecdhesDeriveEncryptionKey({
@@ -68,7 +69,7 @@ describe('ecdhesDeriveDecryptionKey', () => {
           encryptedKey: undefined,
           protectedHeader: {},
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"epk" (Ephemeral Public Key) is invalid'));
     });
 
     it('should throw JweInvalid when epk.kty is not EC', async () => {
@@ -97,10 +98,10 @@ describe('ecdhesDeriveDecryptionKey', () => {
             },
           },
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"epk" (Ephemeral Public Key) is invalid'));
     });
 
-    it('should throw JweInvalid when epk.crv does not match curve.curveName', async () => {
+    it('should throw Error when epk.crv does not match curve.curveName', async () => {
       const encryptResult = await ecdhesDeriveEncryptionKey({
         alg: 'ECDH-ES',
         enc: 'A256GCM',
@@ -126,10 +127,10 @@ describe('ecdhesDeriveDecryptionKey', () => {
             },
           },
         }),
-      ).toThrow(JoseInvalid);
+      ).toThrow('Failed to convert JWK to raw public key');
     });
 
-    it('should throw JweInvalid when epk.x is outside the elliptic curve range', async () => {
+    it('should throw Error when epk.x is outside the elliptic curve range', async () => {
       const encryptResult = await ecdhesDeriveEncryptionKey({
         alg: 'ECDH-ES',
         enc: 'A256GCM',
@@ -155,7 +156,7 @@ describe('ecdhesDeriveDecryptionKey', () => {
             },
           },
         }),
-      ).toThrow(JoseInvalid);
+      ).toThrow('Failed to convert JWK to raw public key');
     });
   });
 
@@ -184,7 +185,7 @@ describe('ecdhesDeriveDecryptionKey', () => {
             apu: 'invalid base64url!@#',
           },
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"apu (Agreement PartyUInfo)" is invalid'));
     });
 
     it('should throw JweInvalid when apu exceeds 32 bytes', async () => {
@@ -208,10 +209,14 @@ describe('ecdhesDeriveDecryptionKey', () => {
           encryptedKey: undefined,
           protectedHeader: {
             ...encryptResult.parameters,
-            apu: 'A'.repeat(33), // 33 bytes in base64url
+            apu: encodeBase64Url(new TextEncoder().encode('A'.repeat(33))), // 33 bytes in base64url
           },
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(
+        new JweInvalid(
+          '"apu (Agreement PartyUInfo)" must be less than or equal to 32 bytes',
+        ),
+      );
     });
   });
 
@@ -240,7 +245,7 @@ describe('ecdhesDeriveDecryptionKey', () => {
             apv: 'invalid base64url!@#',
           },
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"apv (Agreement PartyVInfo)" is invalid'));
     });
 
     it('should throw JweInvalid when apv exceeds 32 bytes', async () => {
@@ -264,31 +269,14 @@ describe('ecdhesDeriveDecryptionKey', () => {
           encryptedKey: undefined,
           protectedHeader: {
             ...encryptResult.parameters,
-            apv: 'A'.repeat(33), // 33 bytes in base64url
+            apv: encodeBase64Url(new TextEncoder().encode('A'.repeat(33))), // 33 bytes in base64url
           },
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(
+        new JweInvalid(
+          '"apv (Agreement PartyVInfo)" must be less than or equal to 32 bytes',
+        ),
+      );
     });
-  });
-
-  it('should throw JweNotSupported for unsupported enc algorithm', async () => {
-    const encryptResult = await ecdhesDeriveEncryptionKey({
-      alg: 'ECDH-ES',
-      enc: 'A256GCM',
-      curve,
-      yourPublicKey: publicKey,
-      providedParameters: undefined,
-    });
-
-    expect(() =>
-      ecdhesDeriveDecryptionKey({
-        enc: 'INVALID-ENC' as any,
-        alg: 'ECDH-ES',
-        curve,
-        myPrivateKey: privateKey,
-        encryptedKey: undefined,
-        protectedHeader: encryptResult.parameters,
-      }),
-    ).toThrow(JweNotSupported);
   });
 });

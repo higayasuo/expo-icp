@@ -1,6 +1,6 @@
 import { EcdhCurve } from 'noble-curves-extended';
 import { JweAlg, JweEnc, JweHeaderParameters } from '../types';
-import { ecdhesDeriveDecryptionKey } from './ecdhesDriveDecryptionKey';
+import { ecdhesDeriveDecryptionKey } from './ecdhes/ecdhesDriveDecryptionKey';
 import { JweNotSupported } from '@/jose/errors/errors';
 
 /**

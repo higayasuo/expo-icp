@@ -70,7 +70,7 @@
     "expo-system-ui": "~5.0.8",
     "expo-web-browser": "~14.1.6",
     "jose": "^6.0.11",
-    "noble-curves-extended": "^0.2.2",
+    "noble-curves-extended": "^0.2.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.3",

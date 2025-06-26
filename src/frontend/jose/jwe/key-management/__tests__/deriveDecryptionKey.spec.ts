@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { deriveDecryptionKey } from '../deriveDecryptionKey';
 import type { DeriveDecryptionKeyParams } from '../deriveDecryptionKey';
-import * as ecdhesDeriveDecryptionKeyModule from '../ecdhesDriveDecryptionKey';
+import * as ecdhesDeriveDecryptionKeyModule from '../ecdhes/ecdhesDriveDecryptionKey';
 import { JweNotSupported } from '@/jose/errors/errors';
 
 describe('deriveDecryptionKey', () => {

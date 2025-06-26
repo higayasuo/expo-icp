@@ -4,7 +4,7 @@ import type {
   DeriveEncryptionKeyResult,
 } from '../deriveEncryptionKey';
 import { deriveEncryptionKey } from '../deriveEncryptionKey';
-import { ecdhesDeriveEncryptionKey } from '../ecdhesDeriveEncryptKey';
+import { ecdhesDeriveEncryptionKey } from '../ecdhes/ecdhesDeriveEncryptKey';
 import { JweNotSupported } from '@/jose/errors/errors';
 
 vi.mock('../ecdhesDeriveEncryptKey', () => {

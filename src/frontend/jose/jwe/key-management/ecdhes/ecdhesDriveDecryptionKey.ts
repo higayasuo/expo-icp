@@ -1,12 +1,35 @@
 import { buildKdfOtherInfo } from '@/jose/jwe/key-management/ecdhes/buildKdfOtherInfo';
-import { cekBitLengthByEnc } from '../utils/cekBitLengthByEnc';
+import { cekBitLengthByEnc } from '../../utils/cekBitLengthByEnc';
 import { concatKdf } from '@/jose/jwe/key-management/ecdhes/concatKdf';
-import { DeriveDecryptionKeyParams } from './deriveDecryptionKey';
-import { decodeJweOptionalBase64Url } from '../../utils/decodeBase64Url';
-import { validateJweEpk } from '../utils/validateJweEpk';
-import { JweInvalid } from '@/jose/errors/errors';
-import { validateJweApu, validateJweApv } from '../utils/validateJweApi';
-import { validateJweEnc } from '../utils/validateJweEnc';
+import { DeriveDecryptionKeyParams } from '../deriveDecryptionKey';
+import { decodeJweOptionalBase64Url } from '../../../utils/decodeBase64Url';
+import { validateJweEpk } from '../../utils/validateJweEpk';
+import {
+  validateJweApu,
+  validateJweApv,
+} from '@/jose/jwe/utils/validateJweApi';
+import { validateJweEnc } from '../../utils/validateJweEnc';
+import { JweAlg, JweEnc, JweHeaderParameters } from '@/jose/jwe/types';
+import { EcdhCurve } from 'noble-curves-extended';
+
+/**
+ * Parameters for deriving a decryption key.
+ * @typedef {Object} DeriveDecryptionKeyParams
+ * @property {JweAlg} alg - The JWE algorithm to be used.
+ * @property {JweEnc} enc - The encryption algorithm to be used.
+ * @property {EcdhCurve} curve - The elliptic curve to be used for key derivation.
+ * @property {Uint8Array} myPrivateKey - The private key of the recipient.
+ * @property {Uint8Array | undefined} encryptedKey - The encrypted key, if applicable.
+ * @property {JweHeaderParameters} protectedHeader - The protected header containing necessary parameters.
+ */
+export type EcdhesDeriveDecryptionKeyParams = {
+  alg: JweAlg;
+  enc: JweEnc;
+  curve: EcdhCurve;
+  myPrivateKey: Uint8Array;
+  encryptedKey: Uint8Array | undefined;
+  protectedHeader: JweHeaderParameters;
+};
 
 /**
  * Derives a decryption key using ECDH-ES (Elliptic Curve Diffie-Hellman Ephemeral Static) method.

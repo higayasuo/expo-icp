@@ -49,7 +49,7 @@ const decodeBase64Url = ({
   try {
     return decodeB64U(b64u);
   } catch (e) {
-    console.error(`Failed to base64url decode "${label}": ${e}`);
+    console.error(`Failed to base64url decode "${label}"`);
     throw new Err(`"${label}" is invalid`);
   }
 };

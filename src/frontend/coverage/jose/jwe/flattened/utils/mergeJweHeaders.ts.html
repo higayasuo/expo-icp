@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for jose/jwe/flattened/utils/buildJoseHeader.ts</title>
+    <title>Code coverage report for jose/jwe/flattened/utils/mergeJweHeaders.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../base.css" />
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">jose/jwe/flattened/utils</a> buildJoseHeader.ts</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">jose/jwe/flattened/utils</a> mergeJweHeaders.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>20/24</span>
+                <span class='fraction'>0/24</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/2</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>20/24</span>
+                <span class='fraction'>0/24</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -118,8 +118,8 @@
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -146,53 +146,53 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { JweHeaderParameters } from '../../types';
-import { JweNotSupported } from '@/jose/errors/errors';
-import { verifyJweHeaders } from './verifyJweHeaders';
+<span class="cstat-no" title="statement not covered" >import { JweNotSupported } from '@/jose/errors/errors';</span>
+<span class="cstat-no" title="statement not covered" >import { verifyJweHeaders } from './verifyJweHeaders';</span>
 &nbsp;
 /**
- * Parameters for building a JOSE header
+ * Parameters for merging JWE headers
  * @property {JweHeaderParameters | undefined} protectedHeader - The JWE Protected Header
  * @property {JweHeaderParameters | undefined} sharedUnprotectedHeader - The JWE Shared Unprotected Header
  * @property {JweHeaderParameters | undefined} unprotectedHeader - The JWE Per-Recipient Unprotected Header
  */
-type BuildJoseHeaderParams = {
+type MergeJweHeadersParams = {
   protectedHeader: JweHeaderParameters | undefined;
   sharedUnprotectedHeader: JweHeaderParameters | undefined;
   unprotectedHeader: JweHeaderParameters | undefined;
 };
 &nbsp;
 /**
- * Builds JOSE Header according to RFC 7516 §5.2.
+ * Merges JWE Headers according to RFC 7516 §5.2.
  * The headers are merged in the following order:
  * 1. JWE Per-Recipient Unprotected Header
  * 2. JWE Shared Unprotected Header
- * 3. JWE Protected Header
+ * 3. JWE Protected Header (takes precedence)
  *
  * @param params - The header parameters to merge
  * @returns The merged JWE header
@@ -200,31 +200,31 @@ type BuildJoseHeaderParams = {
  * @throws {JweNotSupported} If the "zip" header parameter is present
  * @see {@link https://tools.ietf.org/html/rfc7516#section-5.2}
  */
-export const buildJoseHeader = ({
-  protectedHeader,
-  sharedUnprotectedHeader,
-  unprotectedHeader,
-}: BuildJoseHeaderParams): JweHeaderParameters =&gt; {
-  verifyJweHeaders({
-    protectedHeader,
-    sharedUnprotectedHeader,
-    unprotectedHeader,
-  });
+<span class="cstat-no" title="statement not covered" >export const mergeJweHeaders = ({</span>
+<span class="cstat-no" title="statement not covered" >  protectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >  sharedUnprotectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >  unprotectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >}: MergeJweHeadersParams): JweHeaderParameters =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  verifyJweHeaders({</span>
+<span class="cstat-no" title="statement not covered" >    protectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >    sharedUnprotectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >    unprotectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >  });</span>
 &nbsp;
-  const joseHeader: JweHeaderParameters = {
-    ...unprotectedHeader,
-    ...sharedUnprotectedHeader,
-    ...protectedHeader,
-  };
+<span class="cstat-no" title="statement not covered" >  const joseHeader: JweHeaderParameters = {</span>
+<span class="cstat-no" title="statement not covered" >    ...unprotectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >    ...sharedUnprotectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >    ...protectedHeader,</span>
+<span class="cstat-no" title="statement not covered" >  };</span>
 &nbsp;
-  if (joseHeader.zip !== undefined) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
+<span class="cstat-no" title="statement not covered" >  if (joseHeader.zip !== undefined) {</span>
 <span class="cstat-no" title="statement not covered" >    throw new JweNotSupported(</span>
 <span class="cstat-no" title="statement not covered" >      'JWE "zip" (Compression Algorithm) Header Parameter is not supported.',</span>
 <span class="cstat-no" title="statement not covered" >    );</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
 &nbsp;
-  return joseHeader;
-};
+<span class="cstat-no" title="statement not covered" >  return joseHeader;</span>
+<span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -232,7 +232,7 @@ export const buildJoseHeader = ({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-13T12:53:58.538Z
+                at 2025-06-26T11:16:40.162Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

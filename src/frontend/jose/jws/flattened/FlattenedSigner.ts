@@ -12,6 +12,7 @@ import { JwkPrivateKey, RandomBytes } from 'noble-curves-extended';
 import { FlattenedJws, JwsHeaderParameters, SignOptions } from '../types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 import { mergeJwsHeaders } from './utils/mergeJwsHeader';
+import { parseB64 } from './utils/parseB64';
 
 export class FlattenedSigner {
   #randomBytes: RandomBytes;
@@ -82,23 +83,7 @@ export class FlattenedSigner {
       joseHeader,
     });
 
-    // const criticalParamNames = validateCrit(
-    //   JwsInvalid,
-    //   new Map([['b64', true]]),
-    //   options?.crit,
-    //   this.#protectedHeader,
-    //   joseHeader,
-    // );
-
-    let b64 = true;
-    if (criticalParamNames.has('b64')) {
-      b64 = this.#protectedHeader.b64!;
-      if (typeof b64 !== 'boolean') {
-        throw new JwsInvalid(
-          'The "b64" (base64url-encode payload) Header Parameter must be a boolean',
-        );
-      }
-    }
+    const b64 = parseB64(this.#protectedHeader?.b64, criticalParamNames);
 
     const { alg } = joseHeader;
 

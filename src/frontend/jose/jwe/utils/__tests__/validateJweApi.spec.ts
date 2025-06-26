@@ -19,17 +19,17 @@ describe('validateJweApi', () => {
     });
 
     it('should throw JweInvalid for non-Uint8Array input', () => {
-      expect(() => validateJweApu('invalid')).toThrow(JweInvalid);
       expect(() => validateJweApu('invalid')).toThrow(
-        'Agreement PartyUInfo must be a Uint8Array',
+        new JweInvalid('"apu (Agreement PartyUInfo)" must be a Uint8Array'),
       );
     });
 
     it('should throw JweInvalid for input exceeding 32 bytes', () => {
       const input = new Uint8Array(33);
-      expect(() => validateJweApu(input)).toThrow(JweInvalid);
       expect(() => validateJweApu(input)).toThrow(
-        'Agreement PartyUInfo must be less than or equal to 32 bytes',
+        new JweInvalid(
+          '"apu (Agreement PartyUInfo)" must be less than or equal to 32 bytes',
+        ),
       );
     });
   });
@@ -50,17 +50,17 @@ describe('validateJweApi', () => {
     });
 
     it('should throw JweInvalid for non-Uint8Array input', () => {
-      expect(() => validateJweApv('invalid')).toThrow(JweInvalid);
       expect(() => validateJweApv('invalid')).toThrow(
-        'Agreement PartyVInfo must be a Uint8Array',
+        new JweInvalid('"apv (Agreement PartyVInfo)" must be a Uint8Array'),
       );
     });
 
     it('should throw JweInvalid for input exceeding 32 bytes', () => {
       const input = new Uint8Array(33);
-      expect(() => validateJweApv(input)).toThrow(JweInvalid);
       expect(() => validateJweApv(input)).toThrow(
-        'Agreement PartyVInfo must be less than or equal to 32 bytes',
+        new JweInvalid(
+          '"apv (Agreement PartyVInfo)" must be less than or equal to 32 bytes',
+        ),
       );
     });
   });

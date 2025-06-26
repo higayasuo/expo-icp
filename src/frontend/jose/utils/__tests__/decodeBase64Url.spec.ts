@@ -8,9 +8,6 @@ import {
 import { JweInvalid, JwsInvalid } from '@/jose/errors';
 
 describe('decodeBase64Url', () => {
-  const validB64U = 'SGVsbG8gV29ybGQ'; // "Hello World" in base64url
-  const invalidB64U = 'invalid!@#';
-
   describe('decodeJweOptionalBase64Url', () => {
     it('should decode a valid base64url string', () => {
       const result = decodeJweOptionalBase64Url({
@@ -34,7 +31,7 @@ describe('decodeBase64Url', () => {
           b64u: 123,
           label: 'test',
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"test" is invalid'));
     });
 
     it('should throw JweInvalid when input is invalid base64url', () => {
@@ -43,7 +40,7 @@ describe('decodeBase64Url', () => {
           b64u: 'invalid!',
           label: 'test',
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"test" is invalid'));
     });
   });
 
@@ -62,7 +59,7 @@ describe('decodeBase64Url', () => {
           b64u: undefined,
           label: 'test',
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"test" is invalid'));
     });
 
     it('should throw JweInvalid when input is not a string', () => {
@@ -71,7 +68,7 @@ describe('decodeBase64Url', () => {
           b64u: 123,
           label: 'test',
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"test" is invalid'));
     });
 
     it('should throw JweInvalid when input is invalid base64url', () => {
@@ -80,7 +77,7 @@ describe('decodeBase64Url', () => {
           b64u: 'invalid!',
           label: 'test',
         }),
-      ).toThrow(JweInvalid);
+      ).toThrow(new JweInvalid('"test" is invalid'));
     });
   });
 
@@ -107,7 +104,7 @@ describe('decodeBase64Url', () => {
           b64u: 123,
           label: 'test',
         }),
-      ).toThrow(JwsInvalid);
+      ).toThrow(new JwsInvalid('"test" is invalid'));
     });
 
     it('should throw JwsInvalid when input is invalid base64url', () => {
@@ -116,7 +113,7 @@ describe('decodeBase64Url', () => {
           b64u: 'invalid!',
           label: 'test',
         }),
-      ).toThrow(JwsInvalid);
+      ).toThrow(new JwsInvalid('"test" is invalid'));
     });
   });
 
@@ -135,7 +132,7 @@ describe('decodeBase64Url', () => {
           b64u: undefined,
           label: 'test',
         }),
-      ).toThrow(JwsInvalid);
+      ).toThrow(new JwsInvalid('"test" is invalid'));
     });
 
     it('should throw JwsInvalid when input is not a string', () => {
@@ -144,7 +141,7 @@ describe('decodeBase64Url', () => {
           b64u: 123,
           label: 'test',
         }),
-      ).toThrow(JwsInvalid);
+      ).toThrow(new JwsInvalid('"test" is invalid'));
     });
 
     it('should throw JwsInvalid when input is invalid base64url', () => {
@@ -153,7 +150,7 @@ describe('decodeBase64Url', () => {
           b64u: 'invalid!',
           label: 'test',
         }),
-      ).toThrow(JwsInvalid);
+      ).toThrow(new JwsInvalid('"test" is invalid'));
     });
   });
 });
