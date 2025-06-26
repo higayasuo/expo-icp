@@ -1,5 +1,5 @@
 import { buildKdfOtherInfo } from '@/jose/jwe/key-management/ecdhes/buildKdfOtherInfo';
-import { cekBitLengthByEnc } from '../../utils/cekBitLengthByEnc';
+import { cekBitLengthByEnc } from './cekBitLengthByEnc';
 import { concatKdf } from '@/jose/jwe/key-management/ecdhes/concatKdf';
 import { DeriveDecryptionKeyParams } from '../deriveDecryptionKey';
 import { decodeJweOptionalBase64Url } from '../../../utils/decodeBase64Url';

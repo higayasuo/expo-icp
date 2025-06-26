@@ -1,6 +1,6 @@
 import { JweEnc } from '@/jose/jwe/types';
 import { EcdhCurve } from 'noble-curves-extended';
-import { cekBitLengthByEnc } from '@/jose/jwe/utils/cekBitLengthByEnc';
+import { cekBitLengthByEnc } from '@/jose/jwe/key-management/ecdhes/cekBitLengthByEnc';
 import { sleep } from '@/jose/utils/sleep';
 
 /**

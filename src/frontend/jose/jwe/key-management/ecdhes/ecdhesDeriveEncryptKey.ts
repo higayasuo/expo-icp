@@ -7,7 +7,7 @@ import {
 import { buildKdfOtherInfo } from '@/jose/jwe/key-management/ecdhes/buildKdfOtherInfo';
 import { concatKdf } from '@/jose/jwe/key-management/ecdhes/concatKdf';
 import { encodeBase64Url } from 'u8a-utils';
-import { cekBitLengthByEnc } from '../../utils/cekBitLengthByEnc';
+import { cekBitLengthByEnc } from './cekBitLengthByEnc';
 import { validateJweApu, validateJweApv } from '../../utils/validateJweApi';
 import { validateJweEnc } from '../../utils/validateJweEnc';
 import { EcdhCurve } from 'noble-curves-extended';
