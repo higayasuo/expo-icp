@@ -18,20 +18,37 @@ describe('validateJweEnc', () => {
     });
   });
 
-  it('should throw JweInvalid when enc is missing', () => {
-    expect(() => validateJweEnc(undefined)).toThrow(JweInvalid);
-    expect(() => validateJweEnc(null)).toThrow(JweInvalid);
-    expect(() => validateJweEnc('')).toThrow(JweInvalid);
+  it('should throw JweInvalid when enc is null or undefined', () => {
+    expect(() => validateJweEnc(undefined)).toThrow(
+      new JweInvalid('"enc" (Content Encryption Algorithm) is invalid'),
+    );
+    expect(() => validateJweEnc(null)).toThrow(
+      new JweInvalid('"enc" (Content Encryption Algorithm) is invalid'),
+    );
+  });
+
+  it('should throw JweInvalid when enc is empty string', () => {
+    expect(() => validateJweEnc('')).toThrow(
+      new JweInvalid('"enc" (Content Encryption Algorithm) is invalid'),
+    );
   });
 
   it('should throw JweInvalid when enc is not a string', () => {
-    expect(() => validateJweEnc(123)).toThrow(JweInvalid);
-    expect(() => validateJweEnc({})).toThrow(JweInvalid);
-    expect(() => validateJweEnc([])).toThrow(JweInvalid);
-    expect(() => validateJweEnc(true)).toThrow(JweInvalid);
+    expect(() => validateJweEnc(123)).toThrow(
+      new JweInvalid('"enc" (Content Encryption Algorithm) is invalid'),
+    );
+    expect(() => validateJweEnc({})).toThrow(
+      new JweInvalid('"enc" (Content Encryption Algorithm) is invalid'),
+    );
+    expect(() => validateJweEnc([])).toThrow(
+      new JweInvalid('"enc" (Content Encryption Algorithm) is invalid'),
+    );
+    expect(() => validateJweEnc(true)).toThrow(
+      new JweInvalid('"enc" (Content Encryption Algorithm) is invalid'),
+    );
   });
 
-  it('should throw JweInvalid when enc is an invalid algorithm', () => {
+  it('should throw JweNotSupported when enc is an invalid algorithm', () => {
     const invalidAlgorithms = [
       'A128GCM-256', // Invalid variant
       'A256CBC', // Missing HMAC part
@@ -40,7 +57,11 @@ describe('validateJweEnc', () => {
     ];
 
     invalidAlgorithms.forEach((alg) => {
-      expect(() => validateJweEnc(alg)).toThrow(JweNotSupported);
+      expect(() => validateJweEnc(alg)).toThrow(
+        new JweNotSupported(
+          'The specified "enc" (Content Encryption Algorithm) is not supported',
+        ),
+      );
     });
   });
 });

@@ -29,14 +29,13 @@ const validatePartyInfo = (
   }
 
   if (!isUint8Array(value)) {
-    console.error(`${partyInfoTypeToLabel[type]} must be a Uint8Array`);
     throw new JweInvalid(`${partyInfoTypeToLabel[type]} must be a Uint8Array`);
   }
 
   const valueU8a = ensureUint8Array(value);
 
   if (valueU8a.byteLength > 32) {
-    console.error(
+    console.log(
       `${partyInfoTypeToLabel[type]} must be less than or equal to 32 bytes: value.byteLength (${value.byteLength})`,
     );
     throw new JweInvalid(

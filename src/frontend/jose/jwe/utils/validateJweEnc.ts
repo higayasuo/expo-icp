@@ -27,16 +27,23 @@ const NOT_SUPPORTED_ERROR_MESSAGE =
  * @throws {JweNotSupported} If the "enc" parameter is not supported
  */
 export const validateJweEnc = (enc: unknown): JweEnc => {
-  if (!enc) {
-    console.error('"enc" (Content Encryption Algorithm) is missing');
+  if (enc == null) {
+    console.log('"enc" (Content Encryption Algorithm) is missing');
     throw new JweInvalid(INVALID_ERROR_MESSAGE);
   }
+
+  if (enc === '') {
+    console.log('"enc" (Content Encryption Algorithm) is empty');
+    throw new JweInvalid(INVALID_ERROR_MESSAGE);
+  }
+
   if (typeof enc !== 'string') {
-    console.error('"enc" (Content Encryption Algorithm) must be a string');
+    console.log('"enc" (Content Encryption Algorithm) must be a string');
     throw new JweInvalid(INVALID_ERROR_MESSAGE);
   }
+
   if (!isEnc(enc)) {
-    console.error(
+    console.log(
       `The specified "enc" (Content Encryption Algorithm) is not supported: ${enc}. Only "A128GCM", "A192GCM", "A256GCM", "A128CBC-HS256", "A192CBC-HS384", and "A256CBC-HS512" are supported.`,
     );
     throw new JweNotSupported(NOT_SUPPORTED_ERROR_MESSAGE);
