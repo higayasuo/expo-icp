@@ -26,25 +26,25 @@ const ERROR_MESSAGE = '"epk" (Ephemeral Public Key) is invalid';
  * @throws {JweInvalid} If the "epk" parameter is invalid
  */
 export const validateJweEpk = (epk: unknown): Jwk => {
-  if (epk === undefined) {
-    console.error('"epk" (Ephemeral Public Key) is missing');
+  if (epk == null) {
+    console.log('"epk" (Ephemeral Public Key) is missing');
     throw new JweInvalid(ERROR_MESSAGE);
   }
 
   if (!isPlainObject<Jwk>(epk)) {
-    console.error('"epk" (Ephemeral Public Key) is not a plain object');
+    console.log('"epk" (Ephemeral Public Key) is not a plain object');
     throw new JweInvalid(ERROR_MESSAGE);
   }
 
   if (epk.kty !== 'EC' && epk.kty !== 'OKP') {
-    console.error(
+    console.log(
       'The kty of "epk" (Ephemeral Public Key) must be "EC" or "OKP"',
     );
     throw new JweInvalid(ERROR_MESSAGE);
   }
 
   if (!isJweCrv(epk.crv)) {
-    console.error(
+    console.log(
       'The crv of "epk" (Ephemeral Public Key) must be "P-256", "P-384", "P-521" or "X25519"',
     );
     throw new JweInvalid(ERROR_MESSAGE);
