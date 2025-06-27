@@ -9,17 +9,34 @@ describe('validateJweAlg', () => {
     expect(validateJweAlg(validAlg)).toBe(validAlg);
   });
 
-  it('should throw JweInvalid when alg is missing', () => {
-    expect(() => validateJweAlg(undefined)).toThrow(JweInvalid);
-    expect(() => validateJweAlg(null)).toThrow(JweInvalid);
-    expect(() => validateJweAlg('')).toThrow(JweInvalid);
+  it('should throw JweInvalid when alg is null or undefined', () => {
+    expect(() => validateJweAlg(undefined)).toThrow(
+      new JweInvalid('"alg" (Key Management Algorithm) is invalid'),
+    );
+    expect(() => validateJweAlg(null)).toThrow(
+      new JweInvalid('"alg" (Key Management Algorithm) is invalid'),
+    );
+  });
+
+  it('should throw JweInvalid when alg is empty string', () => {
+    expect(() => validateJweAlg('')).toThrow(
+      new JweInvalid('"alg" (Key Management Algorithm) is invalid'),
+    );
   });
 
   it('should throw JweInvalid when alg is not a string', () => {
-    expect(() => validateJweAlg(123)).toThrow(JweInvalid);
-    expect(() => validateJweAlg({})).toThrow(JweInvalid);
-    expect(() => validateJweAlg([])).toThrow(JweInvalid);
-    expect(() => validateJweAlg(true)).toThrow(JweInvalid);
+    expect(() => validateJweAlg(123)).toThrow(
+      new JweInvalid('"alg" (Key Management Algorithm) is invalid'),
+    );
+    expect(() => validateJweAlg({})).toThrow(
+      new JweInvalid('"alg" (Key Management Algorithm) is invalid'),
+    );
+    expect(() => validateJweAlg([])).toThrow(
+      new JweInvalid('"alg" (Key Management Algorithm) is invalid'),
+    );
+    expect(() => validateJweAlg(true)).toThrow(
+      new JweInvalid('"alg" (Key Management Algorithm) is invalid'),
+    );
   });
 
   it('should throw JweNotSupported for unsupported algorithms', () => {
@@ -31,7 +48,11 @@ describe('validateJweAlg', () => {
     ];
 
     unsupportedAlgorithms.forEach((alg) => {
-      expect(() => validateJweAlg(alg)).toThrow(JweNotSupported);
+      expect(() => validateJweAlg(alg)).toThrow(
+        new JweNotSupported(
+          'The specified "alg" (Key Management Algorithm) is not supported',
+        ),
+      );
     });
   });
 });

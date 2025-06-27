@@ -1,4 +1,12 @@
 import { CritOption, JoseHeaderParameters } from '@/jose/types';
+import { JWS_ALGS } from '../constants';
+
+/**
+ * JSON Web Signature (JWS) Algorithm
+ *
+ * Represents the supported algorithms for JWS operations.
+ */
+export type JwsAlg = (typeof JWS_ALGS)[number];
 
 /** Recognized JWS Header Parameters, any other Header Members may also be present. */
 export interface JwsHeaderParameters extends JoseHeaderParameters {

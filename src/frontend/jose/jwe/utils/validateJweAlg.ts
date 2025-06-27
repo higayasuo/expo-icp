@@ -21,18 +21,23 @@ const NOT_SUPPORTED_ERROR_MESSAGE =
  * @throws {JweNotSupported} If the "alg" parameter is not supported
  */
 export const validateJweAlg = (alg: unknown): JweAlg => {
-  if (!alg) {
-    console.error('"alg" (Key Management Algorithm) is missing');
+  if (alg == null) {
+    console.log('"alg" (Key Management Algorithm) is missing');
+    throw new JweInvalid(INVALID_ERROR_MESSAGE);
+  }
+
+  if (alg === '') {
+    console.log('"alg" (Key Management Algorithm) is empty');
     throw new JweInvalid(INVALID_ERROR_MESSAGE);
   }
 
   if (typeof alg !== 'string') {
-    console.error('"alg" (Key Management Algorithm) must be a string');
+    console.log('"alg" (Key Management Algorithm) must be a string');
     throw new JweInvalid(INVALID_ERROR_MESSAGE);
   }
 
   if (!isJweAlg(alg)) {
-    console.error(
+    console.log(
       `The specified "alg" (Key Management Algorithm) is not supported: ${alg}. Only "ECDH-ES" is supported.`,
     );
     throw new JweNotSupported(NOT_SUPPORTED_ERROR_MESSAGE);
