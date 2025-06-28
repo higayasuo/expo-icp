@@ -3,6 +3,7 @@ import { Jwk } from '@/jose/types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 import { isJweCrv } from './isJweCrv';
 import { decodeJweRequiredBase64Url } from '@/jose/utils/decodeBase64Url';
+import { validateKeyLengthByCrv } from '@/jose/utils/validateKeyLengthByCrv';
 
 const ERROR_MESSAGE = '"epk" (Ephemeral Public Key) is invalid';
 
@@ -50,16 +51,28 @@ export const validateJweEpk = (epk: unknown): Jwk => {
     throw new JweInvalid(ERROR_MESSAGE);
   }
 
-  decodeJweRequiredBase64Url({
+  const x = decodeJweRequiredBase64Url({
     b64u: epk.x,
+    label: 'The x of "epk" (Ephemeral Public Key)',
+  });
+
+  validateKeyLengthByCrv({
+    key: x,
+    crv: epk.crv,
     label: 'The x of "epk" (Ephemeral Public Key)',
   });
 
   // Only validate y coordinate for EC keys
   if (epk.kty === 'EC') {
-    decodeJweRequiredBase64Url({
+    const y = decodeJweRequiredBase64Url({
       b64u: epk.y,
-      label: 'y',
+      label: 'The y of "epk" (Ephemeral Public Key)',
+    });
+
+    validateKeyLengthByCrv({
+      key: y,
+      crv: epk.crv,
+      label: 'The y of "epk" (Ephemeral Public Key)',
     });
   }
 
