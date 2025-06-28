@@ -76,19 +76,19 @@ describe('validateJweEpk', () => {
   describe('invalid inputs', () => {
     it('should throw JweInvalid when epk is null or undefined', () => {
       expect(() => validateJweEpk(undefined)).toThrow(
-        new JweInvalid('"epk" (Ephemeral Public Key) is invalid'),
+        new JweInvalid('"epk" (Ephemeral Public Key) is missing'),
       );
       expect(() => validateJweEpk(null)).toThrow(
-        new JweInvalid('"epk" (Ephemeral Public Key) is invalid'),
+        new JweInvalid('"epk" (Ephemeral Public Key) is missing'),
       );
     });
 
     it('should throw JweInvalid when epk is not a plain object', () => {
-      const invalidEpks = [null, 'string', 123, true, [], new Date(), () => {}];
+      const invalidEpks = ['string', 123, true, [], new Date(), () => {}];
 
       invalidEpks.forEach((epk) => {
         expect(() => validateJweEpk(epk)).toThrow(
-          new JweInvalid('"epk" (Ephemeral Public Key) is invalid'),
+          new JweInvalid('"epk" (Ephemeral Public Key) is not a plain object'),
         );
       });
     });
@@ -102,7 +102,7 @@ describe('validateJweEpk', () => {
 
       invalidEpks.forEach((epk) => {
         expect(() => validateJweEpk(epk)).toThrow(
-          new JweInvalid('"epk" (Ephemeral Public Key) is invalid'),
+          new JweInvalid('The kty of "epk" (Ephemeral Public Key) is invalid'),
         );
       });
     });
@@ -119,7 +119,7 @@ describe('validateJweEpk', () => {
 
       invalidEpks.forEach((epk) => {
         expect(() => validateJweEpk(epk)).toThrow(
-          new JweInvalid('"epk" (Ephemeral Public Key) is invalid'),
+          new JweInvalid('The crv of "epk" (Ephemeral Public Key) is invalid'),
         );
       });
     });

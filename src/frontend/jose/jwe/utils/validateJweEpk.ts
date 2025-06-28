@@ -5,8 +5,6 @@ import { isJweCrv } from './isJweCrv';
 import { decodeJweRequiredBase64Url } from '@/jose/utils/decodeBase64Url';
 import { validateKeyLengthByCrv } from '@/jose/utils/validateKeyLengthByCrv';
 
-const ERROR_MESSAGE = '"epk" (Ephemeral Public Key) is invalid';
-
 /**
  * Validates the JWE "epk" (Ephemeral Public Key) header parameter.
  * Currently supports EC (Elliptic Curve) and OKP (Octet Key Pair) key types.
@@ -28,27 +26,25 @@ const ERROR_MESSAGE = '"epk" (Ephemeral Public Key) is invalid';
  */
 export const validateJweEpk = (epk: unknown): Jwk => {
   if (epk == null) {
-    console.log('"epk" (Ephemeral Public Key) is missing');
-    throw new JweInvalid(ERROR_MESSAGE);
+    throw new JweInvalid('"epk" (Ephemeral Public Key) is missing');
   }
 
   if (!isPlainObject<Jwk>(epk)) {
-    console.log('"epk" (Ephemeral Public Key) is not a plain object');
-    throw new JweInvalid(ERROR_MESSAGE);
+    throw new JweInvalid('"epk" (Ephemeral Public Key) is not a plain object');
   }
 
   if (epk.kty !== 'EC' && epk.kty !== 'OKP') {
     console.log(
       'The kty of "epk" (Ephemeral Public Key) must be "EC" or "OKP"',
     );
-    throw new JweInvalid(ERROR_MESSAGE);
+    throw new JweInvalid('The kty of "epk" (Ephemeral Public Key) is invalid');
   }
 
   if (!isJweCrv(epk.crv)) {
     console.log(
       'The crv of "epk" (Ephemeral Public Key) must be "P-256", "P-384", "P-521" or "X25519"',
     );
-    throw new JweInvalid(ERROR_MESSAGE);
+    throw new JweInvalid('The crv of "epk" (Ephemeral Public Key) is invalid');
   }
 
   const x = decodeJweRequiredBase64Url({
