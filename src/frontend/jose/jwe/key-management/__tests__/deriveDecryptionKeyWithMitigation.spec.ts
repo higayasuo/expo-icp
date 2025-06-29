@@ -10,7 +10,7 @@ const { getRandomBytes } = webCryptoModule;
 const curve = createEcdhCurve('P-256', getRandomBytes);
 
 vi.mock('@/jose/jwe/key-management/deriveDecryptionKey');
-vi.mock('../generateMitigatedCek');
+vi.mock('@/jose/jwe/key-management/generateMitigatedCek');
 
 describe('deriveDecryptionKeyWithMitigation', () => {
   const mockParams = {

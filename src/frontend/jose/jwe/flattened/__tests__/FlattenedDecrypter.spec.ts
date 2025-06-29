@@ -92,7 +92,7 @@ describe('FlattenedDecrypter', () => {
         const jwkPrivateKey = p256.toJwkPrivateKey(rawPrivateKey);
         await expect(
           new FlattenedDecrypter(aes).decrypt(null as any, jwkPrivateKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('Flattened JWE is missing'));
       });
 
       it('should throw JweInvalid when jwe is not a plain object', async () => {
@@ -101,7 +101,9 @@ describe('FlattenedDecrypter', () => {
         const jwkPrivateKey = p256.toJwkPrivateKey(rawPrivateKey);
         await expect(
           new FlattenedDecrypter(aes).decrypt(jwe as any, jwkPrivateKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(
+          new JweInvalid('Flattened JWE must be a plain object'),
+        );
       });
 
       it('should throw JweInvalid when myJwkPrivateKey is missing', async () => {
@@ -113,7 +115,7 @@ describe('FlattenedDecrypter', () => {
         } as FlattenedJwe;
         await expect(
           new FlattenedDecrypter(aes).decrypt(jwe, null as any),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('myJwkPrivateKey is missing'));
       });
 
       it('should throw JweInvalid when myJwkPrivateKey is not a plain object', async () => {
@@ -125,7 +127,9 @@ describe('FlattenedDecrypter', () => {
         } as FlattenedJwe;
         await expect(
           new FlattenedDecrypter(aes).decrypt(jwe, [] as any),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(
+          new JweInvalid('myJwkPrivateKey must be a plain object'),
+        );
       });
 
       it('should throw JweInvalid when myJwkPrivateKey.crv is missing', async () => {
@@ -144,7 +148,7 @@ describe('FlattenedDecrypter', () => {
         } as any;
         await expect(
           new FlattenedDecrypter(aes).decrypt(jwe, invalidJwkPrivateKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('myJwkPrivateKey.crv is missing'));
       });
     });
 
@@ -224,7 +228,7 @@ describe('FlattenedDecrypter', () => {
               invalidJwe as FlattenedJwe,
               jwkPrivateKey,
             ),
-          ).rejects.toThrow(JweInvalid);
+          ).rejects.toThrow(new JweInvalid('Failed to decrypt JWE'));
         });
 
         describe('alg parameter', () => {
@@ -343,7 +347,7 @@ describe('FlattenedDecrypter', () => {
               invalidJwe as FlattenedJwe,
               jwkPrivateKey,
             ),
-          ).rejects.toThrow(JweInvalid);
+          ).rejects.toThrow(new JweInvalid('Failed to decrypt JWE'));
         });
       });
 
@@ -368,7 +372,7 @@ describe('FlattenedDecrypter', () => {
               invalidJwe as FlattenedJwe,
               jwkPrivateKey,
             ),
-          ).rejects.toThrow(JweInvalid);
+          ).rejects.toThrow(new JweInvalid('Failed to decrypt JWE'));
         });
       });
 
@@ -393,7 +397,7 @@ describe('FlattenedDecrypter', () => {
               invalidJwe as FlattenedJwe,
               jwkPrivateKey,
             ),
-          ).rejects.toThrow(JweInvalid);
+          ).rejects.toThrow(new JweInvalid('Failed to decrypt JWE'));
         });
       });
     });

@@ -15,7 +15,7 @@ export interface JwsHeaderParameters extends JoseHeaderParameters {
    *
    * @see {@link https://github.com/panva/jose/issues/210#jws-alg Algorithm Key Requirements}
    */
-  alg?: string;
+  alg?: JwsAlg;
 
   /**
    * This JWS Extension Header Parameter modifies the JWS Payload representation and the JWS Signing
@@ -32,3 +32,15 @@ export interface JwsHeaderParameters extends JoseHeaderParameters {
 
 /** JWS Signing options. */
 export interface SignOptions extends CritOption {}
+
+/** JWS Verification options. */
+export interface VerifyOptions extends CritOption {
+  /**
+   * A list of accepted JWS "alg" (Algorithm) Header Parameter values. By default all "alg"
+   * (Algorithm) values applicable for the used key/secret are allowed.
+   *
+   * > [!NOTE]\
+   * > Unsecured JWTs (`{ "alg": "none" }`) are never accepted by this API.
+   */
+  algorithms?: string[];
+}

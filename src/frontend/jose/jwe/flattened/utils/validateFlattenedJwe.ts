@@ -1,5 +1,6 @@
 import { isPlainObject } from '@/jose/utils/isPlainObject';
-import { FlattenedJwe, JweHeaderParameters } from '../../types';
+import { JweHeaderParameters } from '@/jose/jwe/types';
+import { FlattenedJwe } from '@/jose/jwe/flattened/types';
 import { JweInvalid } from '@/jose/errors/errors';
 import { mergeJweHeaders } from './mergeJweHeaders';
 import {
@@ -37,6 +38,10 @@ type ValidateFlattenedJweResult = {
 export const validateFlattenedJwe = (
   jwe: FlattenedJwe,
 ): ValidateFlattenedJweResult => {
+  if (jwe == null) {
+    throw new JweInvalid('Flattened JWE is missing');
+  }
+
   if (!isPlainObject(jwe)) {
     throw new JweInvalid('Flattened JWE must be an object');
   }

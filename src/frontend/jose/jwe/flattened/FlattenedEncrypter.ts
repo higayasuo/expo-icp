@@ -116,7 +116,7 @@ export class FlattenedEncrypter {
     }
 
     if (!isUint8Array(plaintext)) {
-      throw new JweInvalid('plaintext must be an Uint8Array');
+      throw new JweInvalid('plaintext must be a Uint8Array');
     }
 
     if (!yourJwkPublicKey) {

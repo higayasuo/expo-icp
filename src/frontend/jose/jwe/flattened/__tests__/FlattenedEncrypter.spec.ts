@@ -130,7 +130,7 @@ describe('FlattenedEncrypter', () => {
               enc: 'A256GCM',
             })
             .encrypt('not a Uint8Array' as unknown as Uint8Array, jwkPublicKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('plaintext must be a Uint8Array'));
       });
 
       it('should throw if plaintext is missing', async () => {
@@ -145,7 +145,7 @@ describe('FlattenedEncrypter', () => {
               enc: 'A256GCM',
             })
             .encrypt(null as unknown as Uint8Array, jwkPublicKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('plaintext is missing'));
       });
 
       it('should throw if yourJwkPublicKey is missing', async () => {
@@ -157,7 +157,7 @@ describe('FlattenedEncrypter', () => {
               enc: 'A256GCM',
             })
             .encrypt(plaintext, null as unknown as any),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('yourJwkPublicKey is missing'));
       });
 
       it('should throw if yourJwkPublicKey is not a plain object', async () => {
@@ -169,7 +169,9 @@ describe('FlattenedEncrypter', () => {
               enc: 'A256GCM',
             })
             .encrypt(plaintext, [] as any),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(
+          new JweInvalid('yourJwkPublicKey must be a plain object'),
+        );
       });
 
       it('should throw if yourJwkPublicKey.crv is missing', async () => {
@@ -187,7 +189,7 @@ describe('FlattenedEncrypter', () => {
               enc: 'A256GCM',
             })
             .encrypt(plaintext, invalidJwkPublicKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('yourJwkPublicKey.crv is missing'));
       });
     });
 
@@ -200,7 +202,7 @@ describe('FlattenedEncrypter', () => {
         );
         await expect(
           new FlattenedEncrypter(aes).encrypt(plaintext, jwkPublicKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('Failed to encrypt plaintext'));
       });
 
       it('should throw JweInvalid when protected header is empty', async () => {
@@ -213,7 +215,7 @@ describe('FlattenedEncrypter', () => {
           new FlattenedEncrypter(aes)
             .protectedHeader({})
             .encrypt(plaintext, jwkPublicKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('Failed to encrypt plaintext'));
       });
     });
 
@@ -302,7 +304,7 @@ describe('FlattenedEncrypter', () => {
               enc: 'A256GCM',
             })
             .encrypt(plaintext, jwkPublicKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('Failed to encrypt plaintext'));
       });
 
       it('should throw JweInvalid when enc is missing', async () => {
@@ -317,7 +319,7 @@ describe('FlattenedEncrypter', () => {
               alg: 'ECDH-ES',
             })
             .encrypt(plaintext, jwkPublicKey),
-        ).rejects.toThrow(JweInvalid);
+        ).rejects.toThrow(new JweInvalid('Failed to encrypt plaintext'));
       });
     });
   });
@@ -328,7 +330,9 @@ describe('FlattenedEncrypter', () => {
         new FlattenedEncrypter(aes)
           .keyManagementParameters({ apu: new Uint8Array([1]) })
           .keyManagementParameters({ apu: new Uint8Array([2]) });
-      }).toThrow(JweInvalid);
+      }).toThrow(
+        new JweInvalid('keyManagementParameters can only be called once'),
+      );
     });
 
     it('should throw JweInvalid when protectedHeader is called twice', () => {
@@ -336,7 +340,7 @@ describe('FlattenedEncrypter', () => {
         new FlattenedEncrypter(aes)
           .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
           .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' });
-      }).toThrow(JweInvalid);
+      }).toThrow(new JweInvalid('protectedHeader can only be called once'));
     });
 
     it('should throw JweInvalid when sharedUnprotectedHeader is called twice', () => {
@@ -344,7 +348,9 @@ describe('FlattenedEncrypter', () => {
         new FlattenedEncrypter(aes)
           .sharedUnprotectedHeader({ cty: 'application/json' })
           .sharedUnprotectedHeader({ cty: 'text/plain' });
-      }).toThrow(JweInvalid);
+      }).toThrow(
+        new JweInvalid('sharedUnprotectedHeader can only be called once'),
+      );
     });
 
     it('should throw JweInvalid when unprotectedHeader is called twice', () => {
@@ -352,7 +358,7 @@ describe('FlattenedEncrypter', () => {
         new FlattenedEncrypter(aes)
           .unprotectedHeader({ kid: 'key-1' })
           .unprotectedHeader({ kid: 'key-2' });
-      }).toThrow(JweInvalid);
+      }).toThrow(new JweInvalid('unprotectedHeader can only be called once'));
     });
   });
 

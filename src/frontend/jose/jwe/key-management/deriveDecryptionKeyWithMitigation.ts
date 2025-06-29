@@ -1,12 +1,12 @@
 import { deriveDecryptionKey } from '@/jose/jwe/key-management/deriveDecryptionKey';
-import { generateMitigatedCek } from '@/jose/jwe/flattened/utils/generateMitigatedCek';
+import { generateMitigatedCek } from '@/jose/jwe/key-management/generateMitigatedCek';
 import { JweAlg, JweEnc, JweHeaderParameters } from '@/jose/jwe/types';
-import { NistCurve } from 'noble-curves-extended';
+import { EcdhCurve } from 'noble-curves-extended';
 
 type DeriveDecryptionKeyWithMitigationParams = {
   alg: JweAlg;
   enc: JweEnc;
-  curve: NistCurve;
+  curve: EcdhCurve;
   myPrivateKey: Uint8Array;
   encryptedKey: Uint8Array | undefined;
   protectedHeader: JweHeaderParameters;
@@ -35,7 +35,7 @@ export const deriveDecryptionKeyWithMitigation = async (
   try {
     return deriveDecryptionKey(params);
   } catch (err) {
-    console.error('[JWE] Key derivation failed, applying mitigation:', err);
+    console.log('[JWE] Key derivation failed, applying mitigation:', err);
     return generateMitigatedCek(params.curve, params.enc);
   }
 };

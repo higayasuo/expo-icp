@@ -16,7 +16,7 @@ import { checkJweAlgAllowed } from './utils/checkJweAlgAllowed';
 import { checkJweEncAllowed } from './utils/checkJweEncAllowed';
 import { createEcdhCurve, JwkPrivateKey } from 'noble-curves-extended';
 import { AesCipher } from 'aes-universal';
-import { deriveDecryptionKeyWithMitigation } from './utils/deriveDecryptionKeyWithMitigation';
+import { deriveDecryptionKeyWithMitigation } from '../key-management/deriveDecryptionKeyWithMitigation';
 import { encodeAesAad } from './utils/encodeAesAad';
 
 /**
@@ -49,7 +49,7 @@ export class FlattenedDecrypter {
     options?: DecryptOptions,
   ): Promise<FlattenedDecryptResult> {
     if (!jwe) {
-      throw new JweInvalid('jwe is missing');
+      throw new JweInvalid('Flattened JWE is missing');
     }
 
     if (!isPlainObject(jwe)) {

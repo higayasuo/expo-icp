@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { FlattenedSigner } from '../FlattenedSigner';
 import { flattenedVerify } from 'jose';
 import { JwsInvalid } from '@/jose/errors';
-import { JwkPrivateKey, createSignatureCurve } from 'noble-curves-extended';
+import { createSignatureCurve } from 'noble-curves-extended';
 import { randomBytes } from '@noble/hashes/utils';
-import { encodeBase64Url } from 'u8a-utils';
+import { JwsAlg } from '../../types';
 
 describe('FlattenedSigner', () => {
   describe('signing and verification', () => {
     const curves = [
-      { name: 'P-256', alg: 'ES256' },
-      { name: 'P-384', alg: 'ES384' },
-      { name: 'P-521', alg: 'ES512' },
-      { name: 'Ed25519', alg: 'EdDSA' },
+      { name: 'P-256', alg: 'ES256' as JwsAlg },
+      { name: 'P-384', alg: 'ES384' as JwsAlg },
+      { name: 'P-521', alg: 'ES512' as JwsAlg },
+      { name: 'Ed25519', alg: 'EdDSA' as JwsAlg },
     ];
 
     it.each(curves)(
@@ -30,18 +30,13 @@ describe('FlattenedSigner', () => {
           signatureCurve.getPublicKey(rawPrivateKey),
         );
 
-        const protectedHeader = {
-          alg,
-          typ: 'JWT',
-        };
-
         const jws = await new FlattenedSigner(randomBytes)
-          .protectedHeader(protectedHeader)
+          .protectedHeader({ alg })
           .sign(payload, privateKey);
 
         const verified = await flattenedVerify(jws, publicKey);
         expect(verified.payload).toEqual(payload);
-        expect(verified.protectedHeader).toEqual(protectedHeader);
+        expect(verified.protectedHeader).toEqual({ alg });
       },
     );
   });
@@ -55,14 +50,12 @@ describe('FlattenedSigner', () => {
       const rawPrivateKey = signatureCurve.randomPrivateKey();
       const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
 
-      const protectedHeader = {
-        alg: 'ES256',
-        b64: true,
-        crit: ['b64'],
-      };
-
       const jws = await new FlattenedSigner(randomBytes)
-        .protectedHeader(protectedHeader)
+        .protectedHeader({
+          alg: 'ES256',
+          b64: true,
+          crit: ['b64'],
+        })
         .sign(payload, privateKey);
 
       // With b64: true, payload should be Base64URL encoded
@@ -86,14 +79,12 @@ describe('FlattenedSigner', () => {
       const rawPrivateKey = signatureCurve.randomPrivateKey();
       const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
 
-      const protectedHeader = {
-        alg: 'ES256',
-        b64: false,
-        crit: ['b64'],
-      };
-
       const jws = await new FlattenedSigner(randomBytes)
-        .protectedHeader(protectedHeader)
+        .protectedHeader({
+          alg: 'ES256',
+          b64: false,
+          crit: ['b64'],
+        })
         .sign(payload, privateKey);
 
       // With b64: false, payload should be empty string
@@ -118,17 +109,15 @@ describe('FlattenedSigner', () => {
       const rawPrivateKey = signatureCurve.randomPrivateKey();
       const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
 
-      const protectedHeader = {
-        alg: 'ES256',
-      };
-
       const unprotectedHeader = {
         kid: 'test-key-id',
         x5t: 'test-thumbprint',
       };
 
       const jws = await new FlattenedSigner(randomBytes)
-        .protectedHeader(protectedHeader)
+        .protectedHeader({
+          alg: 'ES256',
+        })
         .unprotectedHeader(unprotectedHeader)
         .sign(payload, privateKey);
 
@@ -316,12 +305,10 @@ describe('FlattenedSigner', () => {
 
   describe('header validation', () => {
     it('should throw error when protectedHeader is called twice', () => {
-      const header = { alg: 'ES256' };
-
       expect(() =>
         new FlattenedSigner(randomBytes)
-          .protectedHeader(header)
-          .protectedHeader(header),
+          .protectedHeader({ alg: 'ES256' })
+          .protectedHeader({ alg: 'ES256' }),
       ).toThrow(new JwsInvalid('protectedHeader can only be called once'));
     });
 
