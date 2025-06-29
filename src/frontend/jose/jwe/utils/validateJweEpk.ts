@@ -1,8 +1,8 @@
-import { JweInvalid } from '@/jose/errors';
+import { JoseInvalid } from '@/jose/errors';
 import { Jwk } from '@/jose/types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 import { isJweCrv } from './isJweCrv';
-import { decodeJweRequiredBase64Url } from '@/jose/utils/decodeBase64Url';
+import { decodeRequiredBase64Url } from '@/jose/utils/decodeBase64Url';
 import { validateKeyLengthByCrv } from '@/jose/utils/validateKeyLengthByCrv';
 
 /**
@@ -22,32 +22,32 @@ import { validateKeyLengthByCrv } from '@/jose/utils/validateKeyLengthByCrv';
  *
  * @param {unknown} epk - The "epk" parameter value to validate
  * @returns {Jwk} The validated Ephemeral Public Key
- * @throws {JweInvalid} If the "epk" parameter is invalid
+ * @throws {JoseInvalid} If the "epk" parameter is invalid
  */
 export const validateJweEpk = (epk: unknown): Jwk => {
   if (epk == null) {
-    throw new JweInvalid('"epk" (Ephemeral Public Key) is missing');
+    throw new JoseInvalid('"epk" (Ephemeral Public Key) is missing');
   }
 
   if (!isPlainObject<Jwk>(epk)) {
-    throw new JweInvalid('"epk" (Ephemeral Public Key) is not a plain object');
+    throw new JoseInvalid('"epk" (Ephemeral Public Key) is not a plain object');
   }
 
   if (epk.kty !== 'EC' && epk.kty !== 'OKP') {
     console.log(
       'The kty of "epk" (Ephemeral Public Key) must be "EC" or "OKP"',
     );
-    throw new JweInvalid('The kty of "epk" (Ephemeral Public Key) is invalid');
+    throw new JoseInvalid('The kty of "epk" (Ephemeral Public Key) is invalid');
   }
 
   if (!isJweCrv(epk.crv)) {
     console.log(
       'The crv of "epk" (Ephemeral Public Key) must be "P-256", "P-384", "P-521" or "X25519"',
     );
-    throw new JweInvalid('The crv of "epk" (Ephemeral Public Key) is invalid');
+    throw new JoseInvalid('The crv of "epk" (Ephemeral Public Key) is invalid');
   }
 
-  const x = decodeJweRequiredBase64Url({
+  const x = decodeRequiredBase64Url({
     b64u: epk.x,
     label: 'The x of "epk" (Ephemeral Public Key)',
   });
@@ -60,7 +60,7 @@ export const validateJweEpk = (epk: unknown): Jwk => {
 
   // Only validate y coordinate for EC keys
   if (epk.kty === 'EC') {
-    const y = decodeJweRequiredBase64Url({
+    const y = decodeRequiredBase64Url({
       b64u: epk.y,
       label: 'The y of "epk" (Ephemeral Public Key)',
     });

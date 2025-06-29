@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { validateFlattenedJwe } from '../validateFlattenedJwe';
-import { JweInvalid } from '@/jose/errors/errors';
+import { JweInvalid, JoseInvalid } from '@/jose/errors/errors';
 import { encodeBase64Url } from 'u8a-utils';
-import { FlattenedJwe } from '../../../types';
+import { FlattenedJwe } from '@/jose/jwe/flattened/types';
 
 describe('validateFlattenedJwe', () => {
   it('should validate a valid Flattened JWE', () => {
@@ -66,20 +66,26 @@ describe('validateFlattenedJwe', () => {
     expect(() =>
       validateFlattenedJwe('invalid' as unknown as FlattenedJwe),
     ).toThrow(JweInvalid);
+    expect(() =>
+      validateFlattenedJwe('invalid' as unknown as FlattenedJwe),
+    ).toThrow('Flattened JWE must be a plain object');
   });
 
   describe('required fields', () => {
-    it('should throw JweInvalid when protected is missing', () => {
+    it('should throw JoseInvalid when protected is missing', () => {
       const jwe = {
         iv: encodeBase64Url(new Uint8Array(12)),
         ciphertext: encodeBase64Url(new Uint8Array(32)),
         tag: encodeBase64Url(new Uint8Array(16)),
       } as unknown as FlattenedJwe;
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        '"JWE Protected Header" is missing',
+      );
     });
 
-    it('should throw JweInvalid when iv is missing', () => {
+    it('should throw JoseInvalid when iv is missing', () => {
       const jwe = {
         protected: encodeBase64Url(
           new TextEncoder().encode(
@@ -90,10 +96,13 @@ describe('validateFlattenedJwe', () => {
         tag: encodeBase64Url(new Uint8Array(16)),
       } as unknown as FlattenedJwe;
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        '"JWE Initialization Vector" is missing',
+      );
     });
 
-    it('should throw JweInvalid when ciphertext is missing', () => {
+    it('should throw JoseInvalid when ciphertext is missing', () => {
       const jwe = {
         protected: encodeBase64Url(
           new TextEncoder().encode(
@@ -104,10 +113,13 @@ describe('validateFlattenedJwe', () => {
         tag: encodeBase64Url(new Uint8Array(16)),
       } as unknown as FlattenedJwe;
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        '"JWE Ciphertext" is missing',
+      );
     });
 
-    it('should throw JweInvalid when tag is missing', () => {
+    it('should throw JoseInvalid when tag is missing', () => {
       const jwe = {
         protected: encodeBase64Url(
           new TextEncoder().encode(
@@ -118,12 +130,15 @@ describe('validateFlattenedJwe', () => {
         ciphertext: encodeBase64Url(new Uint8Array(32)),
       } as unknown as FlattenedJwe;
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        '"JWE Authentication Tag" is missing',
+      );
     });
   });
 
   describe('invalid base64url', () => {
-    it('should throw JweInvalid when protected is invalid base64url', () => {
+    it('should throw JoseInvalid when protected is invalid base64url', () => {
       const jwe: FlattenedJwe = {
         protected: 'invalid-base64url',
         iv: encodeBase64Url(new Uint8Array(12)),
@@ -131,10 +146,13 @@ describe('validateFlattenedJwe', () => {
         tag: encodeBase64Url(new Uint8Array(16)),
       };
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        'Failed to base64url decode "JWE Protected Header"',
+      );
     });
 
-    it('should throw JweInvalid when iv is invalid base64url', () => {
+    it('should throw JoseInvalid when iv is invalid base64url', () => {
       const jwe: FlattenedJwe = {
         protected: encodeBase64Url(
           new TextEncoder().encode(
@@ -146,10 +164,13 @@ describe('validateFlattenedJwe', () => {
         tag: encodeBase64Url(new Uint8Array(16)),
       };
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        'Failed to base64url decode "JWE Initialization Vector"',
+      );
     });
 
-    it('should throw JweInvalid when ciphertext is invalid base64url', () => {
+    it('should throw JoseInvalid when ciphertext is invalid base64url', () => {
       const jwe: FlattenedJwe = {
         protected: encodeBase64Url(
           new TextEncoder().encode(
@@ -161,10 +182,13 @@ describe('validateFlattenedJwe', () => {
         tag: encodeBase64Url(new Uint8Array(16)),
       };
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        'Failed to base64url decode "JWE Ciphertext"',
+      );
     });
 
-    it('should throw JweInvalid when tag is invalid base64url', () => {
+    it('should throw JoseInvalid when tag is invalid base64url', () => {
       const jwe: FlattenedJwe = {
         protected: encodeBase64Url(
           new TextEncoder().encode(
@@ -176,10 +200,13 @@ describe('validateFlattenedJwe', () => {
         tag: 'invalid-base64url',
       };
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        'Failed to base64url decode "JWE Authentication Tag"',
+      );
     });
 
-    it('should throw JweInvalid when encrypted_key is invalid base64url', () => {
+    it('should throw JoseInvalid when encrypted_key is invalid base64url', () => {
       const jwe: FlattenedJwe = {
         protected: encodeBase64Url(
           new TextEncoder().encode(
@@ -192,10 +219,13 @@ describe('validateFlattenedJwe', () => {
         encrypted_key: 'invalid-base64url',
       };
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        'Failed to base64url decode "JWE Encrypted Key"',
+      );
     });
 
-    it('should throw JweInvalid when aad is invalid base64url', () => {
+    it('should throw JoseInvalid when aad is invalid base64url', () => {
       const jwe: FlattenedJwe = {
         protected: encodeBase64Url(
           new TextEncoder().encode(
@@ -208,7 +238,10 @@ describe('validateFlattenedJwe', () => {
         aad: 'invalid-base64url',
       };
 
-      expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(JoseInvalid);
+      expect(() => validateFlattenedJwe(jwe)).toThrow(
+        'Failed to base64url decode "JWE Additional Authenticated Data"',
+      );
     });
   });
 
@@ -226,6 +259,9 @@ describe('validateFlattenedJwe', () => {
     } as unknown as FlattenedJwe;
 
     expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+    expect(() => validateFlattenedJwe(jwe)).toThrow(
+      'JWE Per-Recipient Unprotected Header is invalid',
+    );
   });
 
   it('should throw JweInvalid for invalid unprotected header', () => {
@@ -242,5 +278,8 @@ describe('validateFlattenedJwe', () => {
     } as unknown as FlattenedJwe;
 
     expect(() => validateFlattenedJwe(jwe)).toThrow(JweInvalid);
+    expect(() => validateFlattenedJwe(jwe)).toThrow(
+      'JWE Shared Unprotected Header is invalid',
+    );
   });
 });

@@ -2,7 +2,7 @@ import { buildKdfOtherInfo } from '@/jose/jwe/key-management/ecdhes/buildKdfOthe
 import { cekBitLengthByEnc } from './cekBitLengthByEnc';
 import { concatKdf } from '@/jose/jwe/key-management/ecdhes/concatKdf';
 import { DeriveDecryptionKeyParams } from '../deriveDecryptionKey';
-import { decodeJweOptionalBase64Url } from '../../../utils/decodeBase64Url';
+import { decodeOptionalBase64Url } from '../../../utils/decodeBase64Url';
 import { validateJweEpk } from '../../utils/validateJweEpk';
 import {
   validateJweApu,
@@ -50,11 +50,11 @@ export const ecdhesDeriveDecryptionKey = ({
   const epk = validateJweEpk(protectedHeader.epk);
   const yourPublicKey = curve.toRawPublicKey(epk);
 
-  const apu = decodeJweOptionalBase64Url({
+  const apu = decodeOptionalBase64Url({
     b64u: protectedHeader.apu,
     label: 'apu (Agreement PartyUInfo)',
   });
-  const apv = decodeJweOptionalBase64Url({
+  const apv = decodeOptionalBase64Url({
     b64u: protectedHeader.apv,
     label: 'apv (Agreement PartyVInfo)',
   });

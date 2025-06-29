@@ -1,5 +1,5 @@
-import { JweInvalid } from '@/jose/errors/errors';
-import { decodeJweRequiredBase64Url } from '@/jose/utils/decodeBase64Url';
+import { JoseInvalid } from '@/jose/errors/errors';
+import { decodeRequiredBase64Url } from '@/jose/utils/decodeBase64Url';
 import { JweHeaderParameters } from '../../types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 
@@ -12,12 +12,12 @@ const decoder = new TextDecoder();
  *
  * @param jweProtected - The base64url encoded JWE Protected Header to parse
  * @returns The parsed JWE Header Parameters
- * @throws {JweInvalid} If the input is invalid or cannot be parsed
+ * @throws {JoseInvalid} If the input is invalid or cannot be parsed
  */
 export const parseJweProtected = (
   jweProtected: unknown,
 ): JweHeaderParameters => {
-  const protectedHeader = decodeJweRequiredBase64Url({
+  const protectedHeader = decodeRequiredBase64Url({
     b64u: jweProtected,
     label: 'JWE Protected Header',
   });
@@ -29,9 +29,9 @@ export const parseJweProtected = (
       return parsed as JweHeaderParameters;
     }
 
-    throw new JweInvalid('JWE Protected Header is not a plain object');
+    throw new JoseInvalid('JWE Protected Header is not a plain object');
   } catch (error: unknown) {
     console.error(error);
-    throw new JweInvalid(ERROR_MESSAGE);
+    throw new JoseInvalid(ERROR_MESSAGE);
   }
 };

@@ -4,8 +4,8 @@ import { FlattenedJwe } from '@/jose/jwe/flattened/types';
 import { JweInvalid } from '@/jose/errors/errors';
 import { mergeJweHeaders } from './mergeJweHeaders';
 import {
-  decodeJweOptionalBase64Url,
-  decodeJweRequiredBase64Url,
+  decodeOptionalBase64Url,
+  decodeRequiredBase64Url,
 } from '@/jose/utils/decodeBase64Url';
 import { parseJweProtected } from './parseJweProtected';
 
@@ -43,30 +43,30 @@ export const validateFlattenedJwe = (
   }
 
   if (!isPlainObject(jwe)) {
-    throw new JweInvalid('Flattened JWE must be an object');
+    throw new JweInvalid('Flattened JWE must be a plain object');
   }
 
-  const iv = decodeJweRequiredBase64Url({
+  const iv = decodeRequiredBase64Url({
     b64u: jwe.iv,
     label: 'JWE Initialization Vector',
   });
 
-  const ciphertext = decodeJweRequiredBase64Url({
+  const ciphertext = decodeRequiredBase64Url({
     b64u: jwe.ciphertext,
     label: 'JWE Ciphertext',
   });
 
-  const tag = decodeJweRequiredBase64Url({
+  const tag = decodeRequiredBase64Url({
     b64u: jwe.tag,
     label: 'JWE Authentication Tag',
   });
 
-  const encryptedKey = decodeJweOptionalBase64Url({
+  const encryptedKey = decodeOptionalBase64Url({
     b64u: jwe.encrypted_key,
     label: 'JWE Encrypted Key',
   });
 
-  const aad = decodeJweOptionalBase64Url({
+  const aad = decodeOptionalBase64Url({
     b64u: jwe.aad,
     label: 'JWE Additional Authenticated Data',
   });
