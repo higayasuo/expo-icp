@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import * as jose from 'jose';
-import { FlattenedEncryption } from '../FlattenedEncryption';
+import { FlattenedEncrypter } from '../FlattenedEncrypter';
 import { JweInvalid } from '@/jose/errors/errors';
 import { decodeBase64Url, encodeBase64Url } from 'u8a-utils';
 import { JweHeaderParameters } from '../../types';
@@ -21,7 +21,7 @@ const curves = [
 ];
 const aes = new WebAesCipher(getRandomBytes);
 
-describe('FlattenedEncryption', () => {
+describe('FlattenedEncrypter', () => {
   describe('encrypt and decrypt', () => {
     it.each(curves)(
       'should encrypt and decrypt with ECDH-ES and A256GCM using $curveName',
@@ -44,7 +44,7 @@ describe('FlattenedEncryption', () => {
           .setProtectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
           .encrypt(josePublicKey);
 
-        const myJwe = await new FlattenedEncryption(aes)
+        const myJwe = await new FlattenedEncrypter(aes)
           .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
           .encrypt(plaintext, jwkPublicKey);
 
@@ -88,7 +88,7 @@ describe('FlattenedEncryption', () => {
           .setKeyManagementParameters({ apu, apv })
           .encrypt(josePublicKey);
 
-        const myJwe = await new FlattenedEncryption(aes)
+        const myJwe = await new FlattenedEncrypter(aes)
           .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
           .keyManagementParameters({ apu, apv })
           .encrypt(plaintext, jwkPublicKey);
@@ -111,7 +111,7 @@ describe('FlattenedEncryption', () => {
   describe('constructor', () => {
     it('should accept aes', () => {
       expect(() => {
-        new FlattenedEncryption(aes);
+        new FlattenedEncrypter(aes);
       }).not.toThrow();
     });
   });
@@ -123,15 +123,13 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-          enc: 'A256GCM',
-        });
         await expect(
-          encryption.encrypt(
-            'not a Uint8Array' as unknown as Uint8Array,
-            jwkPublicKey,
-          ),
+          new FlattenedEncrypter(aes)
+            .protectedHeader({
+              alg: 'ECDH-ES',
+              enc: 'A256GCM',
+            })
+            .encrypt('not a Uint8Array' as unknown as Uint8Array, jwkPublicKey),
         ).rejects.toThrow(JweInvalid);
       });
 
@@ -140,35 +138,38 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-          enc: 'A256GCM',
-        });
         await expect(
-          encryption.encrypt(null as unknown as Uint8Array, jwkPublicKey),
+          new FlattenedEncrypter(aes)
+            .protectedHeader({
+              alg: 'ECDH-ES',
+              enc: 'A256GCM',
+            })
+            .encrypt(null as unknown as Uint8Array, jwkPublicKey),
         ).rejects.toThrow(JweInvalid);
       });
 
       it('should throw if yourJwkPublicKey is missing', async () => {
         const plaintext = new TextEncoder().encode('Hello, World!');
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-          enc: 'A256GCM',
-        });
         await expect(
-          encryption.encrypt(plaintext, null as unknown as any),
+          new FlattenedEncrypter(aes)
+            .protectedHeader({
+              alg: 'ECDH-ES',
+              enc: 'A256GCM',
+            })
+            .encrypt(plaintext, null as unknown as any),
         ).rejects.toThrow(JweInvalid);
       });
 
       it('should throw if yourJwkPublicKey is not a plain object', async () => {
         const plaintext = new TextEncoder().encode('Hello, World!');
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-          enc: 'A256GCM',
-        });
-        await expect(encryption.encrypt(plaintext, [] as any)).rejects.toThrow(
-          JweInvalid,
-        );
+        await expect(
+          new FlattenedEncrypter(aes)
+            .protectedHeader({
+              alg: 'ECDH-ES',
+              enc: 'A256GCM',
+            })
+            .encrypt(plaintext, [] as any),
+        ).rejects.toThrow(JweInvalid);
       });
 
       it('should throw if yourJwkPublicKey.crv is missing', async () => {
@@ -179,12 +180,13 @@ describe('FlattenedEncryption', () => {
           y: 'SGVsbG8',
           // crv is missing
         } as any;
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-          enc: 'A256GCM',
-        });
         await expect(
-          encryption.encrypt(plaintext, invalidJwkPublicKey),
+          new FlattenedEncrypter(aes)
+            .protectedHeader({
+              alg: 'ECDH-ES',
+              enc: 'A256GCM',
+            })
+            .encrypt(plaintext, invalidJwkPublicKey),
         ).rejects.toThrow(JweInvalid);
       });
     });
@@ -196,9 +198,8 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes);
         await expect(
-          encryption.encrypt(plaintext, jwkPublicKey),
+          new FlattenedEncrypter(aes).encrypt(plaintext, jwkPublicKey),
         ).rejects.toThrow(JweInvalid);
       });
 
@@ -208,9 +209,10 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes).protectedHeader({});
         await expect(
-          encryption.encrypt(plaintext, jwkPublicKey),
+          new FlattenedEncrypter(aes)
+            .protectedHeader({})
+            .encrypt(plaintext, jwkPublicKey),
         ).rejects.toThrow(JweInvalid);
       });
     });
@@ -222,15 +224,16 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-          enc: 'A256GCM',
-          crit: ['kid'],
-          kid: 'test-key-id',
-        });
-        const jwe = await encryption.encrypt(plaintext, jwkPublicKey, {
-          crit: { kid: false },
-        });
+        const jwe = await new FlattenedEncrypter(aes)
+          .protectedHeader({
+            alg: 'ECDH-ES',
+            enc: 'A256GCM',
+            crit: ['kid'],
+            kid: 'test-key-id',
+          })
+          .encrypt(plaintext, jwkPublicKey, {
+            crit: { kid: false },
+          });
         expect(jwe.protected).toBeDefined();
         const decodedHeader = JSON.parse(atob(jwe.protected));
         expect(decodedHeader).toMatchObject({
@@ -247,14 +250,15 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-          enc: 'A256GCM',
-          crit: ['hoge'],
-          hoge: 'hoge',
-        });
         await expect(
-          encryption.encrypt(plaintext, jwkPublicKey),
+          new FlattenedEncrypter(aes)
+            .protectedHeader({
+              alg: 'ECDH-ES',
+              enc: 'A256GCM',
+              crit: ['hoge'],
+              hoge: 'hoge',
+            })
+            .encrypt(plaintext, jwkPublicKey),
         ).rejects.toThrow(JweInvalid);
       });
 
@@ -264,15 +268,16 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-          enc: 'A256GCM',
-          crit: ['hoge'],
-          hoge: 'hoge',
-        });
-        const jwe = await encryption.encrypt(plaintext, jwkPublicKey, {
-          crit: { hoge: true },
-        });
+        const jwe = await new FlattenedEncrypter(aes)
+          .protectedHeader({
+            alg: 'ECDH-ES',
+            enc: 'A256GCM',
+            crit: ['hoge'],
+            hoge: 'hoge',
+          })
+          .encrypt(plaintext, jwkPublicKey, {
+            crit: { hoge: true },
+          });
         expect(jwe.protected).toBeDefined();
         const decodedHeader = JSON.parse(atob(jwe.protected));
         expect(decodedHeader).toMatchObject({
@@ -291,11 +296,12 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          enc: 'A256GCM',
-        });
         await expect(
-          encryption.encrypt(plaintext, jwkPublicKey),
+          new FlattenedEncrypter(aes)
+            .protectedHeader({
+              enc: 'A256GCM',
+            })
+            .encrypt(plaintext, jwkPublicKey),
         ).rejects.toThrow(JweInvalid);
       });
 
@@ -305,11 +311,12 @@ describe('FlattenedEncryption', () => {
         const jwkPublicKey = curve.toJwkPublicKey(
           curve.getPublicKey(rawPrivateKey, false),
         );
-        const encryption = new FlattenedEncryption(aes).protectedHeader({
-          alg: 'ECDH-ES',
-        });
         await expect(
-          encryption.encrypt(plaintext, jwkPublicKey),
+          new FlattenedEncrypter(aes)
+            .protectedHeader({
+              alg: 'ECDH-ES',
+            })
+            .encrypt(plaintext, jwkPublicKey),
         ).rejects.toThrow(JweInvalid);
       });
     });
@@ -317,44 +324,45 @@ describe('FlattenedEncryption', () => {
 
   describe('duplicate method call validation', () => {
     it('should throw JweInvalid when keyManagementParameters is called twice', () => {
-      const encryption = new FlattenedEncryption(aes);
-      encryption.keyManagementParameters({ apu: new Uint8Array([1]) });
       expect(() => {
-        encryption.keyManagementParameters({ apu: new Uint8Array([2]) });
+        new FlattenedEncrypter(aes)
+          .keyManagementParameters({ apu: new Uint8Array([1]) })
+          .keyManagementParameters({ apu: new Uint8Array([2]) });
       }).toThrow(JweInvalid);
     });
 
     it('should throw JweInvalid when protectedHeader is called twice', () => {
-      const encryption = new FlattenedEncryption(aes);
-      encryption.protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' });
       expect(() => {
-        encryption.protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' });
+        new FlattenedEncrypter(aes)
+          .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
+          .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' });
       }).toThrow(JweInvalid);
     });
 
     it('should throw JweInvalid when sharedUnprotectedHeader is called twice', () => {
-      const encryption = new FlattenedEncryption(aes);
-      encryption.sharedUnprotectedHeader({ cty: 'application/json' });
       expect(() => {
-        encryption.sharedUnprotectedHeader({ cty: 'text/plain' });
+        new FlattenedEncrypter(aes)
+          .sharedUnprotectedHeader({ cty: 'application/json' })
+          .sharedUnprotectedHeader({ cty: 'text/plain' });
       }).toThrow(JweInvalid);
     });
 
     it('should throw JweInvalid when unprotectedHeader is called twice', () => {
-      const encryption = new FlattenedEncryption(aes);
-      encryption.unprotectedHeader({ kid: 'key-1' });
       expect(() => {
-        encryption.unprotectedHeader({ kid: 'key-2' });
+        new FlattenedEncrypter(aes)
+          .unprotectedHeader({ kid: 'key-1' })
+          .unprotectedHeader({ kid: 'key-2' });
       }).toThrow(JweInvalid);
     });
   });
 
   describe('additionalAuthenticatedData', () => {
     it('should set AAD and return this for chaining', () => {
-      const encryption = new FlattenedEncryption(aes);
       const aad = new TextEncoder().encode('test-aad');
-      const result = encryption.additionalAuthenticatedData(aad);
-      expect(result).toBe(encryption);
+      const result = new FlattenedEncrypter(aes).additionalAuthenticatedData(
+        aad,
+      );
+      expect(result).toBeInstanceOf(FlattenedEncrypter);
     });
   });
 
@@ -366,10 +374,10 @@ describe('FlattenedEncryption', () => {
         curve.getPublicKey(rawPrivateKey, false),
       );
       const aad = new TextEncoder().encode('test-aad');
-      const encryption = new FlattenedEncryption(aes)
+      const jwe = await new FlattenedEncrypter(aes)
         .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
-        .additionalAuthenticatedData(aad);
-      const jwe = await encryption.encrypt(plaintext, jwkPublicKey);
+        .additionalAuthenticatedData(aad)
+        .encrypt(plaintext, jwkPublicKey);
       expect(jwe.aad).toBe(encodeBase64Url(aad));
     });
 
@@ -381,11 +389,11 @@ describe('FlattenedEncryption', () => {
       );
       const unprotectedHeader = { kid: 'unprotected-key-id' };
       const sharedUnprotectedHeader = { cty: 'application/json' };
-      const encryption = new FlattenedEncryption(aes)
+      const jwe = await new FlattenedEncrypter(aes)
         .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
         .unprotectedHeader(unprotectedHeader)
-        .sharedUnprotectedHeader(sharedUnprotectedHeader);
-      const jwe = await encryption.encrypt(plaintext, jwkPublicKey);
+        .sharedUnprotectedHeader(sharedUnprotectedHeader)
+        .encrypt(plaintext, jwkPublicKey);
       expect(jwe.header).toEqual(unprotectedHeader);
       expect(jwe.unprotected).toEqual(sharedUnprotectedHeader);
     });
@@ -396,11 +404,12 @@ describe('FlattenedEncryption', () => {
       const jwkPublicKey = curve.toJwkPublicKey(
         curve.getPublicKey(rawPrivateKey, false),
       );
-      const encryption = new FlattenedEncryption(aes).protectedHeader({
-        alg: 'ECDH-ES',
-        enc: 'A256GCM',
-      });
-      const jwe = await encryption.encrypt(plaintext, jwkPublicKey);
+      const jwe = await new FlattenedEncrypter(aes)
+        .protectedHeader({
+          alg: 'ECDH-ES',
+          enc: 'A256GCM',
+        })
+        .encrypt(plaintext, jwkPublicKey);
       expect(jwe.iv).toBeDefined();
       expect(jwe.tag).toBeDefined();
     });
@@ -415,10 +424,9 @@ describe('FlattenedEncryption', () => {
         alg: 'ECDH-ES',
         enc: 'A256GCM',
       };
-      const encryption = new FlattenedEncryption(aes).protectedHeader(
-        protectedHeader,
-      );
-      const jwe = await encryption.encrypt(plaintext, jwkPublicKey);
+      const jwe = await new FlattenedEncrypter(aes)
+        .protectedHeader(protectedHeader)
+        .encrypt(plaintext, jwkPublicKey);
       expect(jwe.protected).toBeDefined();
       const decodedHeader = JSON.parse(atob(jwe.protected));
       expect(decodedHeader).toMatchObject(protectedHeader);
@@ -439,15 +447,15 @@ describe('FlattenedEncryption', () => {
         curve.getPublicKey(rawPrivateKey, false),
       );
 
-      const encryption = new FlattenedEncryption(aes).protectedHeader({
+      const encrypter = new FlattenedEncrypter(aes).protectedHeader({
         alg: 'ECDH-ES',
         enc: 'A256GCM',
       });
 
       const parameters = { kid: 'test-key', cty: 'text/plain' };
-      encryption.updateProtectedHeader(parameters);
+      encrypter.updateProtectedHeader(parameters);
 
-      const jwe = await encryption.encrypt(plaintext, jwkPublicKey);
+      const jwe = await encrypter.encrypt(plaintext, jwkPublicKey);
       expect(jwe.protected).toBeDefined();
       const decoded = JSON.parse(
         decoder.decode(decodeBase64Url(jwe.protected!)),
@@ -467,12 +475,12 @@ describe('FlattenedEncryption', () => {
         curve.getPublicKey(rawPrivateKey, false),
       );
 
-      const encryption = new FlattenedEncryption(aes);
+      const encrypter = new FlattenedEncrypter(aes);
 
       const parameters = { alg: 'ECDH-ES' as const, enc: 'A256GCM' as const };
-      encryption.updateProtectedHeader(parameters);
+      encrypter.updateProtectedHeader(parameters);
 
-      const jwe = await encryption.encrypt(plaintext, jwkPublicKey);
+      const jwe = await encrypter.encrypt(plaintext, jwkPublicKey);
       expect(jwe.protected).toBeDefined();
       const decoded = JSON.parse(
         decoder.decode(decodeBase64Url(jwe.protected!)),
@@ -490,14 +498,14 @@ describe('FlattenedEncryption', () => {
         curve.getPublicKey(rawPrivateKey, false),
       );
 
-      const encryption = new FlattenedEncryption(aes).protectedHeader({
+      const encrypter = new FlattenedEncrypter(aes).protectedHeader({
         alg: 'ECDH-ES',
         enc: 'A256GCM',
       });
 
-      encryption.updateProtectedHeader(undefined);
+      encrypter.updateProtectedHeader(undefined);
 
-      const jwe = await encryption.encrypt(plaintext, jwkPublicKey);
+      const jwe = await encrypter.encrypt(plaintext, jwkPublicKey);
       expect(jwe.protected).toBeDefined();
       const decoded = JSON.parse(
         decoder.decode(decodeBase64Url(jwe.protected!)),

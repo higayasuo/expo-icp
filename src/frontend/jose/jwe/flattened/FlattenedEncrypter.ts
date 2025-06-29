@@ -8,8 +8,8 @@ import {
   JweHeaderParameters,
   JweKeyManagementHeaderParameters,
   EncryptOptions,
-  FlattenedJwe,
-} from '../types';
+} from '@/jose/jwe/types';
+import { FlattenedJwe } from './types';
 import { JweInvalid } from '@/jose/errors/errors';
 import { AesCipher } from 'aes-universal';
 import { encodeBase64Url, ensureUint8Array, isUint8Array } from 'u8a-utils';
@@ -22,9 +22,9 @@ import { JwkPublicKey, createEcdhCurve } from 'noble-curves-extended';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 
 /**
- * Class representing the Flattened Encryption for JSON Web Encryption (JWE).
+ * Class representing the Flattened Encrypter for JSON Web Encryption (JWE).
  */
-export class FlattenedEncryption {
+export class FlattenedEncrypter {
   #aes: AesCipher;
   #protectedHeader!: JweHeaderParameters | undefined;
   #sharedUnprotectedHeader!: JweHeaderParameters | undefined;
@@ -33,7 +33,7 @@ export class FlattenedEncryption {
   #keyManagementParameters!: JweKeyManagementHeaderParameters;
 
   /**
-   * Creates an instance of FlattenedEncryption.
+   * Creates an instance of FlattenedEncrypter.
    *
    * @param {AesCipher} aes - An instance of AesCipher used for encryption operations.
    */
@@ -58,7 +58,7 @@ export class FlattenedEncryption {
   }
 
   /**
-   * Sets the JWE Protected Header on the FlattenedEncryption object.
+   * Sets the JWE Protected Header.
    *
    * @param protectedHeader JWE Protected Header.
    */
@@ -71,7 +71,7 @@ export class FlattenedEncryption {
   }
 
   /**
-   * Sets the JWE Shared Unprotected Header on the FlattenedEncryption object.
+   * Sets the JWE Shared Unprotected Header.
    *
    * @param sharedUnprotectedHeader JWE Shared Unprotected Header.
    */
@@ -84,7 +84,7 @@ export class FlattenedEncryption {
   }
 
   /**
-   * Sets the JWE Per-Recipient Unprotected Header on the FlattenedEncryption object.
+   * Sets the JWE Per-Recipient Unprotected Header.
    *
    * @param unprotectedHeader JWE Per-Recipient Unprotected Header.
    */
@@ -97,7 +97,7 @@ export class FlattenedEncryption {
   }
 
   /**
-   * Sets the Additional Authenticated Data on the FlattenedEncryption object.
+   * Sets the Additional Authenticated Data.
    *
    * @param aad Additional Authenticated Data.
    */

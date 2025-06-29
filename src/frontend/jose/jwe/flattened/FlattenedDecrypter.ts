@@ -7,7 +7,8 @@
 import { JweInvalid } from '@/jose/errors/errors.js';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 import { validateCrit } from '@/jose/utils/validateCrit';
-import { DecryptOptions, FlattenedDecryptResult, FlattenedJwe } from '../types';
+import { DecryptOptions } from '@/jose/jwe/types';
+import { FlattenedDecryptResult, FlattenedJwe } from './types';
 import { validateFlattenedJwe } from './utils/validateFlattenedJwe';
 import { validateJweAlg } from '@/jose/jwe/utils/validateJweAlg';
 import { validateJweEnc } from '@/jose/jwe/utils/validateJweEnc';
@@ -18,13 +19,30 @@ import { AesCipher } from 'aes-universal';
 import { deriveDecryptionKeyWithMitigation } from './utils/deriveDecryptionKeyWithMitigation';
 import { encodeAesAad } from './utils/encodeAesAad';
 
-export class FlattenedDecryption {
+/**
+ * Class representing the Flattened Decrypter for JSON Web Encryption (JWE).
+ */
+export class FlattenedDecrypter {
   #aes: AesCipher;
 
+  /**
+   * Creates an instance of FlattenedDecrypter.
+   *
+   * @param {AesCipher} aes - An instance of AesCipher used for decryption operations.
+   */
   constructor(aes: AesCipher) {
     this.#aes = aes;
   }
 
+  /**
+   * Decrypts a Flattened JWE.
+   *
+   * @param {FlattenedJwe} jwe - The Flattened JWE object to decrypt.
+   * @param {JwkPrivateKey} myJwkPrivateKey - The JWK private key used for decryption.
+   * @param {DecryptOptions} [options] - Optional decryption options.
+   * @returns {Promise<FlattenedDecryptResult>} A promise that resolves to the decryption result.
+   * @throws {JweInvalid} If any required parameter is missing or invalid, or if decryption fails.
+   */
   async decrypt(
     jwe: FlattenedJwe,
     myJwkPrivateKey: JwkPrivateKey,
