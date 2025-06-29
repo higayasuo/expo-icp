@@ -13,7 +13,8 @@ import {
   JwkPrivateKey,
   RandomBytes,
 } from 'noble-curves-extended';
-import { FlattenedJws, JwsHeaderParameters, SignOptions } from '../types';
+import { JwsHeaderParameters, SignOptions } from '../types';
+import { FlattenedJws } from './types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 import { mergeJwsHeaders } from './utils/mergeJwsHeader';
 import { parseB64 } from './utils/parseB64';

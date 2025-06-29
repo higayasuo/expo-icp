@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { FlattenedSigner } from '../FlattenedSigner';
 import { flattenedVerify } from 'jose';
 import { JwsInvalid } from '@/jose/errors';
@@ -7,13 +7,6 @@ import { randomBytes } from '@noble/hashes/utils';
 import { encodeBase64Url } from 'u8a-utils';
 
 describe('FlattenedSigner', () => {
-  let signer: FlattenedSigner;
-
-  beforeEach(() => {
-    // Use real random bytes from @noble/hashes
-    signer = new FlattenedSigner(randomBytes);
-  });
-
   describe('signing and verification', () => {
     const curves = [
       { name: 'P-256', alg: 'ES256' },
@@ -42,7 +35,7 @@ describe('FlattenedSigner', () => {
           typ: 'JWT',
         };
 
-        const jws = await signer
+        const jws = await new FlattenedSigner(randomBytes)
           .protectedHeader(protectedHeader)
           .sign(payload, privateKey);
 
@@ -65,9 +58,10 @@ describe('FlattenedSigner', () => {
       const protectedHeader = {
         alg: 'ES256',
         b64: true,
+        crit: ['b64'],
       };
 
-      const jws = await signer
+      const jws = await new FlattenedSigner(randomBytes)
         .protectedHeader(protectedHeader)
         .sign(payload, privateKey);
 
@@ -98,7 +92,7 @@ describe('FlattenedSigner', () => {
         crit: ['b64'],
       };
 
-      const jws = await signer
+      const jws = await new FlattenedSigner(randomBytes)
         .protectedHeader(protectedHeader)
         .sign(payload, privateKey);
 
@@ -133,7 +127,7 @@ describe('FlattenedSigner', () => {
         x5t: 'test-thumbprint',
       };
 
-      const jws = await signer
+      const jws = await new FlattenedSigner(randomBytes)
         .protectedHeader(protectedHeader)
         .unprotectedHeader(unprotectedHeader)
         .sign(payload, privateKey);
@@ -158,9 +152,9 @@ describe('FlattenedSigner', () => {
         const rawPrivateKey = signatureCurve.randomPrivateKey();
         const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
 
-        await expect(signer.sign(undefined as any, privateKey)).rejects.toThrow(
-          new JwsInvalid('payload is missing'),
-        );
+        await expect(
+          new FlattenedSigner(randomBytes).sign(undefined as any, privateKey),
+        ).rejects.toThrow(new JwsInvalid('payload is missing'));
       });
 
       it('should throw error for null payload', async () => {
@@ -169,9 +163,9 @@ describe('FlattenedSigner', () => {
         const rawPrivateKey = signatureCurve.randomPrivateKey();
         const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
 
-        await expect(signer.sign(null as any, privateKey)).rejects.toThrow(
-          new JwsInvalid('payload is missing'),
-        );
+        await expect(
+          new FlattenedSigner(randomBytes).sign(null as any, privateKey),
+        ).rejects.toThrow(new JwsInvalid('payload is missing'));
       });
 
       it('should throw error for empty payload', async () => {
@@ -180,9 +174,9 @@ describe('FlattenedSigner', () => {
         const rawPrivateKey = signatureCurve.randomPrivateKey();
         const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
 
-        await expect(signer.sign('' as any, privateKey)).rejects.toThrow(
-          new JwsInvalid('payload must be a Uint8Array'),
-        );
+        await expect(
+          new FlattenedSigner(randomBytes).sign('' as any, privateKey),
+        ).rejects.toThrow(new JwsInvalid('payload must be a Uint8Array'));
       });
 
       it('should throw error for non-Uint8Array payload', async () => {
@@ -192,7 +186,10 @@ describe('FlattenedSigner', () => {
         const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
 
         await expect(
-          signer.sign('not a Uint8Array' as any, privateKey),
+          new FlattenedSigner(randomBytes).sign(
+            'not a Uint8Array' as any,
+            privateKey,
+          ),
         ).rejects.toThrow(new JwsInvalid('payload must be a Uint8Array'));
       });
 
@@ -202,9 +199,9 @@ describe('FlattenedSigner', () => {
         const rawPrivateKey = signatureCurve.randomPrivateKey();
         const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
 
-        await expect(signer.sign([1, 2, 3] as any, privateKey)).rejects.toThrow(
-          new JwsInvalid('payload must be a Uint8Array'),
-        );
+        await expect(
+          new FlattenedSigner(randomBytes).sign([1, 2, 3] as any, privateKey),
+        ).rejects.toThrow(new JwsInvalid('payload must be a Uint8Array'));
       });
     });
 
@@ -214,9 +211,9 @@ describe('FlattenedSigner', () => {
           new TextEncoder().encode('Test payload'),
         );
 
-        await expect(signer.sign(payload, undefined as any)).rejects.toThrow(
-          new JwsInvalid('jwkPrivateKey is missing'),
-        );
+        await expect(
+          new FlattenedSigner(randomBytes).sign(payload, undefined as any),
+        ).rejects.toThrow(new JwsInvalid('jwkPrivateKey is missing'));
       });
 
       it('should throw error for null private key', async () => {
@@ -224,9 +221,9 @@ describe('FlattenedSigner', () => {
           new TextEncoder().encode('Test payload'),
         );
 
-        await expect(signer.sign(payload, null as any)).rejects.toThrow(
-          new JwsInvalid('jwkPrivateKey is missing'),
-        );
+        await expect(
+          new FlattenedSigner(randomBytes).sign(payload, null as any),
+        ).rejects.toThrow(new JwsInvalid('jwkPrivateKey is missing'));
       });
 
       it('should throw error for non-object private key', async () => {
@@ -235,7 +232,10 @@ describe('FlattenedSigner', () => {
         );
 
         await expect(
-          signer.sign(payload, 'not an object' as any),
+          new FlattenedSigner(randomBytes).sign(
+            payload,
+            'not an object' as any,
+          ),
         ).rejects.toThrow(
           new JwsInvalid('jwkPrivateKey must be a plain object'),
         );
@@ -246,7 +246,9 @@ describe('FlattenedSigner', () => {
           new TextEncoder().encode('Test payload'),
         );
 
-        await expect(signer.sign(payload, [] as any)).rejects.toThrow(
+        await expect(
+          new FlattenedSigner(randomBytes).sign(payload, [] as any),
+        ).rejects.toThrow(
           new JwsInvalid('jwkPrivateKey must be a plain object'),
         );
       });
@@ -263,7 +265,10 @@ describe('FlattenedSigner', () => {
         };
 
         await expect(
-          signer.sign(payload, invalidPrivateKey as any),
+          new FlattenedSigner(randomBytes).sign(
+            payload,
+            invalidPrivateKey as any,
+          ),
         ).rejects.toThrow(new JwsInvalid('jwkPrivateKey.crv is missing'));
       });
 
@@ -280,7 +285,10 @@ describe('FlattenedSigner', () => {
         };
 
         await expect(
-          signer.sign(payload, invalidPrivateKey as any),
+          new FlattenedSigner(randomBytes).sign(
+            payload,
+            invalidPrivateKey as any,
+          ),
         ).rejects.toThrow(new JwsInvalid('jwkPrivateKey.crv is missing'));
       });
 
@@ -297,7 +305,10 @@ describe('FlattenedSigner', () => {
         };
 
         await expect(
-          signer.sign(payload, invalidPrivateKey as any),
+          new FlattenedSigner(randomBytes).sign(
+            payload,
+            invalidPrivateKey as any,
+          ),
         ).rejects.toThrow(new JwsInvalid('jwkPrivateKey.crv is missing'));
       });
     });
@@ -306,20 +317,22 @@ describe('FlattenedSigner', () => {
   describe('header validation', () => {
     it('should throw error when protectedHeader is called twice', () => {
       const header = { alg: 'ES256' };
-      signer.protectedHeader(header);
 
-      expect(() => signer.protectedHeader(header)).toThrow(
-        new JwsInvalid('protectedHeader can only be called once'),
-      );
+      expect(() =>
+        new FlattenedSigner(randomBytes)
+          .protectedHeader(header)
+          .protectedHeader(header),
+      ).toThrow(new JwsInvalid('protectedHeader can only be called once'));
     });
 
     it('should throw error when unprotectedHeader is called twice', () => {
       const header = { kid: 'test' };
-      signer.unprotectedHeader(header);
 
-      expect(() => signer.unprotectedHeader(header)).toThrow(
-        new JwsInvalid('unprotectedHeader can only be called once'),
-      );
+      expect(() =>
+        new FlattenedSigner(randomBytes)
+          .unprotectedHeader(header)
+          .unprotectedHeader(header),
+      ).toThrow(new JwsInvalid('unprotectedHeader can only be called once'));
     });
   });
 });
