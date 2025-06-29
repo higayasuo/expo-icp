@@ -1,5 +1,5 @@
 import { RandomBytes, JwkPublicKey } from 'noble-curves-extended';
-import { FlattenedJws } from './types';
+import { FlattenedJwsInput } from './types';
 import { VerifyOptions } from '@/jose/jws/types';
 import { JwsInvalid } from '@/jose/errors';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
@@ -12,7 +12,7 @@ export class FlattenedVerifier {
   }
 
   verify(
-    jws: FlattenedJws,
+    jws: FlattenedJwsInput,
     jwkPublicKey: JwkPublicKey,
     options?: VerifyOptions,
   ) {

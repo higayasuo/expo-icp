@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseJweProtected } from '../parseJweProtected';
-import { JweInvalid } from '@/jose/errors/errors';
+import { JweInvalid, JoseInvalid } from '@/jose/errors/errors';
 import { encodeBase64Url } from 'u8a-utils';
 
 describe('parseJweProtected', () => {
@@ -16,33 +16,47 @@ describe('parseJweProtected', () => {
   });
 
   it('should throw JweInvalid for invalid base64url', () => {
-    expect(() => parseJweProtected('invalid')).toThrow(JweInvalid);
+    expect(() => parseJweProtected('invalid')).toThrow(
+      new JweInvalid('JWE Protected Header is invalid'),
+    );
   });
 
   it('should throw JweInvalid for invalid JSON', () => {
     const b64u = encodeBase64Url(new TextEncoder().encode('invalid json'));
-    expect(() => parseJweProtected(b64u)).toThrow(JweInvalid);
+    expect(() => parseJweProtected(b64u)).toThrow(
+      new JweInvalid('JWE Protected Header is invalid'),
+    );
   });
 
   it('should throw JweInvalid for array JSON', () => {
     const b64u = encodeBase64Url(new TextEncoder().encode('[]'));
-    expect(() => parseJweProtected(b64u)).toThrow(JweInvalid);
+    expect(() => parseJweProtected(b64u)).toThrow(
+      new JweInvalid('JWE Protected Header is invalid'),
+    );
   });
 
   it('should throw JweInvalid for null JSON', () => {
     const b64u = encodeBase64Url(new TextEncoder().encode('null'));
-    expect(() => parseJweProtected(b64u)).toThrow(JweInvalid);
+    expect(() => parseJweProtected(b64u)).toThrow(
+      new JweInvalid('JWE Protected Header is invalid'),
+    );
   });
 
-  it('should throw JweInvalid for undefined input', () => {
-    expect(() => parseJweProtected(undefined)).toThrow(JweInvalid);
+  it('should throw JoseInvalid for undefined input', () => {
+    expect(() => parseJweProtected(undefined)).toThrow(
+      new JoseInvalid('"JWE Protected Header" is missing'),
+    );
   });
 
-  it('should throw JweInvalid for null input', () => {
-    expect(() => parseJweProtected(null)).toThrow(JweInvalid);
+  it('should throw JoseInvalid for null input', () => {
+    expect(() => parseJweProtected(null)).toThrow(
+      new JoseInvalid('"JWE Protected Header" is missing'),
+    );
   });
 
-  it('should throw JweInvalid for non-string input', () => {
-    expect(() => parseJweProtected(123)).toThrow(JweInvalid);
+  it('should throw JoseInvalid for non-string input', () => {
+    expect(() => parseJweProtected(123)).toThrow(
+      new JoseInvalid('"JWE Protected Header" must be a string'),
+    );
   });
 });
