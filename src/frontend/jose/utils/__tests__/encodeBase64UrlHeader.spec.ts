@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { buildBase64UrlJweHeader } from '../buildBase64UrlJweHeader';
+import { encodeBase64UrlHeader } from '../encodeBase64UrlHeader';
 import { decodeBase64Url } from 'u8a-utils';
 
 const decoder = new TextDecoder();
 
-describe('buildBase64UrlJweHeader', () => {
+describe('encodeBase64UrlHeader', () => {
   it('should return empty string when header is undefined', () => {
-    const result = buildBase64UrlJweHeader(undefined);
+    const result = encodeBase64UrlHeader(undefined);
     expect(result).toBe('');
   });
 
   it('should return empty string when header is empty object', () => {
-    const result = buildBase64UrlJweHeader({});
+    const result = encodeBase64UrlHeader({});
     const decoded = JSON.parse(decoder.decode(decodeBase64Url(result)));
     expect(decoded).toEqual({});
   });
@@ -21,7 +21,7 @@ describe('buildBase64UrlJweHeader', () => {
       alg: 'ECDH-ES',
       enc: 'A256GCM',
     };
-    const result = buildBase64UrlJweHeader(header);
+    const result = encodeBase64UrlHeader(header);
     const decoded = JSON.parse(decoder.decode(decodeBase64Url(result)));
     expect(decoded).toEqual(header);
   });
@@ -37,7 +37,7 @@ describe('buildBase64UrlJweHeader', () => {
         y: 'test-y',
       },
     };
-    const result = buildBase64UrlJweHeader(header);
+    const result = encodeBase64UrlHeader(header);
     const decoded = JSON.parse(decoder.decode(decodeBase64Url(result)));
     expect(decoded).toEqual(header);
   });

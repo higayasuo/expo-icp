@@ -2,8 +2,8 @@
  * Encrypting JSON Web Encryption (JWE) in Flattened JSON Serialization
  */
 
-import { deriveEncryptionKey } from '../key-management/deriveEncryptionKey';
-import { validateCrit } from '../../utils/validateCrit';
+import { deriveEncryptionKey } from '@/jose/jwe/key-management/deriveEncryptionKey';
+import { validateCrit } from '@/jose/utils/validateCrit';
 import {
   JweHeaderParameters,
   JweKeyManagementHeaderParameters,
@@ -13,11 +13,11 @@ import {
 import { JweInvalid } from '@/jose/errors/errors';
 import { AesCipher } from 'aes-universal';
 import { encodeBase64Url, ensureUint8Array, isUint8Array } from 'u8a-utils';
-import { validateJweAlg } from '../utils/validateJweAlg';
-import { validateJweEnc } from '../utils/validateJweEnc';
+import { validateJweAlg } from '@/jose/jwe/utils/validateJweAlg';
+import { validateJweEnc } from '@/jose/jwe/utils/validateJweEnc';
 import { mergeJweHeaders } from './utils/mergeJweHeaders';
-import { buildBase64UrlJweHeader } from './utils/buildBase64UrlJweHeader';
-import { buildAesAad } from './utils/buildAesAad';
+import { encodeBase64UrlHeader } from '@/jose/utils/encodeBase64UrlHeader';
+import { encodeAesAad } from './utils/encodeAesAad';
 import { JwkPublicKey, createEcdhCurve } from 'noble-curves-extended';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 
@@ -166,11 +166,9 @@ export class FlattenedEncryption {
       });
 
       this.updateProtectedHeader(parameters);
-      const protectedHeaderB64U = buildBase64UrlJweHeader(
-        this.#protectedHeader,
-      );
+      const protectedHeaderB64U = encodeBase64UrlHeader(this.#protectedHeader);
       const aadB64U = this.#aad ? encodeBase64Url(this.#aad) : undefined;
-      const aad = buildAesAad(protectedHeaderB64U, aadB64U);
+      const aad = encodeAesAad(protectedHeaderB64U, aadB64U);
 
       const { ciphertext, tag, iv } = await this.#aes.encrypt({
         enc,

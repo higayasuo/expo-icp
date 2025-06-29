@@ -7,7 +7,7 @@ import { createEcdhCurve } from 'noble-curves-extended';
 import { JweInvalid } from '@/jose/errors/errors';
 import { FlattenedJwe } from '../../types';
 import { parseJweProtected } from '../utils/parseJweProtected';
-import { buildBase64UrlJweHeader } from '../utils/buildBase64UrlJweHeader';
+import { buildBase64UrlJweHeader } from '../../../utils/encodeBase64UrlHeader';
 
 const { getRandomBytes } = webCryptoModule;
 const p256 = createEcdhCurve('P-256', getRandomBytes);

@@ -5,15 +5,25 @@
  */
 
 import { encodeBase64Url, isUint8Array } from 'u8a-utils';
-import { areDisjoint } from '@/jose/utils/areDisjoint';
+
 import { JweInvalid, JwsInvalid } from '@/jose/errors/errors';
 import { validateCrit } from '@/jose/utils/validateCrit';
-import { JwkPrivateKey, RandomBytes } from 'noble-curves-extended';
+import {
+  createSignatureCurve,
+  JwkPrivateKey,
+  RandomBytes,
+} from 'noble-curves-extended';
 import { FlattenedJws, JwsHeaderParameters, SignOptions } from '../types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
 import { mergeJwsHeaders } from './utils/mergeJwsHeader';
 import { parseB64 } from './utils/parseB64';
+import { validateJwsAlg } from '@/jose/jws/utils/validateJwsAlg';
+import { encodeSignTarget } from './utils/encodeSignTarget';
+import { getErrorMessage } from '@/jose/utils/getErrorMessage';
 
+/**
+ * Class representing a signer for JSON Web Signatures (JWS) in Flattened JSON Serialization.
+ */
 export class FlattenedSigner {
   #randomBytes: RandomBytes;
 
@@ -21,10 +31,22 @@ export class FlattenedSigner {
 
   #unprotectedHeader: JwsHeaderParameters | undefined;
 
+  /**
+   * Creates an instance of FlattenedSigner.
+   *
+   * @param {RandomBytes} randomBytes - A function to generate random bytes.
+   */
   constructor(randomBytes: RandomBytes) {
     this.#randomBytes = randomBytes;
   }
 
+  /**
+   * Sets the protected header for the JWS.
+   *
+   * @param {JwsHeaderParameters} protectedHeader - The protected header parameters.
+   * @returns {this} The current instance for method chaining.
+   * @throws {JwsInvalid} If the protected header is already set.
+   */
   protectedHeader = (protectedHeader: JwsHeaderParameters): this => {
     if (this.#protectedHeader) {
       throw new JwsInvalid('protectedHeader can only be called once');
@@ -35,6 +57,13 @@ export class FlattenedSigner {
     return this;
   };
 
+  /**
+   * Sets the unprotected header for the JWS.
+   *
+   * @param {JwsHeaderParameters} unprotectedHeader - The unprotected header parameters.
+   * @returns {this} The current instance for method chaining.
+   * @throws {JwsInvalid} If the unprotected header is already set.
+   */
   unprotectedHeader = (unprotectedHeader: JwsHeaderParameters): this => {
     if (this.#unprotectedHeader) {
       throw new JwsInvalid('unprotectedHeader can only be called once');
@@ -45,12 +74,21 @@ export class FlattenedSigner {
     return this;
   };
 
+  /**
+   * Signs the provided payload using the given JWK private key.
+   *
+   * @param {Uint8Array} payload - The payload to sign.
+   * @param {JwkPrivateKey} jwkPrivateKey - The JWK private key for signing.
+   * @param {SignOptions} [options] - Optional signing options.
+   * @returns {Promise<FlattenedJws>} A promise that resolves to the signed JWS.
+   * @throws {JwsInvalid} If any required parameter is missing or invalid.
+   */
   sign = async (
     payload: Uint8Array,
     jwkPrivateKey: JwkPrivateKey,
     options?: SignOptions,
   ): Promise<FlattenedJws> => {
-    if (!payload) {
+    if (payload == null) {
       throw new JwsInvalid('payload is missing');
     }
 
@@ -58,7 +96,7 @@ export class FlattenedSigner {
       throw new JwsInvalid('payload must be a Uint8Array');
     }
 
-    if (!jwkPrivateKey) {
+    if (jwkPrivateKey == null) {
       throw new JwsInvalid('jwkPrivateKey is missing');
     }
 
@@ -70,67 +108,58 @@ export class FlattenedSigner {
       throw new JwsInvalid('jwkPrivateKey.crv is missing');
     }
 
-    const joseHeader = mergeJwsHeaders({
-      protectedHeader: this.#protectedHeader,
-      unprotectedHeader: this.#unprotectedHeader,
-    });
-
-    const criticalParamNames = validateCrit({
-      Err: JweInvalid,
-      recognizedDefault: { b64: true },
-      recognizedOption: options?.crit,
-      protectedHeader: this.#protectedHeader,
-      joseHeader,
-    });
-
-    const b64 = parseB64(this.#protectedHeader?.b64, criticalParamNames);
-
-    const { alg } = joseHeader;
-
-    if (typeof alg !== 'string' || !alg) {
-      throw new JWSInvalid(
-        'JWS "alg" (Algorithm) Header Parameter missing or invalid',
+    try {
+      const signatureCurve = createSignatureCurve(
+        jwkPrivateKey.crv,
+        this.#randomBytes,
       );
-    }
+      const privateKey = signatureCurve.toRawPrivateKey(jwkPrivateKey);
 
-    checkKeyType(alg, key, 'sign');
+      const joseHeader = mergeJwsHeaders({
+        protectedHeader: this.#protectedHeader,
+        unprotectedHeader: this.#unprotectedHeader,
+      });
 
-    //let payload = this.#payload;
-    if (b64) {
-      payload = encoder.encode(b64u(payload));
-    }
+      const criticalParamNames = validateCrit({
+        Err: JweInvalid,
+        recognizedDefault: { b64: true },
+        recognizedOption: options?.crit,
+        protectedHeader: this.#protectedHeader,
+        joseHeader,
+      });
 
-    let protectedHeader: Uint8Array;
-    if (this.#protectedHeader) {
-      protectedHeader = encoder.encode(
-        b64u(JSON.stringify(this.#protectedHeader)),
+      const b64 = parseB64(this.#protectedHeader?.b64, criticalParamNames);
+      validateJwsAlg(
+        this.#protectedHeader?.alg,
+        signatureCurve.signatureAlgorithmName,
       );
-    } else {
-      protectedHeader = encoder.encode('');
+      const { signTarget, protectedHeaderB64U, payloadB64U } = encodeSignTarget(
+        {
+          protectedHeader: this.#protectedHeader,
+          payload,
+          b64,
+        },
+      );
+
+      const signature = signatureCurve.sign({
+        privateKey,
+        message: signTarget,
+      });
+
+      const jws: FlattenedJws = {
+        signature: encodeBase64Url(signature),
+        protected: protectedHeaderB64U,
+        payload: payloadB64U,
+      };
+
+      if (this.#unprotectedHeader) {
+        jws.header = this.#unprotectedHeader;
+      }
+
+      return jws;
+    } catch (error) {
+      console.log(getErrorMessage(error));
+      throw new JwsInvalid('Failed to sign payload');
     }
-
-    const data = concat(protectedHeader, encoder.encode('.'), payload);
-
-    const k = await normalizeKey(key, alg);
-    const signature = await sign(alg, k, data);
-
-    const jws: types.FlattenedJWS = {
-      signature: b64u(signature),
-      payload: '',
-    };
-
-    if (b64) {
-      jws.payload = decoder.decode(payload);
-    }
-
-    if (this.#unprotectedHeader) {
-      jws.header = this.#unprotectedHeader;
-    }
-
-    if (this.#protectedHeader) {
-      jws.protected = decoder.decode(protectedHeader);
-    }
-
-    return jws;
   };
 }

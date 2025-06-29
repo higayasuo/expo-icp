@@ -9,19 +9,14 @@ import { isPlainObject } from '@/jose/utils/isPlainObject';
 import { validateCrit } from '@/jose/utils/validateCrit';
 import { DecryptOptions, FlattenedDecryptResult, FlattenedJwe } from '../types';
 import { validateFlattenedJwe } from './utils/validateFlattenedJwe';
-import { validateJweAlg } from '../utils/validateJweAlg';
-import { validateJweEnc } from '../utils/validateJweEnc';
+import { validateJweAlg } from '@/jose/jwe/utils/validateJweAlg';
+import { validateJweEnc } from '@/jose/jwe/utils/validateJweEnc';
 import { checkJweAlgAllowed } from './utils/checkJweAlgAllowed';
 import { checkJweEncAllowed } from './utils/checkJweEncAllowed';
-import {
-  createEcdhCurve,
-  EcdhCurve,
-  JwkPrivateKey,
-} from 'noble-curves-extended';
+import { createEcdhCurve, JwkPrivateKey } from 'noble-curves-extended';
 import { AesCipher } from 'aes-universal';
-import { isUint8Array } from 'u8a-utils';
 import { deriveDecryptionKeyWithMitigation } from './utils/deriveDecryptionKeyWithMitigation';
-import { buildAesAad } from './utils/buildAesAad';
+import { encodeAesAad } from './utils/encodeAesAad';
 
 export class FlattenedDecryption {
   #aes: AesCipher;
@@ -94,7 +89,7 @@ export class FlattenedDecryption {
         protectedHeader: parsedProtected,
       });
 
-      const aesAad = buildAesAad(jwe.protected, jwe.aad);
+      const aesAad = encodeAesAad(jwe.protected, jwe.aad);
 
       const plaintext = await this.#aes.decrypt({
         enc,
