@@ -43,7 +43,9 @@ export const encodeSignTarget = ({
     const payloadB64U = encodeBase64Url(payload);
 
     return {
-      signTarget: encoder.encode(`${protectedHeaderB64U}.${payloadB64U}`),
+      signTarget: Uint8Array.from(
+        encoder.encode(`${protectedHeaderB64U}.${payloadB64U}`),
+      ),
       protectedHeaderB64U,
       payloadB64U,
     };

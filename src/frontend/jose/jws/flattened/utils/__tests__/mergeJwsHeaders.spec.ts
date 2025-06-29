@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mergeJwsHeaders } from '../mergeJwsHeader';
+import { mergeJwsHeaders } from '../mergeJwsHeaders';
 import { JwsInvalid } from '@/jose/errors/errors';
 import { JwsHeaderParameters } from '@/jose/jws/types';
 

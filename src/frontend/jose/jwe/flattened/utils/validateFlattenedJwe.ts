@@ -7,7 +7,7 @@ import {
   decodeOptionalBase64Url,
   decodeRequiredBase64Url,
 } from '@/jose/utils/decodeBase64Url';
-import { parseJweProtected } from './parseJweProtected';
+import { parseBase64UrlHeader } from '@/jose/utils/parseBase64UrlHeader';
 
 /**
  * Represents the validated components of a Flattened JWE structure
@@ -79,7 +79,10 @@ export const validateFlattenedJwe = (
     throw new JweInvalid('JWE Shared Unprotected Header is invalid');
   }
 
-  const parsedProtected = parseJweProtected(jwe.protected);
+  const parsedProtected = parseBase64UrlHeader<JweHeaderParameters>(
+    jwe.protected,
+    'JWE Protected Header',
+  );
 
   const joseHeader = mergeJweHeaders({
     protectedHeader: parsedProtected,

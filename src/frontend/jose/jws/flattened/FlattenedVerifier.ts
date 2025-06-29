@@ -1,8 +1,16 @@
-import { RandomBytes, JwkPublicKey } from 'noble-curves-extended';
+import {
+  RandomBytes,
+  JwkPublicKey,
+  createSignatureCurve,
+} from 'noble-curves-extended';
 import { FlattenedJwsInput } from './types';
 import { VerifyOptions } from '@/jose/jws/types';
 import { JwsInvalid } from '@/jose/errors';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
+import { validateFlattenedJws } from './utils/validateFlattenedJws';
+import { validateCrit } from '@/jose/utils/validateCrit';
+import { parseB64 } from './utils/parseB64';
+import { validateJwsAlg } from '../utils/validateJwsAlg';
 
 export class FlattenedVerifier {
   #randomBytes: RandomBytes;
@@ -36,103 +44,123 @@ export class FlattenedVerifier {
       throw new JwsInvalid('jwkPublicKey.crv is missing');
     }
 
-    if (jws.protected === undefined && jws.header === undefined) {
-      throw new JWSInvalid(
-        'Flattened JWS must have either of the "protected" or "header" members',
-      );
-    }
-
-    if (jws.protected !== undefined && typeof jws.protected !== 'string') {
-      throw new JWSInvalid('JWS Protected Header incorrect type');
-    }
-
-    if (jws.payload === undefined) {
-      throw new JWSInvalid('JWS Payload missing');
-    }
-
-    if (typeof jws.signature !== 'string') {
-      throw new JWSInvalid('JWS Signature missing or incorrect type');
-    }
-
-    if (jws.header !== undefined && !isObject(jws.header)) {
-      throw new JWSInvalid('JWS Unprotected Header incorrect type');
-    }
-
-    let parsedProt: types.JWSHeaderParameters = {};
-    if (jws.protected) {
-      try {
-        const protectedHeader = b64u(jws.protected);
-        parsedProt = JSON.parse(decoder.decode(protectedHeader));
-      } catch {
-        throw new JWSInvalid('JWS Protected Header is invalid');
-      }
-    }
-    if (!isDisjoint(parsedProt, jws.header)) {
-      throw new JWSInvalid(
-        'JWS Protected and JWS Unprotected Header Parameter names must be disjoint',
-      );
-    }
-
-    const joseHeader: types.JWSHeaderParameters = {
-      ...parsedProt,
-      ...jws.header,
-    };
-
-    const extensions = validateCrit(
-      JWSInvalid,
-      new Map([['b64', true]]),
-      options?.crit,
-      parsedProt,
-      joseHeader,
+    const signatureCurve = createSignatureCurve(
+      jwkPublicKey.crv,
+      this.#randomBytes,
     );
+    const publidKey = signatureCurve.toRawPublicKey(jwkPublicKey);
 
-    let b64 = true;
-    if (extensions.has('b64')) {
-      b64 = parsedProt.b64!;
-      if (typeof b64 !== 'boolean') {
-        throw new JWSInvalid(
-          'The "b64" (base64url-encode payload) Header Parameter must be a boolean',
-        );
-      }
-    }
+    const { signature, joseHeader, parsedProtected } =
+      validateFlattenedJws(jws);
 
-    const { alg } = joseHeader;
+    const criticalParamNames = validateCrit({
+      Err: JwsInvalid,
+      recognizedDefault: { b64: true },
+      recognizedOption: options?.crit,
+      protectedHeader: parsedProtected,
+      joseHeader,
+    });
 
-    if (typeof alg !== 'string' || !alg) {
-      throw new JWSInvalid(
-        'JWS "alg" (Algorithm) Header Parameter missing or invalid',
-      );
-    }
+    const b64 = parseB64(parsedProtected.b64, criticalParamNames);
+    validateJwsAlg(parsedProtected.alg, signatureCurve.signatureAlgorithmName);
 
-    const algorithms =
-      options && validateAlgorithms('algorithms', options.algorithms);
+    // if (jws.protected === undefined && jws.header === undefined) {
+    //   throw new JWSInvalid(
+    //     'Flattened JWS must have either of the "protected" or "header" members',
+    //   );
+    // }
 
-    if (algorithms && !algorithms.has(alg)) {
-      throw new JOSEAlgNotAllowed(
-        '"alg" (Algorithm) Header Parameter value not allowed',
-      );
-    }
+    // if (jws.protected !== undefined && typeof jws.protected !== 'string') {
+    //   throw new JWSInvalid('JWS Protected Header incorrect type');
+    // }
 
-    if (b64) {
-      if (typeof jws.payload !== 'string') {
-        throw new JWSInvalid('JWS Payload must be a string');
-      }
-    } else if (
-      typeof jws.payload !== 'string' &&
-      !(jws.payload instanceof Uint8Array)
-    ) {
-      throw new JWSInvalid(
-        'JWS Payload must be a string or an Uint8Array instance',
-      );
-    }
+    // if (jws.payload === undefined) {
+    //   throw new JWSInvalid('JWS Payload missing');
+    // }
 
-    let resolvedKey = false;
-    if (typeof key === 'function') {
-      key = await key(parsedProt, jws);
-      resolvedKey = true;
-    }
+    // if (typeof jws.signature !== 'string') {
+    //   throw new JWSInvalid('JWS Signature missing or incorrect type');
+    // }
 
-    checkKeyType(alg, key, 'verify');
+    // if (jws.header !== undefined && !isObject(jws.header)) {
+    //   throw new JWSInvalid('JWS Unprotected Header incorrect type');
+    // }
+
+    // let parsedProt: types.JWSHeaderParameters = {};
+    // if (jws.protected) {
+    //   try {
+    //     const protectedHeader = b64u(jws.protected);
+    //     parsedProt = JSON.parse(decoder.decode(protectedHeader));
+    //   } catch {
+    //     throw new JWSInvalid('JWS Protected Header is invalid');
+    //   }
+    // }
+    // if (!isDisjoint(parsedProt, jws.header)) {
+    //   throw new JWSInvalid(
+    //     'JWS Protected and JWS Unprotected Header Parameter names must be disjoint',
+    //   );
+    // }
+
+    // const joseHeader: types.JWSHeaderParameters = {
+    //   ...parsedProt,
+    //   ...jws.header,
+    // };
+
+    // const extensions = validateCrit(
+    //   JWSInvalid,
+    //   new Map([['b64', true]]),
+    //   options?.crit,
+    //   parsedProt,
+    //   joseHeader,
+    // );
+
+    // let b64 = true;
+    // if (extensions.has('b64')) {
+    //   b64 = parsedProt.b64!;
+    //   if (typeof b64 !== 'boolean') {
+    //     throw new JWSInvalid(
+    //       'The "b64" (base64url-encode payload) Header Parameter must be a boolean',
+    //     );
+    //   }
+    // }
+
+    // const { alg } = joseHeader;
+
+    // if (typeof alg !== 'string' || !alg) {
+    //   throw new JWSInvalid(
+    //     'JWS "alg" (Algorithm) Header Parameter missing or invalid',
+    //   );
+    // }
+
+    // const algorithms =
+    //   options && validateAlgorithms('algorithms', options.algorithms);
+
+    // if (algorithms && !algorithms.has(alg)) {
+    //   throw new JOSEAlgNotAllowed(
+    //     '"alg" (Algorithm) Header Parameter value not allowed',
+    //   );
+    // }
+
+    // if (b64) {
+    //   if (typeof jws.payload !== 'string') {
+    //     throw new JWSInvalid('JWS Payload must be a string');
+    //   }
+    // } else if (
+    //   typeof jws.payload !== 'string' &&
+    //   !(jws.payload instanceof Uint8Array)
+    // ) {
+    //   throw new JWSInvalid(
+    //     'JWS Payload must be a string or an Uint8Array instance',
+    //   );
+    // }
+
+    // let resolvedKey = false;
+    // if (typeof key === 'function') {
+    //   key = await key(parsedProt, jws);
+    //   resolvedKey = true;
+    // }
+
+    // checkKeyType(alg, key, 'verify');
 
     const data = concat(
       encoder.encode(jws.protected ?? ''),

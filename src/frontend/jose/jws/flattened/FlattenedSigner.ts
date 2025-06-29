@@ -16,7 +16,7 @@ import {
 import { JwsHeaderParameters, SignOptions } from '../types';
 import { FlattenedJws } from './types';
 import { isPlainObject } from '@/jose/utils/isPlainObject';
-import { mergeJwsHeaders } from './utils/mergeJwsHeader';
+import { mergeJwsHeaders } from './utils/mergeJwsHeaders';
 import { parseB64 } from './utils/parseB64';
 import { validateJwsAlg } from '@/jose/jws/utils/validateJwsAlg';
 import { encodeSignTarget } from './utils/encodeSignTarget';

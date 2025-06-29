@@ -1,98 +1,70 @@
 import { isPlainObject } from '@/jose/utils/isPlainObject';
-import { JweHeaderParameters } from '@/jose/jwe/types';
-import { FlattenedJwe } from '@/jose/jwe/flattened/types';
+import { JwsHeaderParameters } from '@/jose/jws/types';
+import { FlattenedJwsInput } from '../types';
 import { JwsInvalid } from '@/jose/errors/errors';
 import { mergeJwsHeaders } from './mergeJwsHeaders';
-import {
-  decodeOptionalBase64Url,
-  decodeRequiredBase64Url,
-} from '@/jose/utils/decodeBase64Url';
-import { parseJweProtected } from './parseJweProtected';
+import { decodeRequiredBase64Url } from '@/jose/utils/decodeBase64Url';
+import { parseBase64UrlHeader } from '@/jose/utils/parseBase64UrlHeader';
+import { isUint8Array } from 'u8a-utils';
 
 /**
- * Represents the validated components of a Flattened JWE structure
+ * Represents the validated components of a Flattened JWS structure
  */
-type ValidateFlattenedJweResult = {
-  /** Initialization Vector as Uint8Array */
-  iv: Uint8Array;
-  /** Ciphertext as Uint8Array */
-  ciphertext: Uint8Array;
-  /** Authentication Tag as Uint8Array */
-  tag: Uint8Array;
-  /** Optional Encrypted Key as Uint8Array */
-  encryptedKey: Uint8Array | undefined;
-  /** Optional Additional Authenticated Data as Uint8Array */
-  aad: Uint8Array | undefined;
+type ValidateFlattenedJwsResult = {
+  /** Signature as Uint8Array */
+  signature: Uint8Array;
   /** Combined JOSE header parameters */
-  joseHeader: JweHeaderParameters;
+  joseHeader: JwsHeaderParameters;
   /** Parsed protected header parameters */
-  parsedProtected: JweHeaderParameters;
+  parsedProtected: JwsHeaderParameters;
 };
 
 /**
- * Validates and decodes a Flattened JWE structure
- * @param {FlattenedJwe} jwe - The Flattened JWE object to validate
- * @returns {ValidateFlattenedJweResult} - The validated and decoded JWE components
- * @throws {JweInvalid} - If the JWE structure is invalid
+ * Validates and decodes a Flattened JWS structure
+ * @param jws - The Flattened JWS object to validate
+ * @returns {ValidateFlattenedJwsResult} - The validated and decoded JWS components
+ * @throws {JwsInvalid} - If the JWS structure is invalid
  */
-export const validateFlattenedJwe = (
-  jwe: FlattenedJwe,
-): ValidateFlattenedJweResult => {
-  if (jwe == null) {
-    throw new JweInvalid('Flattened JWE is missing');
+export const validateFlattenedJws = (
+  jws: FlattenedJwsInput,
+): ValidateFlattenedJwsResult => {
+  if (jws == null) {
+    throw new JwsInvalid('Flattened JWS is missing');
   }
 
-  if (!isPlainObject(jwe)) {
-    throw new JweInvalid('Flattened JWE must be a plain object');
+  if (!isPlainObject(jws)) {
+    throw new JwsInvalid('Flattened JWS must be a plain object');
   }
 
-  const iv = decodeRequiredBase64Url({
-    b64u: jwe.iv,
-    label: 'JWE Initialization Vector',
+  const signature = decodeRequiredBase64Url({
+    b64u: jws.signature,
+    label: 'JWS Signature',
   });
 
-  const ciphertext = decodeRequiredBase64Url({
-    b64u: jwe.ciphertext,
-    label: 'JWE Ciphertext',
-  });
-
-  const tag = decodeRequiredBase64Url({
-    b64u: jwe.tag,
-    label: 'JWE Authentication Tag',
-  });
-
-  const encryptedKey = decodeOptionalBase64Url({
-    b64u: jwe.encrypted_key,
-    label: 'JWE Encrypted Key',
-  });
-
-  const aad = decodeOptionalBase64Url({
-    b64u: jwe.aad,
-    label: 'JWE Additional Authenticated Data',
-  });
-
-  if (jwe.header !== undefined && !isPlainObject(jwe.header)) {
-    throw new JweInvalid('JWE Per-Recipient Unprotected Header is invalid');
+  if (jws.header !== undefined && !isPlainObject(jws.header)) {
+    throw new JwsInvalid('JWS Unprotected Header is invalid');
   }
 
-  if (jwe.unprotected !== undefined && !isPlainObject(jwe.unprotected)) {
-    throw new JweInvalid('JWE Shared Unprotected Header is invalid');
-  }
+  const parsedProtected = parseBase64UrlHeader<JwsHeaderParameters>(
+    jws.protected,
+    'JWS Protected Header',
+  );
 
-  const parsedProtected = parseJweProtected(jwe.protected);
-
-  const joseHeader = mergeJweHeaders({
+  const joseHeader = mergeJwsHeaders({
     protectedHeader: parsedProtected,
-    sharedUnprotectedHeader: jwe.unprotected,
-    unprotectedHeader: jwe.header,
+    unprotectedHeader: jws.header,
   });
+
+  if (jws.payload == null) {
+    throw new JwsInvalid('JWS Payload is missing');
+  }
+
+  if (typeof jws.payload !== 'string' && !isUint8Array(jws.payload)) {
+    throw new JwsInvalid('JWS Payload must be a string or Uint8Array');
+  }
 
   return {
-    iv,
-    ciphertext,
-    tag,
-    encryptedKey,
-    aad,
+    signature,
     joseHeader,
     parsedProtected,
   };

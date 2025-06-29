@@ -6,7 +6,7 @@ import { WebAesCipher } from 'aes-universal-web';
 import { createEcdhCurve } from 'noble-curves-extended';
 import { JweInvalid } from '@/jose/errors/errors';
 import { FlattenedJwe } from '../types';
-import { parseJweProtected } from '../utils/parseJweProtected';
+import { parseBase64UrlHeader } from '../../../utils/parseBase64UrlHeader';
 import { encodeBase64UrlHeader } from '@/jose/utils/encodeBase64UrlHeader';
 
 const { getRandomBytes } = webCryptoModule;
@@ -244,7 +244,7 @@ describe('FlattenedDecrypter', () => {
               .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
               .encrypt(plaintext, jwkPublicKey);
 
-            const parsedProtected = parseJweProtected(validJwe.protected);
+            const parsedProtected = parseBase64UrlHeader(validJwe.protected);
             delete parsedProtected.alg;
 
             const invalidJwe = {
@@ -291,7 +291,7 @@ describe('FlattenedDecrypter', () => {
               .protectedHeader({ alg: 'ECDH-ES', enc: 'A256GCM' })
               .encrypt(plaintext, jwkPublicKey);
 
-            const parsedProtected = parseJweProtected(validJwe.protected);
+            const parsedProtected = parseBase64UrlHeader(validJwe.protected);
             delete parsedProtected.enc;
 
             const invalidJwe = {

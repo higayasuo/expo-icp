@@ -2,8 +2,8 @@ import { buildKdfOtherInfo } from '@/jose/jwe/key-management/ecdhes/buildKdfOthe
 import { cekBitLengthByEnc } from './cekBitLengthByEnc';
 import { concatKdf } from '@/jose/jwe/key-management/ecdhes/concatKdf';
 import { DeriveDecryptionKeyParams } from '../deriveDecryptionKey';
-import { decodeOptionalBase64Url } from '../../../utils/decodeBase64Url';
-import { validateJweEpk } from '../../utils/validateJweEpk';
+import { decodeOptionalBase64Url } from '@/jose/utils/decodeBase64Url';
+import { validateJweEpk } from '@/jose/jwe/utils/validateJweEpk';
 import {
   validateJweApu,
   validateJweApv,
