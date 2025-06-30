@@ -37,7 +37,7 @@ describe('FlattenedVerifier', () => {
           .sign(payload, privateKey);
 
         // Verify with FlattenedVerifier
-        const result = new FlattenedVerifier(randomBytes).verify(
+        const result = await new FlattenedVerifier(randomBytes).verify(
           jws,
           publicKey,
         );
@@ -70,7 +70,10 @@ describe('FlattenedVerifier', () => {
         .sign(payload, privateKey);
 
       // Verify with FlattenedVerifier
-      const result = new FlattenedVerifier(randomBytes).verify(jws, publicKey);
+      const result = await new FlattenedVerifier(randomBytes).verify(
+        jws,
+        publicKey,
+      );
 
       expect(result.payload).toEqual(payload);
       expect(result.protectedHeader).toEqual({
@@ -104,7 +107,7 @@ describe('FlattenedVerifier', () => {
       const jwsWithPayload = { ...jws, payload };
 
       // Verify with FlattenedVerifier
-      const result = new FlattenedVerifier(randomBytes).verify(
+      const result = await new FlattenedVerifier(randomBytes).verify(
         jwsWithPayload,
         publicKey,
       );
@@ -144,7 +147,10 @@ describe('FlattenedVerifier', () => {
         .sign(payload, privateKey);
 
       // Verify with FlattenedVerifier
-      const result = new FlattenedVerifier(randomBytes).verify(jws, publicKey);
+      const result = await new FlattenedVerifier(randomBytes).verify(
+        jws,
+        publicKey,
+      );
 
       expect(result.payload).toEqual(payload);
       expect(result.protectedHeader).toEqual({ alg: 'ES256' });
@@ -154,7 +160,7 @@ describe('FlattenedVerifier', () => {
 
   describe('parameter validation', () => {
     describe('JWS validation', () => {
-      it('should throw error for missing JWS', () => {
+      it('should throw error for missing JWS', async () => {
         const publicKey = {
           kty: 'EC',
           crv: 'P-256',
@@ -162,15 +168,15 @@ describe('FlattenedVerifier', () => {
           y: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
         };
 
-        expect(() => {
+        await expect(
           new FlattenedVerifier(randomBytes).verify(
             undefined as any,
             publicKey,
-          );
-        }).toThrow(new JwsInvalid('Flattened JWS is missing'));
+          ),
+        ).rejects.toThrow(new JwsInvalid('Flattened JWS is missing'));
       });
 
-      it('should throw error for null JWS', () => {
+      it('should throw error for null JWS', async () => {
         const publicKey = {
           kty: 'EC',
           crv: 'P-256',
@@ -178,12 +184,12 @@ describe('FlattenedVerifier', () => {
           y: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
         };
 
-        expect(() => {
-          new FlattenedVerifier(randomBytes).verify(null as any, publicKey);
-        }).toThrow(new JwsInvalid('Flattened JWS is missing'));
+        await expect(
+          new FlattenedVerifier(randomBytes).verify(null as any, publicKey),
+        ).rejects.toThrow(new JwsInvalid('Flattened JWS is missing'));
       });
 
-      it('should throw error for non-object JWS', () => {
+      it('should throw error for non-object JWS', async () => {
         const publicKey = {
           kty: 'EC',
           crv: 'P-256',
@@ -191,15 +197,17 @@ describe('FlattenedVerifier', () => {
           y: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
         };
 
-        expect(() => {
+        await expect(
           new FlattenedVerifier(randomBytes).verify(
             'not an object' as any,
             publicKey,
-          );
-        }).toThrow(new JwsInvalid('Flattened JWS must be a plain object'));
+          ),
+        ).rejects.toThrow(
+          new JwsInvalid('Flattened JWS must be a plain object'),
+        );
       });
 
-      it('should throw error for array JWS', () => {
+      it('should throw error for array JWS', async () => {
         const publicKey = {
           kty: 'EC',
           crv: 'P-256',
@@ -207,9 +215,11 @@ describe('FlattenedVerifier', () => {
           y: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
         };
 
-        expect(() => {
-          new FlattenedVerifier(randomBytes).verify([] as any, publicKey);
-        }).toThrow(new JwsInvalid('Flattened JWS must be a plain object'));
+        await expect(
+          new FlattenedVerifier(randomBytes).verify([] as any, publicKey),
+        ).rejects.toThrow(
+          new JwsInvalid('Flattened JWS must be a plain object'),
+        );
       });
     });
 
@@ -229,9 +239,9 @@ describe('FlattenedVerifier', () => {
           .protectedHeader({ alg: 'ES256' })
           .sign(payload, privateKey);
 
-        expect(() => {
-          new FlattenedVerifier(randomBytes).verify(jws, undefined as any);
-        }).toThrow(new JwsInvalid('jwkPublicKey is missing'));
+        await expect(
+          new FlattenedVerifier(randomBytes).verify(jws, undefined as any),
+        ).rejects.toThrow(new JwsInvalid('jwkPublicKey is missing'));
       });
 
       it('should throw error for null JWK', async () => {
@@ -249,9 +259,9 @@ describe('FlattenedVerifier', () => {
           .protectedHeader({ alg: 'ES256' })
           .sign(payload, privateKey);
 
-        expect(() => {
-          new FlattenedVerifier(randomBytes).verify(jws, null as any);
-        }).toThrow(new JwsInvalid('jwkPublicKey is missing'));
+        await expect(
+          new FlattenedVerifier(randomBytes).verify(jws, null as any),
+        ).rejects.toThrow(new JwsInvalid('jwkPublicKey is missing'));
       });
 
       it('should throw error for non-object JWK', async () => {
@@ -269,12 +279,14 @@ describe('FlattenedVerifier', () => {
           .protectedHeader({ alg: 'ES256' })
           .sign(payload, privateKey);
 
-        expect(() => {
+        await expect(
           new FlattenedVerifier(randomBytes).verify(
             jws,
             'not an object' as any,
-          );
-        }).toThrow(new JwsInvalid('jwkPublicKey must be a plain object'));
+          ),
+        ).rejects.toThrow(
+          new JwsInvalid('jwkPublicKey must be a plain object'),
+        );
       });
 
       it('should throw error for array JWK', async () => {
@@ -292,9 +304,11 @@ describe('FlattenedVerifier', () => {
           .protectedHeader({ alg: 'ES256' })
           .sign(payload, privateKey);
 
-        expect(() => {
-          new FlattenedVerifier(randomBytes).verify(jws, [] as any);
-        }).toThrow(new JwsInvalid('jwkPublicKey must be a plain object'));
+        await expect(
+          new FlattenedVerifier(randomBytes).verify(jws, [] as any),
+        ).rejects.toThrow(
+          new JwsInvalid('jwkPublicKey must be a plain object'),
+        );
       });
 
       it('should throw error for missing crv in JWK', async () => {
@@ -318,12 +332,12 @@ describe('FlattenedVerifier', () => {
           y: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
         };
 
-        expect(() => {
+        await expect(
           new FlattenedVerifier(randomBytes).verify(
             jws,
             invalidPublicKey as any,
-          );
-        }).toThrow(new JwsInvalid('jwkPublicKey.crv is missing'));
+          ),
+        ).rejects.toThrow(new JwsInvalid('jwkPublicKey.crv is missing'));
       });
     });
   });
@@ -348,9 +362,9 @@ describe('FlattenedVerifier', () => {
       // Tamper with the signature
       const tamperedJws = { ...jws, signature: 'tampered_signature' };
 
-      expect(() => {
-        new FlattenedVerifier(randomBytes).verify(tamperedJws, publicKey);
-      }).toThrow(new JwsSignatureVerificationFailed());
+      await expect(
+        new FlattenedVerifier(randomBytes).verify(tamperedJws, publicKey),
+      ).rejects.toThrow(new JwsSignatureVerificationFailed());
     });
 
     it('should throw error for wrong public key', async () => {
@@ -370,9 +384,9 @@ describe('FlattenedVerifier', () => {
         .sign(payload, privateKey1);
 
       // Try to verify with different public key
-      expect(() => {
-        new FlattenedVerifier(randomBytes).verify(jws, publicKey2);
-      }).toThrow(new JwsSignatureVerificationFailed());
+      await expect(
+        new FlattenedVerifier(randomBytes).verify(jws, publicKey2),
+      ).rejects.toThrow(new JwsSignatureVerificationFailed());
     });
   });
 
@@ -402,9 +416,13 @@ describe('FlattenedVerifier', () => {
         });
 
       // Verify with custom critical parameter handling
-      const result = new FlattenedVerifier(randomBytes).verify(jws, publicKey, {
-        crit: { 'custom-param': false },
-      });
+      const result = await new FlattenedVerifier(randomBytes).verify(
+        jws,
+        publicKey,
+        {
+          crit: { 'custom-param': false },
+        },
+      );
 
       expect(result.payload).toEqual(payload);
       expect(result.protectedHeader).toEqual({
@@ -437,9 +455,9 @@ describe('FlattenedVerifier', () => {
 
       // Should throw error when trying to verify without protected header
       const invalidJws = { ...jws, protected: undefined } as any;
-      expect(() => {
-        new FlattenedVerifier(randomBytes).verify(invalidJws, publicKey);
-      }).toThrow(new JwsInvalid('Failed to verify JWS signature'));
+      await expect(
+        new FlattenedVerifier(randomBytes).verify(invalidJws, publicKey),
+      ).rejects.toThrow(new JwsInvalid('Failed to verify JWS signature'));
     });
   });
 
@@ -461,7 +479,10 @@ describe('FlattenedVerifier', () => {
         .sign(payload, privateKey);
 
       // Verify with FlattenedVerifier
-      const result = new FlattenedVerifier(randomBytes).verify(jws, publicKey);
+      const result = await new FlattenedVerifier(randomBytes).verify(
+        jws,
+        publicKey,
+      );
 
       expect(result.payload).toEqual(payload);
       expect(result.protectedHeader).toEqual({ alg: 'ES256' });
@@ -484,7 +505,10 @@ describe('FlattenedVerifier', () => {
         .sign(payload, privateKey);
 
       // Verify with FlattenedVerifier
-      const result = new FlattenedVerifier(randomBytes).verify(jws, publicKey);
+      const result = await new FlattenedVerifier(randomBytes).verify(
+        jws,
+        publicKey,
+      );
 
       expect(result.payload).toEqual(payload);
       expect(result.protectedHeader).toEqual({ alg: 'ES256' });

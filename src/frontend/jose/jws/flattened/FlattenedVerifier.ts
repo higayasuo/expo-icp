@@ -102,11 +102,11 @@ export class FlattenedVerifier {
    * });
    * ```
    */
-  verify(
+  verify = async (
     jws: FlattenedJwsInput,
     jwkPublicKey: JwkPublicKey,
     options?: VerifyOptions,
-  ): FlattenedVerifyResult {
+  ): Promise<FlattenedVerifyResult> => {
     if (jws == null) {
       throw new JwsInvalid('Flattened JWS is missing');
     }
@@ -186,5 +186,5 @@ export class FlattenedVerifier {
 
       throw new JwsInvalid('Failed to verify JWS signature');
     }
-  }
+  };
 }

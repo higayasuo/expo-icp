@@ -43,11 +43,11 @@ export class FlattenedDecrypter {
    * @returns {Promise<FlattenedDecryptResult>} A promise that resolves to the decryption result.
    * @throws {JweInvalid} If any required parameter is missing or invalid, or if decryption fails.
    */
-  async decrypt(
+  decrypt = async (
     jwe: FlattenedJwe,
     myJwkPrivateKey: JwkPrivateKey,
     options?: DecryptOptions,
-  ): Promise<FlattenedDecryptResult> {
+  ): Promise<FlattenedDecryptResult> => {
     if (!jwe) {
       throw new JweInvalid('Flattened JWE is missing');
     }
@@ -140,5 +140,5 @@ export class FlattenedDecrypter {
       console.error(error);
       throw new JweInvalid('Failed to decrypt JWE');
     }
-  }
+  };
 }

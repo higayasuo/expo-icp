@@ -49,68 +49,72 @@ export class FlattenedEncrypter {
    *
    * @param parameters JWE Key Management parameters.
    */
-  keyManagementParameters(parameters: JweKeyManagementHeaderParameters): this {
+  keyManagementParameters = (
+    parameters: JweKeyManagementHeaderParameters,
+  ): this => {
     if (this.#keyManagementParameters) {
       throw new JweInvalid('keyManagementParameters can only be called once');
     }
     this.#keyManagementParameters = parameters;
     return this;
-  }
+  };
 
   /**
    * Sets the JWE Protected Header.
    *
    * @param protectedHeader JWE Protected Header.
    */
-  protectedHeader(protectedHeader: JweHeaderParameters): this {
+  protectedHeader = (protectedHeader: JweHeaderParameters): this => {
     if (this.#protectedHeader) {
       throw new JweInvalid('protectedHeader can only be called once');
     }
     this.#protectedHeader = protectedHeader;
     return this;
-  }
+  };
 
   /**
    * Sets the JWE Shared Unprotected Header.
    *
    * @param sharedUnprotectedHeader JWE Shared Unprotected Header.
    */
-  sharedUnprotectedHeader(sharedUnprotectedHeader: JweHeaderParameters): this {
+  sharedUnprotectedHeader = (
+    sharedUnprotectedHeader: JweHeaderParameters,
+  ): this => {
     if (this.#sharedUnprotectedHeader) {
       throw new JweInvalid('sharedUnprotectedHeader can only be called once');
     }
     this.#sharedUnprotectedHeader = sharedUnprotectedHeader;
     return this;
-  }
+  };
 
   /**
    * Sets the JWE Per-Recipient Unprotected Header.
    *
    * @param unprotectedHeader JWE Per-Recipient Unprotected Header.
    */
-  unprotectedHeader(unprotectedHeader: JweHeaderParameters): this {
+  unprotectedHeader = (unprotectedHeader: JweHeaderParameters): this => {
     if (this.#unprotectedHeader) {
       throw new JweInvalid('unprotectedHeader can only be called once');
     }
     this.#unprotectedHeader = unprotectedHeader;
     return this;
-  }
+  };
 
   /**
    * Sets the Additional Authenticated Data.
    *
    * @param aad Additional Authenticated Data.
    */
-  additionalAuthenticatedData(aad: Uint8Array): this {
+  additionalAuthenticatedData = (aad: Uint8Array): this => {
     this.#aad = aad;
     return this;
-  }
+  };
 
-  async encrypt(
+  encrypt = async (
     plaintext: Uint8Array,
     yourJwkPublicKey: JwkPublicKey,
     options?: EncryptOptions,
-  ): Promise<FlattenedJwe> {
+  ): Promise<FlattenedJwe> => {
     if (!plaintext) {
       throw new JweInvalid('plaintext is missing');
     }
@@ -205,7 +209,7 @@ export class FlattenedEncrypter {
       console.error(error);
       throw new JweInvalid('Failed to encrypt plaintext');
     }
-  }
+  };
 
   updateProtectedHeader(parameters: JweHeaderParameters | undefined) {
     if (parameters) {
