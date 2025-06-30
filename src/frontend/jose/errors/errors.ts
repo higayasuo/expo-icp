@@ -8,7 +8,8 @@ export type ErrorCode =
   | 'ERR_JWE_INVALID'
   | 'ERR_JWE_NOT_SUPPORTED'
   | 'ERR_JWS_INVALID'
-  | 'ERR_JWS_NOT_SUPPORTED';
+  | 'ERR_JWS_NOT_SUPPORTED'
+  | 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED';
 
 /**
  * Abstract base class for JOSE related errors
@@ -78,4 +79,16 @@ export class JwsInvalid extends AbstractJoseError {
  */
 export class JwsNotSupported extends AbstractJoseError {
   readonly code = 'ERR_JWS_NOT_SUPPORTED' as const;
+}
+
+export class JwsSignatureVerificationFailed extends AbstractJoseError {
+  readonly code = 'ERR_JWS_SIGNATURE_VERIFICATION_FAILED' as const;
+
+  /** @ignore */
+  constructor(
+    message = 'JWS signature verification failed',
+    options?: { cause?: unknown },
+  ) {
+    super(message, options);
+  }
 }

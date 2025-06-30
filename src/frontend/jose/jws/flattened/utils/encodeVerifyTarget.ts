@@ -1,7 +1,6 @@
-import { concatUint8Arrays, decodeBase64Url } from 'u8a-utils';
+import { concatUint8Arrays, decodeBase64Url, isUint8Array } from 'u8a-utils';
 
 const encoder = new TextEncoder();
-const decoder = new TextDecoder();
 
 /**
  * Parameters for encoding a JWS verification target
@@ -28,37 +27,47 @@ type EncodeVerifyTargetResult = {
 /**
  * Encodes a JWS verification target according to RFC 7515
  *
- * This function creates the verification target string used in JWS signature verification.
- * The verification target is the concatenation of the base64url-encoded protected header,
- * a period (.), and the payload (either base64url-encoded or raw).
+ * This function creates the verification target used in JWS signature verification
+ * and resolves the contradiction present in some JOSE implementations.
+ *
+ * The verification target construction follows these rules:
+ * - When b64=true: verifyTarget = encoder.encode(protected_header + '.' + base64url_payload)
+ * - When b64=false: verifyTarget = encoder.encode(protected_header + '.') + raw_payload
+ *
+ * This ensures consistency between the verification target and the returned payload,
+ * unlike some JOSE implementations that ignore the b64 parameter during verification
+ * target construction but consider it during payload extraction.
+ *
+ * The b64 parameter is defined in {@link https://tools.ietf.org/html/rfc7797 RFC 7797}.
  *
  * @param params - The parameters for encoding the verification target
  * @param params.protectedHeaderB64U - The base64url-encoded protected header
- * @param params.payload - The payload as either a Uint8Array or string
+ * @param params.payload - The payload (string when b64=true, Uint8Array when b64=false)
  * @param params.b64 - Whether the payload is base64url-encoded (true) or not (false)
  *
  * @returns An object containing the verification target and decoded payload
+ * @throws {Error} When payload type doesn't match b64 parameter
  *
  * @example
  * ```typescript
  * const result = encodeVerifyTarget({
  *   protectedHeaderB64U: "eyJhbGciOiJFUzI1NiJ9",
- *   payload: "Hello, World!",
+ *   payload: new Uint8Array([72, 101, 108, 108, 111]), // "Hello"
  *   b64: false
  * });
- * // result.verifyTarget contains "eyJhbGciOiJFUzI1NiJ9.Hello, World!"
- * // result.payload contains the UTF-8 encoded payload
+ * // result.verifyTarget contains encoder.encode("eyJhbGciOiJFUzI1NiJ9.") + payload
+ * // result.payload contains the same Uint8Array
  * ```
  *
  * @example
  * ```typescript
  * const result = encodeVerifyTarget({
  *   protectedHeaderB64U: "eyJhbGciOiJFUzI1NiJ9",
- *   payload: "SGVsbG8sIFdvcmxkIQ",
+ *   payload: "SGVsbG8", // base64url encoded "Hello"
  *   b64: true
  * });
- * // result.verifyTarget contains "eyJhbGciOiJFUzI1NiJ9.SGVsbG8sIFdvcmxkIQ"
- * // result.payload contains the decoded base64url payload
+ * // result.verifyTarget contains encoder.encode("eyJhbGciOiJFUzI1NiJ9.SGVsbG8")
+ * // result.payload contains decodeBase64Url("SGVsbG8")
  * ```
  */
 export const encodeVerifyTarget = ({
@@ -67,8 +76,11 @@ export const encodeVerifyTarget = ({
   b64,
 }: EncodeVerifyTargetParams): EncodeVerifyTargetResult => {
   if (b64) {
-    const payloadB64U =
-      typeof payload === 'string' ? payload : decoder.decode(payload);
+    if (typeof payload !== 'string') {
+      throw new Error('Payload must be a string when b64=true');
+    }
+
+    const payloadB64U = payload;
 
     return {
       verifyTarget: Uint8Array.from(
@@ -78,10 +90,11 @@ export const encodeVerifyTarget = ({
     };
   }
 
-  const payloadU8A =
-    typeof payload === 'string'
-      ? Uint8Array.from(encoder.encode(payload))
-      : payload;
+  if (!isUint8Array(payload)) {
+    throw new Error('Payload must be a Uint8Array when b64=false');
+  }
+
+  const payloadU8A = payload;
 
   return {
     verifyTarget: concatUint8Arrays(

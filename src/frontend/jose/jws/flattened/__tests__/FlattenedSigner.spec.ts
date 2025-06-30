@@ -321,5 +321,19 @@ describe('FlattenedSigner', () => {
           .unprotectedHeader(header),
       ).toThrow(new JwsInvalid('unprotectedHeader can only be called once'));
     });
+
+    it('should throw error when protected header is missing', async () => {
+      const payload = Uint8Array.from(new TextEncoder().encode('Test payload'));
+
+      // Generate P-256 key pair for this test
+      const signatureCurve = createSignatureCurve('P-256', randomBytes);
+      const rawPrivateKey = signatureCurve.randomPrivateKey();
+      const privateKey = signatureCurve.toJwkPrivateKey(rawPrivateKey);
+
+      // Try to sign without setting protected header
+      await expect(
+        new FlattenedSigner(randomBytes).sign(payload, privateKey),
+      ).rejects.toThrow(new JwsInvalid('Failed to sign payload'));
+    });
   });
 });

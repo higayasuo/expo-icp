@@ -37,3 +37,15 @@ export interface FlattenedJwsInput {
 export interface FlattenedJws extends FlattenedJwsInput {
   payload: string;
 }
+
+/** Flattened JWS JSON Serialization Syntax verification result */
+export interface FlattenedVerifyResult {
+  /** JWS Payload. */
+  payload: Uint8Array;
+
+  /** JWS Protected Header. */
+  protectedHeader?: JwsHeaderParameters;
+
+  /** JWS Unprotected Header. */
+  unprotectedHeader?: JwsHeaderParameters;
+}
